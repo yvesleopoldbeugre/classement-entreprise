@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Enums\StatutModeration;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Mission\StoreMissionRequest;
+use App\Http\Requests\Mission\UpdateMissionRequest;
+use App\Http\Resources\MissionResource;
+use App\Models\Mission;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+
+class MissionController extends Controller
+{
+    /** Missions publiées, filtrables par ?entreprise_id=. */
+    public function index(Request $request): AnonymousResourceCollection
+    {
+        $missions = Mission::query()
+            ->publie()
+            ->when($request->query('entreprise_id'), fn ($q, $id) => $q->where('entreprise_id', $id))
+            ->with(['user', 'entreprise'])
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return MissionResource::collection($missions);
+    }
+
+    public function store(StoreMissionRequest $request): JsonResponse
+    {
+        $mission = Mission::create([
+            ...$request->validated(),
+            'user_id' => $request->user()->id,
+            'statut_moderation' => StatutModeration::EnAttente,
+        ]);
+
+        return (new MissionResource($mission->load('entreprise')))
+            ->response()
+            ->setStatusCode(201);
+    }
+
+    public function update(UpdateMissionRequest $request, Mission $mission): MissionResource
+    {
+        abort_unless($mission->user_id === $request->user()->id, 403);
+
+        $mission->update($request->validated());
+
+        return new MissionResource($mission);
+    }
+
+    public function destroy(Request $request, Mission $mission): JsonResponse
+    {
+        abort_unless($mission->user_id === $request->user()->id, 403);
+
+        $mission->delete();
+
+        return response()->json(status: 204);
+    }
+}

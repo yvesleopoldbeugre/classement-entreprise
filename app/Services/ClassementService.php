@@ -41,18 +41,29 @@ class ClassementService
      * Recalcule TOUTES les entreprises de façon cohérente.
      * À appeler après un import massif / seeding, ou périodiquement,
      * car ajouter des avis fait bouger la moyenne globale C de tout le monde.
+     *
+     * @param  callable(Entreprise):void|null  $apres  appelé après chaque entreprise (progression)
+     * @return int nombre d'entreprises recalculées
      */
-    public function recalculerTout(): void
+    public function recalculerTout(?callable $apres = null): int
     {
         $moyenneSite = $this->moyenneGlobaleSite();
+        $total = 0;
 
-        Entreprise::query()->chunkById(200, function ($entreprises) use ($moyenneSite) {
+        Entreprise::query()->chunkById(200, function ($entreprises) use ($moyenneSite, $apres, &$total) {
             foreach ($entreprises as $entreprise) {
                 $stats = $this->statsAvis($entreprise->id);
                 $this->appliquerStats($entreprise, $stats, $moyenneSite);
                 $entreprise->save();
+                $total++;
+
+                if ($apres !== null) {
+                    $apres($entreprise);
+                }
             }
         });
+
+        return $total;
     }
 
     /**

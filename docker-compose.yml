@@ -18,6 +18,28 @@ services:
     networks:
       - classement
 
+  # --- Planificateur (task scheduler Laravel) ---
+  # Réutilise l'image applicative. On court-circuite l'entrypoint (pas de migrate
+  # ici, l'app s'en charge) pour lancer directement `schedule:work`, qui exécute
+  # le scheduler toutes les minutes → déclenche classement:recalculer à 03:00.
+  scheduler:
+    image: classement-entreprise-app
+    container_name: classement_scheduler
+    restart: unless-stopped
+    working_dir: /var/www
+    env_file:
+      - .env
+    volumes:
+      - ./:/var/www
+    entrypoint: ["php", "artisan", "schedule:work"]
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
+    networks:
+      - classement
+
   # --- Serveur web Nginx ---
   web:
     image: nginx:1.27-alpine

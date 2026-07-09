@@ -8,13 +8,19 @@ use App\Http\Requests\AvisEntreprise\StoreAvisEntrepriseRequest;
 use App\Http\Requests\AvisEntreprise\UpdateAvisEntrepriseRequest;
 use App\Http\Resources\AvisEntrepriseResource;
 use App\Models\AvisEntreprise;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
+#[Group('Avis', weight: 2)]
 class AvisEntrepriseController extends Controller
 {
-    /** Avis publiés, filtrables par ?entreprise_id=. */
+    /**
+     * Lister les avis
+     *
+     * Avis publiés, filtrables par `entreprise_id`.
+     */
     public function index(Request $request): AnonymousResourceCollection
     {
         $avis = AvisEntreprise::query()
@@ -28,6 +34,12 @@ class AvisEntrepriseController extends Controller
         return AvisEntrepriseResource::collection($avis);
     }
 
+    /**
+     * Publier un avis
+     *
+     * Crée un avis pour l'utilisateur authentifié (1 seul par entreprise).
+     * L'avis part en modération avant d'être compté dans le classement.
+     */
     public function store(StoreAvisEntrepriseRequest $request): JsonResponse
     {
         // user_id vient de l'auth ; l'avis part en modération.
@@ -42,6 +54,9 @@ class AvisEntrepriseController extends Controller
             ->setStatusCode(201);
     }
 
+    /**
+     * Modifier son avis
+     */
     public function update(UpdateAvisEntrepriseRequest $request, AvisEntreprise $avi): AvisEntrepriseResource
     {
         abort_unless($avi->user_id === $request->user()->id, 403);
@@ -51,6 +66,9 @@ class AvisEntrepriseController extends Controller
         return new AvisEntrepriseResource($avi);
     }
 
+    /**
+     * Supprimer son avis
+     */
     public function destroy(Request $request, AvisEntreprise $avi): JsonResponse
     {
         abort_unless($avi->user_id === $request->user()->id, 403);

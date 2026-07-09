@@ -8,13 +8,19 @@ use App\Http\Requests\Mission\StoreMissionRequest;
 use App\Http\Requests\Mission\UpdateMissionRequest;
 use App\Http\Resources\MissionResource;
 use App\Models\Mission;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
+#[Group('Missions', weight: 4)]
 class MissionController extends Controller
 {
-    /** Missions publiées, filtrables par ?entreprise_id=. */
+    /**
+     * Lister les missions
+     *
+     * Missions publiées, filtrables par `entreprise_id`.
+     */
     public function index(Request $request): AnonymousResourceCollection
     {
         $missions = Mission::query()
@@ -28,6 +34,12 @@ class MissionController extends Controller
         return MissionResource::collection($missions);
     }
 
+    /**
+     * Déclarer une mission
+     *
+     * Enregistre une mission (interim/freelance/régie) pour l'utilisateur
+     * authentifié (en modération).
+     */
     public function store(StoreMissionRequest $request): JsonResponse
     {
         $mission = Mission::create([
@@ -41,6 +53,9 @@ class MissionController extends Controller
             ->setStatusCode(201);
     }
 
+    /**
+     * Modifier sa mission
+     */
     public function update(UpdateMissionRequest $request, Mission $mission): MissionResource
     {
         abort_unless($mission->user_id === $request->user()->id, 403);
@@ -50,6 +65,9 @@ class MissionController extends Controller
         return new MissionResource($mission);
     }
 
+    /**
+     * Supprimer sa mission
+     */
     public function destroy(Request $request, Mission $mission): JsonResponse
     {
         abort_unless($mission->user_id === $request->user()->id, 403);

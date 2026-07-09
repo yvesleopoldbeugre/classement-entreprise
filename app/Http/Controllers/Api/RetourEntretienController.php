@@ -8,13 +8,19 @@ use App\Http\Requests\RetourEntretien\StoreRetourEntretienRequest;
 use App\Http\Requests\RetourEntretien\UpdateRetourEntretienRequest;
 use App\Http\Resources\RetourEntretienResource;
 use App\Models\RetourEntretien;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
+#[Group('Retours d\'entretien', weight: 3)]
 class RetourEntretienController extends Controller
 {
-    /** Retours d'entretien publiés, filtrables par ?entreprise_id=. */
+    /**
+     * Lister les retours d'entretien
+     *
+     * Retours publiés, filtrables par `entreprise_id`.
+     */
     public function index(Request $request): AnonymousResourceCollection
     {
         $retours = RetourEntretien::query()
@@ -28,6 +34,11 @@ class RetourEntretienController extends Controller
         return RetourEntretienResource::collection($retours);
     }
 
+    /**
+     * Partager un retour d'entretien
+     *
+     * Enregistre un retour pour l'utilisateur authentifié (en modération).
+     */
     public function store(StoreRetourEntretienRequest $request): JsonResponse
     {
         $retour = RetourEntretien::create([
@@ -41,6 +52,9 @@ class RetourEntretienController extends Controller
             ->setStatusCode(201);
     }
 
+    /**
+     * Modifier son retour d'entretien
+     */
     public function update(UpdateRetourEntretienRequest $request, RetourEntretien $retoursEntretien): RetourEntretienResource
     {
         abort_unless($retoursEntretien->user_id === $request->user()->id, 403);
@@ -50,6 +64,9 @@ class RetourEntretienController extends Controller
         return new RetourEntretienResource($retoursEntretien);
     }
 
+    /**
+     * Supprimer son retour d'entretien
+     */
     public function destroy(Request $request, RetourEntretien $retoursEntretien): JsonResponse
     {
         abort_unless($retoursEntretien->user_id === $request->user()->id, 403);

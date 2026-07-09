@@ -5,8 +5,6 @@ use App\Http\Controllers\Api\EntrepriseController;
 use App\Http\Controllers\Api\MissionController;
 use App\Http\Controllers\Api\ProfilController;
 use App\Http\Controllers\Api\RetourEntretienController;
-use App\Http\Resources\UserResource;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,7 +24,7 @@ Route::get('missions', [MissionController::class, 'index']);
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('user', fn (Request $request) => new UserResource($request->user()));
+    Route::get('user', [ProfilController::class, 'show']);
     Route::patch('profil', [ProfilController::class, 'update']);
 
     Route::apiResource('entreprises', EntrepriseController::class)

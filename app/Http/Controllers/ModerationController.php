@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StatutEntreprise;
 use App\Enums\StatutModeration;
 use App\Models\AvisEntreprise;
+use App\Models\Entreprise;
 use App\Models\Mission;
 use App\Models\RetourEntretien;
 use Illuminate\Database\Eloquent\Model;
@@ -30,7 +32,22 @@ class ModerationController extends Controller
             'avis' => $aModerer(AvisEntreprise::query()),
             'entretiens' => $aModerer(RetourEntretien::query()),
             'missions' => $aModerer(Mission::query()),
+            'entreprises' => Entreprise::where('statut', StatutEntreprise::AVerifier)->latest()->get(),
         ]);
+    }
+
+    public function verifierEntreprise(Entreprise $entreprise): RedirectResponse
+    {
+        $entreprise->update(['statut' => StatutEntreprise::Verifiee]);
+
+        return back()->with('success', 'Entreprise vérifiée.');
+    }
+
+    public function supprimerEntreprise(Entreprise $entreprise): RedirectResponse
+    {
+        $entreprise->delete();
+
+        return back()->with('success', 'Entreprise supprimée.');
     }
 
     public function publier(string $type, int $id): RedirectResponse

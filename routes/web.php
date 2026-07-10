@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\ClassementController;
 use App\Http\Controllers\ContributionController;
+use App\Http\Controllers\EntrepriseController;
 use App\Http\Controllers\ModerationController;
 use App\Http\Controllers\ReponseEntrepriseController;
 use App\Http\Controllers\SignalementController;
@@ -32,6 +33,10 @@ Route::post('/deconnexion', [AuthController::class, 'logout'])->middleware('auth
 
 // --- Contributions (authentifié) ---
 Route::middleware('auth')->group(function () {
+    // Proposer une entreprise (utilisateur → a_verifier ; admin → verifiee).
+    Route::get('/proposer-entreprise', [EntrepriseController::class, 'create'])->name('entreprises.create');
+    Route::post('/proposer-entreprise', [EntrepriseController::class, 'store'])->name('entreprises.proposer');
+
     Route::get('/entreprises/{entreprise}/avis', [ContributionController::class, 'avisCreate'])->name('contrib.avis.create');
     Route::post('/entreprises/{entreprise}/avis', [ContributionController::class, 'avisStore'])->name('contrib.avis.store');
     Route::get('/entreprises/{entreprise}/entretien', [ContributionController::class, 'entretienCreate'])->name('contrib.entretien.create');
@@ -56,4 +61,8 @@ Route::middleware(['auth', 'can:moderer'])->prefix('moderation')->name('moderati
         ->whereIn('type', ['avis', 'entretien', 'mission'])->name('publier');
     Route::post('/{type}/{id}/retirer', [ModerationController::class, 'retirer'])
         ->whereIn('type', ['avis', 'entretien', 'mission'])->name('retirer');
+
+    // Vérification / suppression des entreprises proposées.
+    Route::put('/entreprises/{entreprise}/verifier', [ModerationController::class, 'verifierEntreprise'])->name('entreprise.verifier');
+    Route::delete('/entreprises/{entreprise}', [ModerationController::class, 'supprimerEntreprise'])->name('entreprise.supprimer');
 });

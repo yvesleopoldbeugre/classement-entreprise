@@ -23,6 +23,16 @@
                     <div class="text-sm text-slate-500">avis publiés</div>
                 </div>
             </div>
+
+            <div class="mt-6">
+                @auth
+                    <a href="{{ route('entreprises.create') }}"
+                       class="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">+ Proposer une entreprise</a>
+                @else
+                    <a href="{{ route('login') }}"
+                       class="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">+ Proposer une entreprise</a>
+                @endauth
+            </div>
         </div>
     </section>
 

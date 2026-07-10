@@ -23,6 +23,11 @@
                         @if ($rang)
                             <span class="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">#{{ $rang }} au classement</span>
                         @endif
+                        @if ($entreprise->statut === \App\Enums\StatutEntreprise::AVerifier)
+                            <span class="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700" title="En attente de vérification par un modérateur">⏳ En vérification</span>
+                        @else
+                            <span class="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700" title="Entreprise vérifiée">✓ Vérifiée</span>
+                        @endif
                     </div>
                     <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
                         <span class="rounded-md bg-slate-100 px-2 py-0.5 font-medium text-slate-600">{{ $entreprise->secteur_activite->libelle() }}</span>

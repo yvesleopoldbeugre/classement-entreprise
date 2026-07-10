@@ -8,6 +8,15 @@ enum TypeMission: string
     case Freelance = 'freelance';
     case Regie = 'regie';
 
+    public function libelle(): string
+    {
+        return match ($this) {
+            self::Interim => 'Intérim',
+            self::Freelance => 'Freelance',
+            self::Regie => 'Régie',
+        };
+    }
+
     /** @return list<string> */
     public static function values(): array
     {

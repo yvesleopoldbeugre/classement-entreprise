@@ -10,17 +10,19 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'pseudo_public' => 'test_user',
-        ]);
+        // Référentiel réel : entrées neutres + liste éditoriale « à éviter ».
+        $this->call(EntrepriseReelleSeeder::class);
 
-        $this->call(ClassementSeeder::class);
+        // En développement seulement : un compte admin pour tester la modération.
+        if (app()->environment('local')) {
+            $admin = User::factory()->create([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'pseudo_public' => 'test_user',
+            ]);
+            $admin->forceFill(['is_admin' => true])->save();
+        }
     }
 }

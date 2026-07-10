@@ -7,3 +7,36 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Variante compacte de SweetAlert (alerte de confirmation) */
+.swal2-popup.swal-compact {
+    width: 22rem;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+}
+.swal-compact .swal2-title {
+    font-size: 1rem;
+    padding: 0.25rem 0 0;
+}
+.swal-compact .swal2-html-container {
+    font-size: 0.8125rem;
+    margin: 0.5rem 0 0;
+}
+.swal-compact .swal2-icon {
+    width: 3rem;
+    height: 3rem;
+    margin: 0.75rem auto 0.25rem;
+}
+.swal-compact .swal2-icon .swal2-icon-content {
+    font-size: 1.75rem;
+}
+.swal-compact .swal2-actions {
+    margin-top: 1rem;
+    gap: 0.5rem;
+}
+.swal-compact .swal2-styled {
+    margin: 0;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+}

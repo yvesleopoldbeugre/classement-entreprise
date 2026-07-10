@@ -28,4 +28,35 @@ return [
     | En-dessous, l'entreprise reste consultable mais n'est pas "classée".
     */
     'min_avis_classement' => (int) env('CLASSEMENT_MIN_AVIS', 3),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sortie automatique de la liste « à éviter »
+    |--------------------------------------------------------------------------
+    | Une entreprise quitte la zone « à éviter » (rang_a_eviter remis à null)
+    | dès que sa note moyenne (les étoiles) atteint `note_min` sur `avis_min`
+    | avis publiés. Le seuil d'avis évite qu'un ou deux avis flatteurs suffisent.
+    */
+    'sortie_a_eviter' => [
+        'note_min' => (float) env('CLASSEMENT_SORTIE_NOTE', 3.5),
+        'avis_min' => (int) env('CLASSEMENT_SORTIE_AVIS', 5),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pondération des avis (confiance du contributeur + récence)
+    |--------------------------------------------------------------------------
+    | La note d'une entreprise est une moyenne PONDÉRÉE : chaque avis pèse
+    | poids = confiance × récence.
+    |  - confiance : selon le niveau de vérification de l'auteur.
+    |  - récence : décroissance exponentielle (demi-vie en jours ; 0 = désactivé).
+    */
+    'ponderation' => [
+        'confiance' => [
+            'linkedin' => (float) env('CLASSEMENT_POIDS_LINKEDIN', 1.0),
+            'email' => (float) env('CLASSEMENT_POIDS_EMAIL', 0.6),
+            'defaut' => (float) env('CLASSEMENT_POIDS_DEFAUT', 0.3),
+        ],
+        'recence_demi_vie_jours' => (int) env('CLASSEMENT_RECENCE_DEMI_VIE', 540),
+    ],
 ];

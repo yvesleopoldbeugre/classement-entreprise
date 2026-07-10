@@ -46,7 +46,7 @@ class AvisEntrepriseController extends Controller
         $avis = AvisEntreprise::create([
             ...$request->validated(),
             'user_id' => $request->user()->id,
-            'statut_moderation' => StatutModeration::EnAttente,
+            'statut_moderation' => StatutModeration::parDefaut(),
         ]);
 
         return (new AvisEntrepriseResource($avis->load('entreprise')))

@@ -56,6 +56,11 @@ score = (v / (v + m)) * R  +  (m / (v + m)) * C
 - `m` = seuil de confiance → `config('classement.seuil_avis')` (défaut **5**).
 - `C` = note moyenne globale du site (tous avis publiés).
 
+**Pondération des avis** (dans `statsAvis`) : R est une **moyenne pondérée**, chaque avis pesant `confiance(auteur) × récence`. Config `classement.ponderation` :
+- `confiance` : LinkedIn vérifié (`1.0`) > email vérifié (`0.6`) > non vérifié (`0.3`) — s'appuie sur `users.linkedin_verifie` / `email_verified_at`.
+- `recence_demi_vie_jours` (défaut 540 = 18 mois ; `0` désactive) : décroissance exponentielle `2^(-âge/demi_vie)`.
+Couvert par `PonderationAvisTest`. C reste une moyenne simple (prior).
+
 Réglages dans **`config/classement.php`** : `seuil_avis`, `min_avis_classement` (défaut 3,
 seuil pour figurer au classement public via le scope `classable()`), `moyenne_defaut`.
 
@@ -106,6 +111,62 @@ annotation à écrire.
 ⚠️ En dehors de `local`, l'accès à la doc est protégé par le middleware `RestrictedDocsAccess`
 (voir `config/scramble.php`).
 
+## 4b. Référentiel & seeders
+
+- **`EntrepriseReelleSeeder`** — insère le référentiel réel depuis `database/data/entreprises_fondateurs.php` (idempotent via `updateOrCreate` sur le slug). Entrées **neutres** : `statut = a_verifier`, `source_scraping = liste_fondateurs`, **aucun avis fabriqué**. S'exécute en prod **et** en dev.
+- **Démo supprimée** : plus de seeder de fausses entreprises. `DatabaseSeeder` ne crée, en `local`, qu'un **admin de dev** (`test@example.com` / `password`) pour tester la modération.
+- **Liste éditoriale « à éviter »** : colonne `entreprises.rang_a_eviter` (position 1..N, null = hors liste), scope `Entreprise::aEviter()`. Alimentée par l'ordre du fichier `entreprises_fondateurs.php`. Affichée en tête de l'accueil via `classement/partials/a_eviter` **avec disclaimer** (opinion communautaire, droit de réponse) — pas de notes chiffrées inventées.
+- **Deux classements distincts sur l'accueil** : (1) « à éviter » éditorial (ordonné, curé) ; (2) « communautaire » basé sur les vrais avis (`classable()`, ≥ 3 avis), vide au départ et qui se remplit avec les témoignages.
+- **Sortie automatique de « à éviter »** : dans `ClassementService::appliquerStats` (donc à chaque avis publié via l'observer), une entreprise voit son `rang_a_eviter` remis à `null` dès que sa **note moyenne** ≥ `config('classement.sortie_a_eviter.note_min')` (défaut 3.5) sur ≥ `avis_min` (défaut 5) avis publiés. La règle ne fait que **retirer** de la liste (jamais ajouter). Couvert par `SortieAEviterTest`.
+
+**Collecte de données (à construire)** — plan validé : (1) commande `entreprises:importer` (CSV/JSON, upsert par slug, `a_verifier`) ; (2) `entreprises:importer-google` via **Google Places API** (clé `GOOGLE_MAPS_API_KEY`). **Pas de scraping LinkedIn/Google SERP** (CGU) : `linkedin_url` saisi manuellement à la vérification.
+
+## 5c. Front (Blade + Tailwind v4)
+
+Interface **server-rendered** (pas de SPA) :
+
+- Routes web : `routes/web.php` → `ClassementController@index` (`/`, le classement) et `@show` (`/entreprises/{slug}`, la fiche).
+- Vues : `resources/views/classement/index.blade.php`, `resources/views/entreprises/show.blade.php`.
+- Composants Blade anonymes : `resources/views/components/` → `<x-layout>`, `<x-note-etoiles :note>`, `<x-jauge label valeur>`.
+- Styles : **Tailwind v4** via `resources/css/app.css` (`@import 'tailwindcss'`), buildé par Vite.
+
+⚠️ **Piège Tailwind v4** : les classes doivent apparaître **littéralement** dans le Blade —
+pas de `bg-{{ $ton }}-50` (non détecté au scan). Utiliser un `match()` renvoyant la classe
+complète (`'bg-emerald-50 text-emerald-700'`). Voir les vues pour le pattern.
+
+**Build des assets** (obligatoire pour que les pages soient stylées) :
+```bash
+docker compose run --rm --no-deps node sh -c "npm install && npm run build"   # → public/build/
+# ou en dev avec HMR :
+docker compose --profile dev up -d node
+```
+
+Locale d'affichage : `Carbon::setLocale('fr')` dans `AppServiceProvider` (dates « janvier 2026 », « il y a 2 jours »).
+
+**Responsive** : mobile-first Tailwind. La barre de nav a une version **bureau** (`hidden md:flex`) et un **menu hamburger mobile** (`[data-menu-toggle]` → toggle `#menu-mobile`, JS dans `app.js`) ; les liens sont factorisés dans `partials/nav-links`. Les grilles/formulaires passent en 1 colonne sous `sm`, les listes utilisent `min-w-0`/`truncate`, les modals `overflow-y-auto`. Point de vigilance : ne pas mettre `overflow-x-hidden` sur `<body>` (casserait le header `sticky`).
+
+**Interactions JS** (`resources/js/app.js`, vanilla + **SweetAlert2**) :
+- **Confirmation SweetAlert** : tout `<form data-confirm="…">` déclenche une boîte de confirmation avant envoi (attributs optionnels `data-confirm-title`, `data-confirm-button`, `data-confirm-icon`). Utilisé sur le formulaire de **déconnexion** (`partials/nav-links`). `form.submit()` post-confirmation ne redéclenche pas l'événement → pas de boucle. La CSS SweetAlert2 est importée dans `app.js` (émise en second fichier CSS, injecté par `@vite`).
+
+- **Modals de contribution** : sur la fiche, les boutons `data-modal-open="avis|entretien|mission"` ouvrent des `<x-modal>` contenant les formulaires (partials `contributions/partials/*`, réutilisés aussi par les pages `create` en fallback no-JS). En cas d'erreur de validation, le POST redirige vers la fiche avec un marqueur `_form` ; le layout pose `data-open-modal` sur `<body>` et le JS **rouvre la bonne modal** avec les erreurs.
+- **Filtre AJAX du classement** : le `#filtre-form` (recherche + secteur) recharge uniquement `#liste-classement` via `fetch` (header `X-Requested-With`), avec loader `#liste-loader`. Côté serveur, `ClassementController@index` renvoie le partial `classement/partials/liste` quand `$request->ajax()`. La pagination et le `popstate` (bouton précédent) passent aussi en AJAX ; l'URL est mise à jour via `history.pushState`.
+
+## 5d. Auth, contributions & modération (web)
+
+- **Auth** : session classique (`AuthController`), routes `/inscription`, `/connexion`, `/deconnexion`. Vues `resources/views/auth/`. `RegisterRequest`/`LoginRequest` dans `app/Http/Requests/Auth/`. Champs mot de passe = `<x-password-input>` avec bouton « voir/masquer » (JS `[data-toggle-password]`).
+- **SSO (Socialite)** : `SocialiteController` + routes `/auth/{provider}/redirect|callback` (`google`, `github`, `facebook`, `linkedin` → driver `linkedin-openid`). Boutons sur l'inscription (`auth/partials/sso`). Colonnes `users.provider` / `provider_id` (+ `password` nullable pour les comptes SSO). Identifiants OAuth à renseigner dans `.env` (`{PROVIDER}_CLIENT_ID/SECRET`) ; sans config, le bouton redirige avec un message « non configuré ». Callback à déclarer chez le fournisseur : `{APP_URL}/auth/{provider}/callback`.
+  - **Interrupteur global** : `SSO_ENABLED=false` (config `services.sso.enabled`) → les boutons **et** le séparateur disparaissent de l'inscription, et les routes SSO ne sont plus enregistrées (404). La vue référence `route('social.redirect')` uniquement sous le même `@if`, donc pas d'erreur quand c'est désactivé.
+- **Contributions** : formulaires web sous `auth` → `ContributionController` (avis/entretien/mission), scopés à une entreprise (`/entreprises/{slug}/avis`…). **Réutilisent les mêmes `Store*Request` que l'API** (validation identique) ; sur erreur web → redirect back, sur `api/*` → JSON. À la création : `user_id = auth`, `statut_moderation = en_attente`.
+- **Modération** : `ModerationController` sous `auth` + `can:moderer`. Le Gate `moderer` (défini dans `AppServiceProvider`) autorise si `user.is_admin`. Publier un avis déclenche l'observer → recalcul du score.
+  - **Désactivable** : `MODERATION_ENABLED=false` (config `moderation.enabled`) → les contributions sont créées directement en `publie` au lieu de `en_attente`. Centralisé dans `StatutModeration::parDefaut()`, utilisé par les 6 `store` (web + API).
+- **Créer un admin** : `php artisan admin:creer {email} [--name=] [--pseudo=] [--password=]` — crée le compte (ou promeut un utilisateur existant). `is_admin` n'est pas `fillable`, la commande l'assigne explicitement. Interactif si les options manquent.
+- **Signalement** : `SignalementController` (route `POST /signaler/{type}/{id}`, auth) → passe la contribution en `signale` (sort du public via le scope `publie()`, entre dans la file `/moderation`). On ne peut pas signaler sa propre contribution. Bouton `<x-signaler>` sur chaque carte de la fiche (confirmation SweetAlert). Couvert par `SignalementReponseTest`.
+- **Droit de réponse** : colonnes `entreprises.reponse_entreprise` + `reponse_entreprise_le`. `ReponseEntrepriseController` (route `PUT /entreprises/{entreprise}/reponse`, `can:moderer`). Éditable par un admin sur la fiche ; affichée dans un bloc « Réponse de l'entreprise ». *(MVP : édition par admin faute de comptes « entreprise » ; évolution = comptes revendiqués/vérifiés.)*
+
+⚠️ **`is_admin` n'est PAS dans `$fillable`** (anti-escalade de privilège). Pour promouvoir un
+admin : `$u->is_admin = true; $u->save();` (pas `update([...])` qui l'ignore). Les factories
+peuvent le passer via `->create(['is_admin' => true])`.
+
 ## 6. Docker — lancer le projet
 
 ```bash
@@ -134,6 +195,10 @@ docker compose exec app php artisan tinker
 docker compose exec app php artisan route:list --path=api
 docker compose exec app php artisan migrate:fresh --seed   # reset complet + données
 ./vendor/bin/pint                                          # formatage (hors conteneur)
+
+# Tests : le conteneur injecte APP_ENV=local & DB_CONNECTION=mysql via env_file, ce qui
+# écrase phpunit.xml. Forcer l'env de test (sinon RefreshDatabase tourne sur la base MySQL !) :
+docker compose exec -e APP_ENV=testing -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: -e DB_HOST=127.0.0.1 app php artisan test
 docker compose logs -f app                                 # logs applicatifs
 
 # Recalculer tous les scores manuellement (ex. après import) :
@@ -142,8 +207,8 @@ docker compose exec app php artisan tinker --execute='app(App\Services\Classemen
 
 ## 8. Pistes / TODO connus
 
-- **Modération** : back-office pour passer les contributions `en_attente` → `publie`.
+- **Modération** : back-office fait (§5d). Améliorations possibles : file par entreprise, historique des décisions, notifications aux contributeurs.
 - **Policies** pour remplacer les `abort_unless` inline et l'`authorize()` (actuellement `true` pour Entreprise).
-- **Front / vues Blade** : page classement (top entreprises) + fiche entreprise (le back API est prêt).
+- **Front** : classement + fiche faits (§5c). Reste à faire : formulaires de contribution (avis/entretien/mission), auth (login/register), pages de modération.
 - **Score composite** : intégrer éventuellement les signaux `missions` (paiement/contrat) et `retours_entretiens` (délais) au score, aujourd'hui purement basé sur les avis.
 - **Conventions de style** : modèles en attributs PHP (`#[Fillable]`, `#[Hidden]`) — suivre l'existant, pas les propriétés `$fillable`.

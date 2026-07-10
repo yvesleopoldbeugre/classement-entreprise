@@ -28,6 +28,17 @@ class StoreRetourEntretienRequest extends FormRequest
                 // Laisse la validation 'date' rejeter une valeur invalide.
             }
         }
+
+        // Depuis un formulaire web, les tags arrivent en texte séparé par virgules.
+        if (is_string($this->input('questions_posees'))) {
+            $tags = collect(explode(',', $this->input('questions_posees')))
+                ->map(fn ($t) => trim($t))
+                ->filter()
+                ->values()
+                ->all();
+
+            $this->merge(['questions_posees' => $tags]);
+        }
     }
 
     /**

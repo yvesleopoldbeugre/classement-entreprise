@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 #[Fillable([
     'nom', 'slug', 'secteur_activite', 'adresse', 'commune', 'site_web',
     'linkedin_url', 'taille_estimee', 'date_creation', 'source_scraping', 'statut',
+    'rang_a_eviter', 'reponse_entreprise', 'reponse_entreprise_le',
 ])]
 class Entreprise extends Model
 {
@@ -33,6 +34,8 @@ class Entreprise extends Model
             'moy_evolution' => 'decimal:2',
             'note_globale' => 'decimal:2',
             'score_bayesien' => 'decimal:3',
+            'rang_a_eviter' => 'integer',
+            'reponse_entreprise_le' => 'datetime',
         ];
     }
 
@@ -88,6 +91,12 @@ class Entreprise extends Model
     public function scopeParClassement(Builder $query): Builder
     {
         return $query->orderByDesc('score_bayesien')->orderByDesc('nb_avis_total');
+    }
+
+    /** Liste éditoriale « à éviter » (sélection de la communauté), dans l'ordre. */
+    public function scopeAEviter(Builder $query): Builder
+    {
+        return $query->whereNotNull('rang_a_eviter')->orderBy('rang_a_eviter');
     }
 
     public function getRouteKeyName(): string

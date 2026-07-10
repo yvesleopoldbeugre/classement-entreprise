@@ -45,7 +45,7 @@ class MissionController extends Controller
         $mission = Mission::create([
             ...$request->validated(),
             'user_id' => $request->user()->id,
-            'statut_moderation' => StatutModeration::EnAttente,
+            'statut_moderation' => StatutModeration::parDefaut(),
         ]);
 
         return (new MissionResource($mission->load('entreprise')))

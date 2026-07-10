@@ -63,6 +63,21 @@ class SignalementReponseTest extends TestCase
         $this->assertSame(StatutModeration::Publie->value, $avis->fresh()->statut_moderation->value);
     }
 
+    public function test_le_motif_du_signalement_est_enregistre(): void
+    {
+        $avis = $this->avisPublie(Entreprise::factory()->create(), User::factory()->create());
+
+        $this->actingAs(User::factory()->create())
+            ->post(route('signaler', ['avis', $avis->id]), ['motif' => 'Spam ou publicité'])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('signalements', [
+            'signalable_type' => AvisEntreprise::class,
+            'signalable_id' => $avis->id,
+            'motif' => 'Spam ou publicité',
+        ]);
+    }
+
     public function test_on_ne_peut_pas_signaler_son_propre_avis(): void
     {
         $auteur = User::factory()->create();

@@ -19,11 +19,11 @@ class ModerationController extends Controller
     {
         return view('moderation.index', [
             'avis' => AvisEntreprise::whereIn('statut_moderation', self::A_TRAITER)
-                ->withCount('signalements')->with(['user', 'entreprise'])->latest()->get(),
+                ->withCount('signalements')->with(['user', 'entreprise', 'signalements'])->latest()->get(),
             'entretiens' => RetourEntretien::whereIn('statut_moderation', self::A_TRAITER)
-                ->withCount('signalements')->with(['user', 'entreprise'])->latest()->get(),
+                ->withCount('signalements')->with(['user', 'entreprise', 'signalements'])->latest()->get(),
             'missions' => Mission::whereIn('statut_moderation', self::A_TRAITER)
-                ->withCount('signalements')->with(['user', 'entreprise'])->latest()->get(),
+                ->withCount('signalements')->with(['user', 'entreprise', 'signalements'])->latest()->get(),
         ]);
     }
 

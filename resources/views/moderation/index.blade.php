@@ -34,6 +34,14 @@
                                 <span class="rounded px-2 py-0.5 text-xs font-medium {{ $badge($item->statut_moderation) }}">{{ $item->statut_moderation->value }}</span>
                             </div>
                         </div>
+                        @php $motifs = $item->signalements->pluck('motif')->filter()->unique(); @endphp
+                        @if ($motifs->isNotEmpty())
+                            <div class="mt-2 flex flex-wrap gap-1.5">
+                                @foreach ($motifs as $motif)
+                                    <span class="rounded-full bg-rose-50 px-2 py-0.5 text-xs text-rose-700">⚑ {{ $motif }}</span>
+                                @endforeach
+                            </div>
+                        @endif
                         <div class="mt-2 text-xs text-slate-500">
                             Ambiance {{ $item->note_ambiance }} · Management {{ $item->note_management }} · Salaire {{ $item->note_salaire }} · Évolution {{ $item->note_evolution }}
                         </div>
@@ -64,6 +72,14 @@
                                 <span class="rounded px-2 py-0.5 text-xs font-medium {{ $badge($item->statut_moderation) }}">{{ $item->statut_moderation->value }}</span>
                             </div>
                         </div>
+                        @php $motifs = $item->signalements->pluck('motif')->filter()->unique(); @endphp
+                        @if ($motifs->isNotEmpty())
+                            <div class="mt-2 flex flex-wrap gap-1.5">
+                                @foreach ($motifs as $motif)
+                                    <span class="rounded-full bg-rose-50 px-2 py-0.5 text-xs text-rose-700">⚑ {{ $motif }}</span>
+                                @endforeach
+                            </div>
+                        @endif
                         @if ($item->ressenti_general)<p class="mt-2 text-sm text-slate-600">{{ $item->ressenti_general }}</p>@endif
                         {!! $actions('entretien', $item->id) !!}
                     </article>
@@ -91,6 +107,14 @@
                                 <span class="rounded px-2 py-0.5 text-xs font-medium {{ $badge($item->statut_moderation) }}">{{ $item->statut_moderation->value }}</span>
                             </div>
                         </div>
+                        @php $motifs = $item->signalements->pluck('motif')->filter()->unique(); @endphp
+                        @if ($motifs->isNotEmpty())
+                            <div class="mt-2 flex flex-wrap gap-1.5">
+                                @foreach ($motifs as $motif)
+                                    <span class="rounded-full bg-rose-50 px-2 py-0.5 text-xs text-rose-700">⚑ {{ $motif }}</span>
+                                @endforeach
+                            </div>
+                        @endif
                         @if ($item->commentaire)<p class="mt-2 text-sm text-slate-600">{{ $item->commentaire }}</p>@endif
                         {!! $actions('mission', $item->id) !!}
                     </article>

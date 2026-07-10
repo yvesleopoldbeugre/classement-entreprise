@@ -9,10 +9,19 @@ document.addEventListener('submit', (e) => {
     if (!(form instanceof HTMLFormElement) || !form.dataset.confirm) return;
 
     e.preventDefault();
+
+    // Optionnel : un select (ex. motif de signalement) dont la valeur est injectée
+    // dans un champ caché du formulaire avant envoi.
+    const options = form.dataset.confirmSelect ? JSON.parse(form.dataset.confirmSelect) : null;
+
     Swal.fire({
         title: form.dataset.confirmTitle || 'Confirmer',
         text: form.dataset.confirm,
         icon: form.dataset.confirmIcon || 'question',
+        input: options ? 'select' : undefined,
+        inputOptions: options || undefined,
+        inputPlaceholder: form.dataset.confirmSelectPlaceholder || 'Choisir…',
+        inputValidator: options ? (valeur) => (! valeur ? 'Veuillez choisir une option.' : undefined) : undefined,
         showCancelButton: true,
         confirmButtonText: form.dataset.confirmButton || 'Confirmer',
         cancelButtonText: 'Annuler',
@@ -21,8 +30,22 @@ document.addEventListener('submit', (e) => {
         reverseButtons: true,
         customClass: { popup: 'swal-compact' },
     }).then((resultat) => {
+        if (! resultat.isConfirmed) return;
+
+        const nomChamp = form.dataset.confirmSelectName;
+        if (options && nomChamp) {
+            let champ = form.querySelector(`input[name="${nomChamp}"]`);
+            if (! champ) {
+                champ = document.createElement('input');
+                champ.type = 'hidden';
+                champ.name = nomChamp;
+                form.appendChild(champ);
+            }
+            champ.value = resultat.value;
+        }
+
         // form.submit() ne redéclenche pas l'événement 'submit' → pas de boucle.
-        if (resultat.isConfirmed) form.submit();
+        form.submit();
     });
 });
 

@@ -18,6 +18,7 @@ class EntrepriseCreationTest extends TestCase
             ->post(route('entreprises.proposer'), [
                 'nom' => 'Nouvelle Boîte SARL',
                 'secteur_activite' => 'ssii',
+                'commentaire_proposition' => 'J’y ai fait un stage, ça mérite d’être suivi.',
             ])
             ->assertRedirect();
 
@@ -34,6 +35,7 @@ class EntrepriseCreationTest extends TestCase
             ->post(route('entreprises.proposer'), [
                 'nom' => 'Admin Corp',
                 'secteur_activite' => 'startup',
+                'commentaire_proposition' => 'Ajout direct par un administrateur.',
             ])
             ->assertRedirect();
 
@@ -49,6 +51,7 @@ class EntrepriseCreationTest extends TestCase
             ->post(route('entreprises.proposer'), [
                 'nom' => 'Tentative Corp',
                 'secteur_activite' => 'autre',
+                'commentaire_proposition' => 'Tentative de forcer le statut vérifié.',
                 'statut' => 'verifiee', // doit être ignoré
             ])
             ->assertRedirect();
@@ -57,6 +60,18 @@ class EntrepriseCreationTest extends TestCase
             StatutEntreprise::AVerifier->value,
             Entreprise::where('nom', 'Tentative Corp')->first()->statut->value,
         );
+    }
+
+    public function test_le_commentaire_est_obligatoire(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->post(route('entreprises.proposer'), [
+                'nom' => 'Sans Commentaire SARL',
+                'secteur_activite' => 'autre',
+            ])
+            ->assertSessionHasErrors('commentaire_proposition');
+
+        $this->assertDatabaseMissing('entreprises', ['nom' => 'Sans Commentaire SARL']);
     }
 
     public function test_un_visiteur_est_redirige_vers_la_connexion(): void

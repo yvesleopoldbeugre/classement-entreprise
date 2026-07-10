@@ -1,4 +1,4 @@
-<x-layout>
+<x-layout :open-modal="old('_form')">
     {{-- Hero --}}
     <section class="border-b border-slate-200 bg-white">
         <div class="mx-auto max-w-6xl px-4 py-12">
@@ -26,7 +26,7 @@
 
             <div class="mt-6">
                 @auth
-                    <a href="{{ route('entreprises.create') }}"
+                    <a href="{{ route('entreprises.create') }}" data-modal-open="proposer"
                        class="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">+ Proposer une entreprise</a>
                 @else
                     <a href="{{ route('login') }}"
@@ -89,4 +89,10 @@
             </div>
         </div>
     </div>
+
+    @auth
+        <x-modal id="proposer" title="Ajouter une entreprise">
+            @include('entreprises.partials.proposer')
+        </x-modal>
+    @endauth
 </x-layout>

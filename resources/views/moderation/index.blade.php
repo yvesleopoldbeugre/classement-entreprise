@@ -29,6 +29,9 @@
                             </div>
                             <span class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-500">{{ $entreprise->source_scraping ?? 'inconnu' }}</span>
                         </div>
+                        @if ($entreprise->commentaire_proposition)
+                            <p class="mt-2 text-sm text-slate-600">« {{ $entreprise->commentaire_proposition }} »</p>
+                        @endif
                         <div class="mt-3 flex gap-2">
                             <form method="POST" action="{{ route('moderation.entreprise.verifier', $entreprise) }}">
                                 @csrf

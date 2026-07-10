@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 #[Fillable([
     'nom', 'slug', 'secteur_activite', 'adresse', 'commune', 'site_web',
     'linkedin_url', 'taille_estimee', 'date_creation', 'source_scraping', 'statut',
-    'rang_a_eviter', 'reponse_entreprise', 'reponse_entreprise_le',
+    'rang_a_eviter', 'reponse_entreprise', 'reponse_entreprise_le', 'commentaire_proposition',
 ])]
 class Entreprise extends Model
 {

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\SecteurActivite;
 use App\Enums\StatutEntreprise;
-use App\Http\Requests\Entreprise\StoreEntrepriseRequest;
+use App\Http\Requests\Entreprise\ProposerEntrepriseRequest;
 use App\Models\Entreprise;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -16,7 +16,7 @@ class EntrepriseController extends Controller
         return view('entreprises.creer', ['secteurs' => SecteurActivite::cases()]);
     }
 
-    public function store(StoreEntrepriseRequest $request): RedirectResponse
+    public function store(ProposerEntrepriseRequest $request): RedirectResponse
     {
         // Un admin ajoute une entreprise directement vérifiée ; un utilisateur
         // la propose en attente de vérification. Le statut n'est jamais pris

@@ -27,7 +27,12 @@
                                 <a href="{{ route('entreprises.show', $item->entreprise) }}" class="font-semibold text-slate-900 hover:text-indigo-600">{{ $item->entreprise->nom }}</a>
                                 <span class="text-slate-400">· {{ $item->user->pseudo_public ?? 'Anonyme' }}</span>
                             </div>
-                            <span class="rounded px-2 py-0.5 text-xs font-medium {{ $badge($item->statut_moderation) }}">{{ $item->statut_moderation->value }}</span>
+                            <div class="flex items-center gap-2">
+                                @if ($item->signalements_count > 0)
+                                    <span class="rounded bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-700" title="signalements">⚑ {{ $item->signalements_count }}</span>
+                                @endif
+                                <span class="rounded px-2 py-0.5 text-xs font-medium {{ $badge($item->statut_moderation) }}">{{ $item->statut_moderation->value }}</span>
+                            </div>
                         </div>
                         <div class="mt-2 text-xs text-slate-500">
                             Ambiance {{ $item->note_ambiance }} · Management {{ $item->note_management }} · Salaire {{ $item->note_salaire }} · Évolution {{ $item->note_evolution }}
@@ -52,7 +57,12 @@
                                 <a href="{{ route('entreprises.show', $item->entreprise) }}" class="font-semibold text-slate-900 hover:text-indigo-600">{{ $item->entreprise->nom }}</a>
                                 <span class="text-slate-400">· {{ $item->poste_vise }} · {{ $item->user->pseudo_public ?? 'Anonyme' }}</span>
                             </div>
-                            <span class="rounded px-2 py-0.5 text-xs font-medium {{ $badge($item->statut_moderation) }}">{{ $item->statut_moderation->value }}</span>
+                            <div class="flex items-center gap-2">
+                                @if ($item->signalements_count > 0)
+                                    <span class="rounded bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-700" title="signalements">⚑ {{ $item->signalements_count }}</span>
+                                @endif
+                                <span class="rounded px-2 py-0.5 text-xs font-medium {{ $badge($item->statut_moderation) }}">{{ $item->statut_moderation->value }}</span>
+                            </div>
                         </div>
                         @if ($item->ressenti_general)<p class="mt-2 text-sm text-slate-600">{{ $item->ressenti_general }}</p>@endif
                         {!! $actions('entretien', $item->id) !!}
@@ -74,7 +84,12 @@
                                 <a href="{{ route('entreprises.show', $item->entreprise) }}" class="font-semibold text-slate-900 hover:text-indigo-600">{{ $item->entreprise->nom }}</a>
                                 <span class="text-slate-400">· {{ $item->type_mission->libelle() }} · {{ $item->user->pseudo_public ?? 'Anonyme' }}</span>
                             </div>
-                            <span class="rounded px-2 py-0.5 text-xs font-medium {{ $badge($item->statut_moderation) }}">{{ $item->statut_moderation->value }}</span>
+                            <div class="flex items-center gap-2">
+                                @if ($item->signalements_count > 0)
+                                    <span class="rounded bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-700" title="signalements">⚑ {{ $item->signalements_count }}</span>
+                                @endif
+                                <span class="rounded px-2 py-0.5 text-xs font-medium {{ $badge($item->statut_moderation) }}">{{ $item->statut_moderation->value }}</span>
+                            </div>
                         </div>
                         @if ($item->commentaire)<p class="mt-2 text-sm text-slate-600">{{ $item->commentaire }}</p>@endif
                         {!! $actions('mission', $item->id) !!}

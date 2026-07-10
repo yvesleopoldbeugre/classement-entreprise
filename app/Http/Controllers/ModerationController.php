@@ -19,24 +19,28 @@ class ModerationController extends Controller
     {
         return view('moderation.index', [
             'avis' => AvisEntreprise::whereIn('statut_moderation', self::A_TRAITER)
-                ->with(['user', 'entreprise'])->latest()->get(),
+                ->withCount('signalements')->with(['user', 'entreprise'])->latest()->get(),
             'entretiens' => RetourEntretien::whereIn('statut_moderation', self::A_TRAITER)
-                ->with(['user', 'entreprise'])->latest()->get(),
+                ->withCount('signalements')->with(['user', 'entreprise'])->latest()->get(),
             'missions' => Mission::whereIn('statut_moderation', self::A_TRAITER)
-                ->with(['user', 'entreprise'])->latest()->get(),
+                ->withCount('signalements')->with(['user', 'entreprise'])->latest()->get(),
         ]);
     }
 
     public function publier(string $type, int $id): RedirectResponse
     {
-        $this->resoudre($type, $id)->update(['statut_moderation' => StatutModeration::Publie]);
+        $contribution = $this->resoudre($type, $id);
+        $contribution->update(['statut_moderation' => StatutModeration::Publie]);
+        $contribution->signalements()->delete(); // décision prise : on repart de zéro
 
         return back()->with('success', 'Contribution publiée.');
     }
 
     public function retirer(string $type, int $id): RedirectResponse
     {
-        $this->resoudre($type, $id)->update(['statut_moderation' => StatutModeration::Retire]);
+        $contribution = $this->resoudre($type, $id);
+        $contribution->update(['statut_moderation' => StatutModeration::Retire]);
+        $contribution->signalements()->delete();
 
         return back()->with('success', 'Contribution retirée.');
     }

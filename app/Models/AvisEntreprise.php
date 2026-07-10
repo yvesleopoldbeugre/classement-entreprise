@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\StatutEmploi;
 use App\Enums\StatutModeration;
+use App\Models\Concerns\EstSignalable;
 use App\Observers\AvisEntrepriseObserver;
 use Database\Factories\AvisEntrepriseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -21,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AvisEntreprise extends Model
 {
     /** @use HasFactory<AvisEntrepriseFactory> */
-    use HasFactory;
+    use EstSignalable, HasFactory;
 
     protected $table = 'avis_entreprises';
 

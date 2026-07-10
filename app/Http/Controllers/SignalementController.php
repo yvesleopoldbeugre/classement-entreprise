@@ -12,7 +12,10 @@ use Illuminate\Http\Request;
 
 class SignalementController extends Controller
 {
-    /** Signale une contribution : la retire du public et l'envoie en modération. */
+    /**
+     * Enregistre un signalement (1 par utilisateur et par contenu). La contribution
+     * n'est masquée (statut « signale ») qu'une fois le seuil de signalements atteint.
+     */
     public function signaler(Request $request, string $type, int $id): RedirectResponse
     {
         $contribution = $this->resoudre($type, $id);
@@ -20,9 +23,21 @@ class SignalementController extends Controller
         // On ne signale pas sa propre contribution.
         abort_if($contribution->user_id === $request->user()->id, 403);
 
-        $contribution->update(['statut_moderation' => StatutModeration::Signale]);
+        $motif = trim((string) $request->input('motif'));
 
-        return back()->with('success', 'Merci, ce contenu a été signalé aux modérateurs.');
+        $contribution->signalements()->firstOrCreate(
+            ['user_id' => $request->user()->id],
+            ['motif' => $motif !== '' ? mb_substr($motif, 0, 255) : null],
+        );
+
+        // Masquage automatique au-delà du seuil.
+        $seuil = (int) config('moderation.seuil_signalements', 3);
+        if ($contribution->statut_moderation === StatutModeration::Publie
+            && $contribution->signalements()->count() >= $seuil) {
+            $contribution->update(['statut_moderation' => StatutModeration::Signale]);
+        }
+
+        return back()->with('success', 'Merci, votre signalement a été pris en compte.');
     }
 
     private function resoudre(string $type, int $id): Model

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\StatutModeration;
+use App\Models\Concerns\EstSignalable;
 use Database\Factories\RetourEntretienFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class RetourEntretien extends Model
 {
     /** @use HasFactory<RetourEntretienFactory> */
-    use HasFactory;
+    use EstSignalable, HasFactory;
 
     protected $table = 'retours_entretiens';
 

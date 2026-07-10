@@ -22,29 +22,72 @@ class SignalementReponseTest extends TestCase
         ]);
     }
 
-    public function test_un_utilisateur_peut_signaler_un_avis(): void
+    private function signaler(User $user, AvisEntreprise $avis): void
     {
-        $entreprise = Entreprise::factory()->create();
-        $avis = $this->avisPublie($entreprise, User::factory()->create());
+        $this->actingAs($user)->post(route('signaler', ['avis', $avis->id]))->assertRedirect();
+    }
 
-        $this->actingAs(User::factory()->create())
-            ->post(route('signaler', ['avis', $avis->id]))
-            ->assertRedirect();
+    public function test_un_signalement_sous_le_seuil_enregistre_sans_masquer(): void
+    {
+        config(['moderation.seuil_signalements' => 3]);
+        $avis = $this->avisPublie(Entreprise::factory()->create(), User::factory()->create());
+
+        $this->signaler(User::factory()->create(), $avis);
+
+        $this->assertSame(1, $avis->signalements()->count());
+        $this->assertSame(StatutModeration::Publie->value, $avis->fresh()->statut_moderation->value);
+    }
+
+    public function test_au_seuil_l_avis_passe_en_signale(): void
+    {
+        config(['moderation.seuil_signalements' => 3]);
+        $avis = $this->avisPublie(Entreprise::factory()->create(), User::factory()->create());
+
+        foreach (range(1, 3) as $ignore) {
+            $this->signaler(User::factory()->create(), $avis);
+        }
 
         $this->assertSame(StatutModeration::Signale->value, $avis->fresh()->statut_moderation->value);
     }
 
+    public function test_un_meme_utilisateur_ne_compte_qu_une_fois(): void
+    {
+        config(['moderation.seuil_signalements' => 3]);
+        $avis = $this->avisPublie(Entreprise::factory()->create(), User::factory()->create());
+        $rapporteur = User::factory()->create();
+
+        $this->signaler($rapporteur, $avis);
+        $this->signaler($rapporteur, $avis);
+
+        $this->assertSame(1, $avis->signalements()->count());
+        $this->assertSame(StatutModeration::Publie->value, $avis->fresh()->statut_moderation->value);
+    }
+
     public function test_on_ne_peut_pas_signaler_son_propre_avis(): void
     {
-        $entreprise = Entreprise::factory()->create();
         $auteur = User::factory()->create();
-        $avis = $this->avisPublie($entreprise, $auteur);
+        $avis = $this->avisPublie(Entreprise::factory()->create(), $auteur);
 
         $this->actingAs($auteur)
             ->post(route('signaler', ['avis', $avis->id]))
             ->assertForbidden();
 
+        $this->assertSame(0, $avis->signalements()->count());
+    }
+
+    public function test_publier_en_moderation_remet_les_signalements_a_zero(): void
+    {
+        config(['moderation.seuil_signalements' => 1]);
+        $avis = $this->avisPublie(Entreprise::factory()->create(), User::factory()->create());
+        $this->signaler(User::factory()->create(), $avis); // seuil 1 → passe en signale
+
+        $this->assertSame(StatutModeration::Signale->value, $avis->fresh()->statut_moderation->value);
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $this->actingAs($admin)->post(route('moderation.publier', ['avis', $avis->id]))->assertRedirect();
+
         $this->assertSame(StatutModeration::Publie->value, $avis->fresh()->statut_moderation->value);
+        $this->assertSame(0, $avis->signalements()->count());
     }
 
     public function test_un_admin_enregistre_le_droit_de_reponse(): void

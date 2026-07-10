@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\StatutModeration;
 use App\Enums\TypeMission;
+use App\Models\Concerns\EstSignalable;
 use Database\Factories\MissionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Mission extends Model
 {
     /** @use HasFactory<MissionFactory> */
-    use HasFactory;
+    use EstSignalable, HasFactory;
 
     protected function casts(): array
     {

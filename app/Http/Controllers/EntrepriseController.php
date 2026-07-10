@@ -29,11 +29,14 @@ class EntrepriseController extends Controller
             'source_scraping' => 'utilisateur',
         ]);
 
-        return redirect()->route('entreprises.show', $entreprise)->with(
-            'success',
-            $estAdmin
-                ? 'Entreprise ajoutée et vérifiée.'
-                : 'Merci ! L’entreprise est proposée et sera vérifiée par un modérateur.',
-        );
+        // Admin → fiche (elle est publiée) ; utilisateur → retour au classement
+        // (sa proposition est en attente de vérification, pas encore publique).
+        if ($estAdmin) {
+            return redirect()->route('entreprises.show', $entreprise)
+                ->with('success', 'Entreprise ajoutée et vérifiée.');
+        }
+
+        return redirect()->route('classement.index')
+            ->with('success', 'Merci ! Votre proposition sera vérifiée par un modérateur avant d’apparaître.');
     }
 }

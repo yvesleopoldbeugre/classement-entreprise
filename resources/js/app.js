@@ -203,7 +203,7 @@ if (form && liste) {
     });
 
     form.querySelector('select[name="secteur"]')?.addEventListener('change', soumettre);
-    form.querySelector('input[name="pires"][type="checkbox"]')?.addEventListener('change', soumettre);
+    form.querySelector('select[name="vue"]')?.addEventListener('change', soumettre);
 
     let minuteur;
     form.querySelector('input[name="q"]')?.addEventListener('input', () => {

@@ -37,7 +37,7 @@
     </section>
 
     <div class="mx-auto max-w-6xl px-4 py-8">
-        {{-- Filtres (en haut) avec le toggle « 10 pires » --}}
+        {{-- Filtres (en haut) : recherche, secteur, et la vue affichée --}}
         <form method="GET" action="{{ route('classement.index') }}" id="filtre-form"
               class="mb-6 flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 sm:flex-row sm:items-center">
             <div class="relative flex-1">
@@ -54,13 +54,13 @@
                 @endforeach
             </select>
 
-            {{-- Toggle : coché = liste « 10 à éviter » ; décoché = classement communautaire --}}
-            <label class="flex cursor-pointer select-none items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-700">
-                <input type="hidden" name="pires" value="0">
-                <input type="checkbox" name="pires" value="1" @checked($pires)
-                       class="rounded border-slate-300 text-rose-600 focus:ring-rose-500">
-                Les 10 à éviter
-            </label>
+            {{-- Vue : à éviter (défaut) · classement · nouvelles entreprises (sans avis) --}}
+            <select name="vue"
+                    class="rounded-lg border border-slate-300 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100">
+                <option value="a_eviter" @selected($vue === 'a_eviter')>Les 10 à éviter</option>
+                <option value="classement" @selected($vue === 'classement')>Classement</option>
+                <option value="nouvelles" @selected($vue === 'nouvelles')>Nouvelles entreprises</option>
+            </select>
 
             <button type="submit"
                     class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">

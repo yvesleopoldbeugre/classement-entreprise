@@ -2,6 +2,23 @@ import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 
 // =============================================================
+//  Messages flash → toast SweetAlert
+// =============================================================
+const flash = document.getElementById('flash-message');
+if (flash && flash.textContent.trim() !== '') {
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: flash.dataset.type || 'success',
+        title: flash.textContent.trim(),
+        showConfirmButton: false,
+        timer: 3500,
+        timerProgressBar: true,
+        customClass: { popup: 'swal-compact' },
+    });
+}
+
+// =============================================================
 //  Confirmation (SweetAlert) sur les formulaires [data-confirm]
 // =============================================================
 document.addEventListener('submit', (e) => {

@@ -78,6 +78,17 @@ class SignalementReponseTest extends TestCase
         ]);
     }
 
+    public function test_signaler_deux_fois_avertit_l_utilisateur(): void
+    {
+        $avis = $this->avisPublie(Entreprise::factory()->create(), User::factory()->create());
+        $rapporteur = User::factory()->create();
+
+        $this->actingAs($rapporteur)->post(route('signaler', ['avis', $avis->id]))->assertSessionHas('success');
+        $this->actingAs($rapporteur)->post(route('signaler', ['avis', $avis->id]))->assertSessionHas('warning');
+
+        $this->assertSame(1, $avis->signalements()->count());
+    }
+
     public function test_on_ne_peut_pas_signaler_son_propre_avis(): void
     {
         $auteur = User::factory()->create();

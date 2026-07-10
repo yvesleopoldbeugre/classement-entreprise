@@ -25,10 +25,15 @@ class SignalementController extends Controller
 
         $motif = trim((string) $request->input('motif'));
 
-        $contribution->signalements()->firstOrCreate(
+        $signalement = $contribution->signalements()->firstOrCreate(
             ['user_id' => $request->user()->id],
             ['motif' => $motif !== '' ? mb_substr($motif, 0, 255) : null],
         );
+
+        // Doublon : l'utilisateur a déjà signalé ce contenu.
+        if (! $signalement->wasRecentlyCreated) {
+            return back()->with('warning', 'Vous avez déjà signalé ce contenu.');
+        }
 
         // Masquage automatique au-delà du seuil.
         $seuil = (int) config('moderation.seuil_signalements', 3);

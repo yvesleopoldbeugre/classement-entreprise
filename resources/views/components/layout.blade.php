@@ -38,12 +38,10 @@
         </nav>
     </header>
 
-    @if (session('success'))
-        <div class="mx-auto mt-4 max-w-6xl px-4">
-            <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                {{ session('success') }}
-            </div>
-        </div>
+    {{-- Messages flash → toast SweetAlert (voir app.js) --}}
+    @php $flashType = collect(['success', 'warning', 'error', 'info'])->first(fn ($k) => session()->has($k)); @endphp
+    @if ($flashType)
+        <div id="flash-message" data-type="{{ $flashType }}" hidden>{{ session($flashType) }}</div>
     @endif
 
     <main>

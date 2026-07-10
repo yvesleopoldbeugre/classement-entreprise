@@ -26,6 +26,38 @@ Trois types de contributions alimentent une entreprise :
 | Front tooling | Vite + Tailwind v4 (service `node`, profil `dev`) |
 | Formatage | **Pint** — lancer `./vendor/bin/pint` avant de committer |
 
+## 2b. Façon de travailler (workflow de dev)
+
+**Cycle pour toute modification** :
+1. **Coder** en suivant les conventions du projet (voir plus bas).
+2. **Formater** : `./vendor/bin/pint <fichiers>` (hors conteneur).
+3. **Rebuild des assets** si un fichier Blade / JS / CSS a changé (sinon les classes Tailwind ou le JS ne sont pas à jour) :
+   `docker compose run --rm --no-deps node npm run build`
+4. **Migrer** si nouvelle migration : `docker compose exec app php artisan migrate --force`.
+5. **Tester** (⚠️ les `-e` sont **obligatoires**, voir piège Docker) :
+   `docker compose exec -e APP_ENV=testing -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: -e DB_HOST=127.0.0.1 app php artisan test`
+6. **Vérifier en réel** via `curl` sur http://localhost:8088 (admin de dev : `test@example.com` / `password`). Pour les parcours authentifiés : récupérer le `_token` CSRF d'une page, poser un cookie jar, POST `/connexion`, puis appeler la route. ⚠️ éviter `curl -L -X POST` (curl refait un POST sur la redirection → 405 sur une route GET).
+7. **Committer** : `git add -A` → **vérifier que `.env` n'est pas stagé** → message clair terminé par `Co-Authored-By: Claude…` → `git push origin main`. Les fichiers partagés (routes, `app.js`, la fiche, `ClassementService`…) étant très entrelacés, un **commit consolidé par lot** est acceptable plutôt que des commits qui ne compilent pas.
+
+**Conventions de code** :
+- Modèles en **attributs PHP** (`#[Fillable]`, `#[Hidden]`, `#[ObservedBy]`) — pas de propriétés `$fillable`. Enums PHP backed + `Rule::enum` dans les FormRequests. Casts d'enums/dates dans `casts()`.
+- Vues : composants Blade anonymes (`<x-…>`) ; classes Tailwind **littérales** (pas d'interpolation).
+- FR partout (libellés, messages), `Carbon::setLocale('fr')`.
+
+**Sécurité (systématique, dans tout nouveau code)** :
+- `user_id` = `auth()->id()` **côté contrôleur**, jamais depuis l'input.
+- `statut_moderation` d'une nouvelle contribution = `StatutModeration::parDefaut()` (jamais l'input).
+- `statut` d'une entreprise = forcé selon `can('moderer')` (jamais l'input).
+- `is_admin` **hors `$fillable`** → assigner directement puis `save()`.
+- Propriété d'un contenu : `abort_unless($m->user_id === $request->user()->id, 403)` sur update/destroy/signalement.
+
+**Pièges transverses à connaître AVANT de coder** :
+- **`.env` + Docker** : chargé au **démarrage du conteneur** via `env_file`. Toute modif de `.env` (flags `*_ENABLED`, ports, credentials) exige `docker compose up -d app` pour être prise en compte. Les tests contournent via les `-e`.
+- **Noms de routes globaux** : web **et** api partagent l'espace de noms. Ne jamais réutiliser un nom déjà pris (ex. `entreprises.store` = `apiResource`) — `route('nom')` résout vers la **dernière** enregistrée (bug silencieux).
+- **Tailwind v4** : uniquement des classes littérales dans le Blade.
+- **Flash & confirmations** : messages flash (`success`/`warning`/`error`/`info`) → **toast SweetAlert** (via `#flash-message` + `app.js`) ; toute action destructive/importante = `<form data-confirm="…">` (confirmation SweetAlert, avec `data-confirm-select` optionnel pour un motif).
+- **Boutons d'envoi** : le JS (`marquerEnvoi`) ajoute automatiquement un spinner + `disabled` pendant la soumission (formulaires classiques et confirmés).
+
 ## 3. Modèle de données
 
 Migrations dans `database/migrations/2026_07_09_1000*` :
@@ -76,9 +108,9 @@ Le scheduler tourne en continu via le **service Docker `scheduler`** (voir §6) 
 le modèle `AvisEntreprise`) recalcule automatiquement l'entreprise à chaque
 création/modification/suppression d'avis.
 
-⚠️ **Piège** : le seeder (`DatabaseSeeder`) utilise `WithoutModelEvents` → l'observer **ne
-se déclenche pas** pendant le seeding. `ClassementSeeder` appelle donc explicitement
-`recalculerTout()` à la fin.
+⚠️ **Piège** : `DatabaseSeeder` utilise `WithoutModelEvents` → l'observer **ne se déclenche
+pas** pendant le seeding. `EntrepriseReelleSeeder` n'insère aucun avis (rien à recalculer) ;
+tout futur seeder qui crée des avis devra appeler `recalculerTout()` explicitement à la fin.
 
 ## 5. Couche HTTP
 
@@ -89,8 +121,8 @@ se déclenche pas** pendant le seeding. `ClassementSeeder` appelle donc explicit
 
 **Conventions de sécurité importantes** (respecter dans tout nouveau code) :
 - `user_id` n'est **jamais** dans un Store request → toujours `= $request->user()->id` dans le contrôleur.
-- `statut_moderation` n'est **jamais** soumis par l'utilisateur → forcé à `StatutModeration::EnAttente` à la création (modération a priori).
-- Sur update/destroy des contributions : `abort_unless($model->user_id === $request->user()->id, 403)` (à remplacer par des **Policies** quand l'admin sera développé).
+- `statut_moderation` n'est **jamais** soumis par l'utilisateur → forcé via `StatutModeration::parDefaut()` (en attente si modération active, sinon publié directement).
+- Sur update/destroy des contributions : `abort_unless($model->user_id === $request->user()->id, 403)` (à remplacer par des **Policies** à terme).
 
 ⚠️ **Piège de nommage** : `Route::apiResource('avis', ...)` génère le paramètre `{avi}`
 (Laravel singularise `avis` → `avi`). Le contrôleur `AvisEntrepriseController` utilise donc
@@ -174,7 +206,7 @@ peuvent le passer via `->create(['is_admin' => true])`.
 
 ```bash
 docker compose up -d --build                       # build + démarre app, web, db
-docker compose exec app php artisan migrate --seed # migrations + données de démo
+docker compose exec app php artisan migrate --seed # migrations + 10 entreprises réelles (+ admin de dev en local)
 # App / API → http://localhost:8088   (préfixe API : /api)
 ```
 
@@ -209,10 +241,16 @@ docker compose logs -f app                                 # logs applicatifs
 docker compose exec app php artisan tinker --execute='app(App\Services\ClassementService::class)->recalculerTout();'
 ```
 
-## 8. Pistes / TODO connus
+## 8. État & pistes
 
-- **Modération** : back-office fait (§5d). Améliorations possibles : file par entreprise, historique des décisions, notifications aux contributeurs.
-- **Policies** pour remplacer les `abort_unless` inline et l'`authorize()` (actuellement `true` pour Entreprise).
-- **Front** : classement + fiche faits (§5c). Reste à faire : formulaires de contribution (avis/entretien/mission), auth (login/register), pages de modération.
-- **Score composite** : intégrer éventuellement les signaux `missions` (paiement/contrat) et `retours_entretiens` (délais) au score, aujourd'hui purement basé sur les avis.
-- **Conventions de style** : modèles en attributs PHP (`#[Fillable]`, `#[Hidden]`) — suivre l'existant, pas les propriétés `$fillable`.
+**Fait** : front complet (classement, fiche, liste « à éviter » + toggle, responsive), auth session
++ SSO, contributions (modals + filtre AJAX), modération (contributions + entreprises + signalement
+à seuil + droit de réponse), score bayésien **pondéré** (confiance + récence), sortie auto « à éviter »,
+ajout/vérification d'entreprise, commande `admin:creer`, toasts SweetAlert, healthcheck anti-502.
+
+**Reste / pistes** :
+- **Policies** pour centraliser l'autorisation (remplacer les `abort_unless`/`can` inline).
+- **Collecte de données** (§4b) : commandes `entreprises:importer` (CSV/JSON) et `entreprises:importer-google` (Places API).
+- **Comptes « entreprise » self-service** : revendication + droit de réponse géré par l'entreprise (aujourd'hui MVP admin).
+- **Notifications** aux contributeurs (avis publié/retiré), **pagination** de la modération, **édition** d'une entreprise par l'admin.
+- **Score composite** : intégrer les signaux `missions`/`retours_entretiens` (aujourd'hui score = avis seuls).

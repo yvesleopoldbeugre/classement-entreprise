@@ -17,13 +17,19 @@ class ModerationController extends Controller
 
     public function index(): View
     {
+        // À traiter : en attente / signalé, OU déjà signalé au moins une fois
+        // (même sous le seuil, pour que le modérateur le voie tôt).
+        $aModerer = fn ($query) => $query
+            ->where(fn ($q) => $q->whereIn('statut_moderation', self::A_TRAITER)->orHas('signalements'))
+            ->withCount('signalements')
+            ->with(['user', 'entreprise', 'signalements'])
+            ->latest()
+            ->get();
+
         return view('moderation.index', [
-            'avis' => AvisEntreprise::whereIn('statut_moderation', self::A_TRAITER)
-                ->withCount('signalements')->with(['user', 'entreprise', 'signalements'])->latest()->get(),
-            'entretiens' => RetourEntretien::whereIn('statut_moderation', self::A_TRAITER)
-                ->withCount('signalements')->with(['user', 'entreprise', 'signalements'])->latest()->get(),
-            'missions' => Mission::whereIn('statut_moderation', self::A_TRAITER)
-                ->withCount('signalements')->with(['user', 'entreprise', 'signalements'])->latest()->get(),
+            'avis' => $aModerer(AvisEntreprise::query()),
+            'entretiens' => $aModerer(RetourEntretien::query()),
+            'missions' => $aModerer(Mission::query()),
         ]);
     }
 

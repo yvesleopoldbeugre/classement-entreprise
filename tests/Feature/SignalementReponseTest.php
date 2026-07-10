@@ -105,6 +105,20 @@ class SignalementReponseTest extends TestCase
         $this->assertSame(0, $avis->signalements()->count());
     }
 
+    public function test_un_avis_signale_sous_le_seuil_apparait_en_moderation(): void
+    {
+        config(['moderation.seuil_signalements' => 3]);
+        $entreprise = Entreprise::factory()->create(['nom' => 'Entreprise Signalée SARL']);
+        $avis = $this->avisPublie($entreprise, User::factory()->create());
+        $this->signaler(User::factory()->create(), $avis); // 1 signalement : reste publie
+
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $this->actingAs($admin)->get(route('moderation.index'))
+            ->assertOk()
+            ->assertSee('Entreprise Signalée SARL');
+    }
+
     public function test_un_admin_enregistre_le_droit_de_reponse(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);

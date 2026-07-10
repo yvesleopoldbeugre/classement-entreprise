@@ -4,6 +4,10 @@
     <input type="hidden" name="entreprise_id" value="{{ $entreprise->id }}">
     <input type="hidden" name="_form" value="entretien">
 
+    @error('entreprise_id')
+        <div class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ $message }}</div>
+    @enderror
+
     <div class="grid gap-3 sm:grid-cols-2">
         <x-champ label="Poste visé" name="poste_vise" :required="true">
             <input id="poste_vise" name="poste_vise" type="text" value="{{ old('poste_vise') }}" class="{{ $input }}" required>

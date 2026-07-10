@@ -7,6 +7,10 @@
     <input type="hidden" name="entreprise_id" value="{{ $entreprise->id }}">
     <input type="hidden" name="_form" value="avis">
 
+    @error('entreprise_id')
+        <div class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ $message }}</div>
+    @enderror
+
     <div class="grid gap-3 sm:grid-cols-2">
         @foreach ($dimensions as $name => $label)
             <x-champ :label="$label" :name="$name" :required="true">

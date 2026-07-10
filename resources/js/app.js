@@ -62,9 +62,28 @@ document.addEventListener('submit', (e) => {
         }
 
         // form.submit() ne redéclenche pas l'événement 'submit' → pas de boucle.
+        marquerEnvoi(form);
         form.submit();
     });
 });
+
+// =============================================================
+//  État « envoi en cours » sur les boutons de soumission
+// =============================================================
+const spinnerSvg =
+    '<svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">' +
+    '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
+    '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"></path></svg>';
+
+const marquerEnvoi = (form) => {
+    const bouton = form.querySelector('button[type="submit"], button:not([type])');
+    if (! bouton || bouton.dataset.loading === '1') return;
+    bouton.dataset.loading = '1';
+    bouton.disabled = true;
+    bouton.classList.add('cursor-not-allowed', 'opacity-70');
+    bouton.innerHTML =
+        `<span class="inline-flex items-center justify-center gap-2">${spinnerSvg}${bouton.dataset.loadingText || 'Envoi…'}</span>`;
+};
 
 // =============================================================
 //  Menu de navigation mobile
@@ -203,3 +222,12 @@ if (form && liste) {
 
     window.addEventListener('popstate', () => charger(window.location.href));
 }
+
+// Loader sur les formulaires « classiques » (ni AJAX, ni confirmation SweetAlert).
+// Enregistré en dernier pour voir un éventuel preventDefault des handlers précédents.
+document.addEventListener('submit', (e) => {
+    const cible = e.target;
+    if (! (cible instanceof HTMLFormElement)) return;
+    if (cible.dataset.confirm || e.defaultPrevented) return; // gérés ailleurs
+    marquerEnvoi(cible);
+});

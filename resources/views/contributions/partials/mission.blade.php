@@ -4,6 +4,10 @@
     <input type="hidden" name="entreprise_id" value="{{ $entreprise->id }}">
     <input type="hidden" name="_form" value="mission">
 
+    @error('entreprise_id')
+        <div class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ $message }}</div>
+    @enderror
+
     <div class="grid gap-3 sm:grid-cols-2">
         <x-champ label="Type de mission" name="type_mission" :required="true">
             <select id="type_mission" name="type_mission" class="{{ $input }}" required>

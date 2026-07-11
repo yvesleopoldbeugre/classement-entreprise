@@ -6,6 +6,8 @@ public/build
 public/hot
 # storage/ = donnée d'instance → hors image, monté en volume + recréé par l'entrypoint prod.
 storage
+# Caches compilés (générés en DEV, incluent des providers dev comme Pail) : régénérés en prod.
+bootstrap/cache/*.php
 database/database.sqlite
 
 # Ne jamais cuire les secrets/env dans l'image (fournis au runtime via env_file).

@@ -3,6 +3,11 @@ set -e
 
 cd /app
 
+# Purge de tout cache compilé résiduel (ex. packages.php généré en dev avec des
+# providers dev comme Pail) avant de (re)générer les caches de prod.
+rm -f bootstrap/cache/packages.php bootstrap/cache/services.php \
+      bootstrap/cache/config.php bootstrap/cache/routes-*.php bootstrap/cache/events.php
+
 # Attente de MySQL.
 echo "==> Attente de MySQL (${DB_HOST:-db}:${DB_PORT:-3306})..."
 until php -r '

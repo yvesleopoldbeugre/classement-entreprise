@@ -3,6 +3,9 @@
 # Déploiement de Classement Entreprises CI (prod, image unique FrankenPHP).
 # À lancer SUR LE VPS, dans le dossier contenant docker-compose.prod.yml + .env.production.
 #
+# Étapes : vérifs → pull → up -d → attente santé → migrate → seed (idempotent)
+#          → optimize:clear + optimize → prune → statut.
+#
 # Usage :
 #   ./deploy.sh            # déploie l'image définie dans .env.production
 #   ./deploy.sh 1.1.0      # déploie le tag 1.1.0 (surcharge IMAGE_APP)
@@ -62,6 +65,20 @@ for i in $(seq 1 40); do
     [ "$i" -eq 40 ] && { dc logs --tail=50 app; die "app pas healthy après 120 s."; }
     sleep 3
 done
+
+# --- Post-déploiement : migrations, seed, caches ---
+# (l'entrypoint le fait déjà au boot ; on le refait ici de façon explicite + seed)
+log "Migrations…"
+dc exec -T app php artisan migrate --force
+
+# Seed idempotent : DatabaseSeeder n'appelle que EntrepriseReelleSeeder en prod
+# (upsert des entreprises du référentiel, sans données de démo).
+log "Seed du référentiel (idempotent)…"
+dc exec -T app php artisan db:seed --force
+
+log "Nettoyage puis reconstruction des caches…"
+dc exec -T app php artisan optimize:clear
+dc exec -T app php artisan optimize
 
 # --- Nettoyage des images orphelines ---
 docker image prune -f >/dev/null 2>&1 || true

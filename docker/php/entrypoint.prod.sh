@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-cd /var/www
+cd /app
 
 # Attente de MySQL.
 echo "==> Attente de MySQL (${DB_HOST:-db}:${DB_PORT:-3306})..."

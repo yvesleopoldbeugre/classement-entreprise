@@ -224,6 +224,15 @@ sur « Attente de MySQL ».
 
 Image basée sur **Alpine** (`php:8.4-fpm-alpine`) volontairement, pour l'empreinte disque.
 
+## 6b. Production (déploiement depuis l'image)
+
+- **Dev** = 2 conteneurs (nginx `web` + php-fpm `app`, code monté). **Prod** = **1 image unique FrankenPHP** (Caddy + PHP) qui sert HTTP + PHP + assets. Divergence assumée (prod plus simple à opérer).
+- **`Dockerfile.prod`** (suivi) : multi-stage `assets` (node) → `vendor` (composer `--no-dev`) → `app` (`dunglas/frankenphp:php8.4-alpine`, `install-php-extensions`, `SERVER_NAME=:80`). Le **code + assets sont cuits** dans l'image ; **`storage/` en est exclu** (`.dockerignore`) et recréé au runtime par `entrypoint.prod.sh`.
+- **`docker/php/entrypoint.prod.sh`** : attend MySQL → recrée l'arbo `storage` → `migrate --force` → `config/route/view:cache` → lance FrankenPHP.
+- **`bootstrap/app.php`** : `trustProxies(at: '*')` (URLs https + cookies sécurisés derrière Traefik).
+- **`docker-compose.prod.yml` + `.env.production`** : **gitignorés** (locaux). L'image est **buildée/poussée sur Docker Hub** (`IMAGE_APP`) et seulement **tirée** sur le VPS (`pull` + `up -d`, pas de build). Le service `app` porte les **labels Traefik** (Host `notetaboite.com`), rejoint le **réseau Traefik externe** (`TRAEFIK_NETWORK`), `storage_data` en volume, MySQL non exposé. Traefik/TLS sont gérés par un Traefik déjà déployé.
+- ⚠️ **APP_KEY** : à générer (`php artisan key:generate --show`) et coller dans `.env.production` **avant** le 1er `up` (l'env vient de `env_file`, il n'y a pas de fichier `.env` dans l'image).
+
 ## 7. Commandes utiles
 
 ```bash

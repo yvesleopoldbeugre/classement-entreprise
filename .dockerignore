@@ -2,8 +2,23 @@
 .gitignore
 node_modules
 vendor
-storage/logs/*.log
+public/build
+public/hot
+# storage/ = donnée d'instance → hors image, monté en volume + recréé par l'entrypoint prod.
+storage
 database/database.sqlite
-.env.backup
+
+# Ne jamais cuire les secrets/env dans l'image (fournis au runtime via env_file).
+.env
+.env.*
+
+# Fichiers hors runtime.
+docker-compose*.yml
 docker-compose.override.yml
+Dockerfile
+Dockerfile.prod
+.dockerignore
+tests
+.github
 README.md
+AGENT.md

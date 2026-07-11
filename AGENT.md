@@ -42,7 +42,7 @@ Trois types de contributions alimentent une entreprise :
 **Conventions de code** :
 - Modèles en **attributs PHP** (`#[Fillable]`, `#[Hidden]`, `#[ObservedBy]`) — pas de propriétés `$fillable`. Enums PHP backed + `Rule::enum` dans les FormRequests. Casts d'enums/dates dans `casts()`.
 - Vues : composants Blade anonymes (`<x-…>`) ; classes Tailwind **littérales** (pas d'interpolation).
-- FR partout (libellés, messages), `Carbon::setLocale('fr')`.
+- FR partout : `APP_LOCALE=fr` + `Carbon::setLocale('fr')`. Messages de validation traduits dans `lang/fr/validation.php` (avec la table `attributes` pour des noms de champs FR) ; le reste retombe sur l'anglais du vendor (`APP_FALLBACK_LOCALE=en`). ⚠️ changer `APP_LOCALE` nécessite `docker compose up -d app` (env_file).
 
 **Sécurité (systématique, dans tout nouveau code)** :
 - `user_id` = `auth()->id()` **côté contrôleur**, jamais depuis l'input.

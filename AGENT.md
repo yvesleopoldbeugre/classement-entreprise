@@ -273,3 +273,66 @@ ajout/vérification d'entreprise, commande `admin:creer`, toasts SweetAlert, hea
 - **Comptes « entreprise » self-service** : revendication + droit de réponse géré par l'entreprise (aujourd'hui MVP admin).
 - **Notifications** aux contributeurs (avis publié/retiré), **pagination** de la modération, **édition** d'une entreprise par l'admin.
 - **Score composite** : intégrer les signaux `missions`/`retours_entretiens` (aujourd'hui score = avis seuls).
+
+## 9. Plan — Tableau de bord statistiques (admin)
+
+**Objectif** : page admin (`can:moderer`) affichant l'usage de la plateforme — visites + actions
+(inscriptions, avis, entretiens, missions, signalements, entreprises proposées/vérifiées, modération)
+— avec des **KPI** sur une période choisie (7 / 30 / 90 j) et un **graphique d'évolution** (courbe par jour).
+
+### 9.1 Modèle de données
+Une seule table journal **`evenements`** (faible complexité, index sur `(type, created_at)`) :
+
+| colonne | rôle |
+|---|---|
+| `type` | `TypeEvenement` (enum backé) : `visite`, `inscription`, `connexion`, `avis`, `entretien`, `mission`, `signalement`, `entreprise_proposee`, `entreprise_verifiee`, `moderation` |
+| `user_id` | nullable (FK) — auteur si connecté |
+| `sujet_type` / `sujet_id` | morph nullable — l'entité concernée (avis, entreprise…) |
+| `url` | nullable — page visitée (pour `visite`) |
+| `visiteur_hash` | nullable — `sha256(ip + session + APP_KEY)` : visiteur unique **sans stocker d'IP** (RGPD) |
+| `created_at` | horodatage (séries temporelles) — **pas de `updated_at`** |
+
+Enum `App\Enums\TypeEvenement` avec `libelle()` (convention §2b) ; modèle `App\Models\Evenement`
+avec un helper statique `Evenement::log(TypeEvenement $type, ?Model $sujet = null, ?string $url = null)`.
+
+### 9.2 Capture (où sont émis les événements)
+- **Visites** : middleware `App\Http\Middleware\EnregistrerVisite` sur le groupe `web` — n'enregistre
+  que les `GET` HTML non-AJAX (exclut assets, `/up`, `/moderation`, `/admin`). Calcule `visiteur_hash`.
+- **Actions modèles** : **observers** (attribut `#[ObservedBy]`) sur `AvisEntreprise`, `RetourEntretien`,
+  `Mission`, `Signalement`, `Entreprise` (event `created` → `entreprise_proposee` ou `entreprise_verifiee`
+  selon `statut`).
+- **Auth** : listeners sur `Illuminate\Auth\Events\Registered` (→ `inscription`) et `Login` (→ `connexion`).
+- **Modération** : appels explicites à `Evenement::log()` dans `ModerationController` (publier/retirer/vérifier).
+
+### 9.3 Agrégation, route & vue
+- **Contrôleur** `App\Http\Controllers\Admin\StatistiqueController@index` :
+  - KPI par type sur la période (`where('created_at', '>=', now()->subDays($jours))->count()`), + visiteurs uniques (`distinct visiteur_hash`) ;
+  - **série temporelle** : `selectRaw('DATE(created_at) jour, type, COUNT(*) n')->groupBy('jour','type')`,
+    puis **remplissage des jours manquants** côté PHP → tableau prêt pour le graphe.
+- **Route** (nouveau groupe) : `Route::middleware(['auth','can:moderer'])->prefix('admin')->name('admin.')`
+  → `GET /admin/statistiques` = `admin.stats.index` (param `?jours=30`).
+- **Vue** `resources/views/admin/statistiques.blade.php` (`<x-layout>`) : cartes KPI (pattern Tailwind
+  de `moderation/index`), sélecteur de période, `<canvas id="graphe-usage">`, données injectées en
+  `<script type="application/json" id="stats-data">`.
+- **Nav** : lien « Statistiques » dans `partials/nav-links.blade.php` sous `@can('moderer')`.
+
+### 9.4 Graphique (Chart.js, self-hosted)
+- `npm install chart.js` (CSP app OK, tout est buildé par Vite — pas de CDN).
+- **Entrée Vite dédiée** `resources/js/stats.js` (déclarée dans `vite.config.js`) chargée **uniquement**
+  sur la page stats via `@vite('resources/js/stats.js')` → garde le bundle principal léger.
+- `stats.js` lit `#stats-data`, rend une **courbe multi-séries** (visites + actions/jour).
+
+### 9.5 Étapes (ordre d'implémentation)
+1. Migration `create_evenements_table` + enum `TypeEvenement` + modèle `Evenement` (+ `log()`).
+2. Middleware `EnregistrerVisite` + enregistrement dans `bootstrap/app.php` (`$middleware->web(append: [...])`).
+3. Observers (5 modèles) + listeners auth (register dans `AppServiceProvider`) + logs dans `ModerationController`.
+4. `Admin\StatistiqueController` + route groupe `admin` + Gate déjà en place (`moderer`).
+5. Vue `admin/statistiques.blade.php` + cartes KPI + sélecteur période + `<canvas>`.
+6. `chart.js` + `resources/js/stats.js` + entrée `vite.config.js` + `@vite` dans la vue.
+7. Lien nav « Statistiques ».
+8. (option) Commande `stats:purger` (visites > N mois) + planif dans `routes/console.php` (scheduler déjà actif).
+9. Tests feature : visite enregistrée par le middleware, action enregistrée par observer, page `admin.stats.index`
+   protégée par `can:moderer`, forme de l'agrégation (jours remplis).
+
+**Notes** : aucune IP en clair (hash seul) ; insertion 1 ligne/pageview suffisante à cette échelle
+(passer en queue seulement si volumétrie forte) ; réutiliser le style cartes de `moderation/index`.

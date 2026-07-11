@@ -1,11 +1,47 @@
-@props(['title' => 'Classement des entreprises · Côte d’Ivoire', 'openModal' => null])
+@props([
+    'title' => 'Classement des entreprises · Côte d’Ivoire',
+    'description' => 'Le classement des entreprises de Côte d’Ivoire basé sur les retours de ceux qui y ont réellement travaillé. Avis vérifiés, score bayésien fiable dès le premier avis.',
+    'ogImage' => null,       // URL absolue d’une image de partage spécifique à la page (facultatif)
+    'ogType' => 'website',   // « article » pour une fiche entreprise, par ex.
+    'openModal' => null,
+])
+@php
+    // Image de partage : celle passée par la page, sinon la carte de marque par défaut (1200×630).
+    $shareImage = $ogImage ?: asset('og-image.png');
+    $canonical = url()->current();
+@endphp
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title }}</title>
-    <meta name="description" content="Le classement des entreprises de Côte d’Ivoire basé sur les retours de ceux qui y ont travaillé.">
+    <meta name="description" content="{{ $description }}">
+    <link rel="canonical" href="{{ $canonical }}">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <meta name="theme-color" content="#4f46e5">
+
+    {{-- Open Graph (Facebook, LinkedIn, WhatsApp, Slack, iMessage…) --}}
+    <meta property="og:type" content="{{ $ogType }}">
+    <meta property="og:site_name" content="{{ config('app.name') }}">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:title" content="{{ $title }}">
+    <meta property="og:description" content="{{ $description }}">
+    <meta property="og:url" content="{{ $canonical }}">
+    <meta property="og:image" content="{{ $shareImage }}">
+    <meta property="og:image:secure_url" content="{{ $shareImage }}">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ config('app.name') }}">
+
+    {{-- Twitter / X --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $title }}">
+    <meta name="twitter:description" content="{{ $description }}">
+    <meta name="twitter:image" content="{{ $shareImage }}">
+    <meta name="twitter:image:alt" content="{{ config('app.name') }}">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-800 antialiased" @if ($openModal) data-open-modal="{{ $openModal }}" @endif>

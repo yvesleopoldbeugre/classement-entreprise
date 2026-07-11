@@ -1,4 +1,12 @@
-<x-layout :title="$entreprise->nom.' · ClassementCI'" :open-modal="old('_form')">
+@php
+    // Description de partage (OpenGraph) spécifique à l’entreprise.
+    $metaDescription = $entreprise->score_bayesien !== null
+        ? $entreprise->nom.' : note de '.number_format((float) $entreprise->score_bayesien, 1, ',', ' ').'/5'
+            .($rang ? ' (#'.$rang.' au classement)' : '')
+            .' d’après les avis d’anciens salariés en Côte d’Ivoire. Secteur : '.$entreprise->secteur_activite->libelle().'.'
+        : 'Découvrez les avis sur '.$entreprise->nom.' ('.$entreprise->secteur_activite->libelle().') en Côte d’Ivoire et partagez votre propre expérience.';
+@endphp
+<x-layout :title="$entreprise->nom.' · ClassementCI'" :description="$metaDescription" og-type="article" :open-modal="old('_form')">
     @php
         $score = $entreprise->score_bayesien !== null ? (float) $entreprise->score_bayesien : null;
         $classesTon = match (true) {

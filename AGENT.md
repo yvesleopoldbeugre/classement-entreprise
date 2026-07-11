@@ -166,6 +166,16 @@ Interface **server-rendered** (pas de SPA) :
 pas de `bg-{{ $ton }}-50` (non détecté au scan). Utiliser un `match()` renvoyant la classe
 complète (`'bg-emerald-50 text-emerald-700'`). Voir les vues pour le pattern.
 
+**Partage de lien / SEO (OpenGraph + Twitter Card)** : centralisé dans `<x-layout>`
+(`resources/views/components/layout.blade.php`). Props surchargeables par page :
+`title`, `description`, `ogImage` (URL absolue), `ogType` (`website` par défaut, `article`
+pour une fiche). Les URLs (`og:url`, `og:image`) sont absolues via `url()->current()` /
+`asset()` → en prod, HTTPS + domaine grâce au `trustProxies` (Traefik). L'image par défaut
+est `public/og-image.png` (1200×630, carte de marque). La fiche entreprise
+(`entreprises/show.blade.php`) passe une `:description` dynamique (note, rang, secteur) et
+`og-type="article"`. Pour régénérer l'image : `php scripts/make-og-image.php`
+(GD, police système `Arial Unicode`, écrit `public/og-image.png`) — à relancer si le branding change.
+
 **Build des assets** (obligatoire pour que les pages soient stylées) :
 ```bash
 docker compose run --rm --no-deps node sh -c "npm install && npm run build"   # → public/build/

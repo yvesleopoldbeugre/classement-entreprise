@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\UtilisateurController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\ClassementController;
+use App\Http\Controllers\Compte\SecuriteController;
 use App\Http\Controllers\ContributionController;
 use App\Http\Controllers\EntrepriseController;
 use App\Http\Controllers\ModerationController;
@@ -49,6 +50,11 @@ Route::middleware('auth')->group(function () {
     // Signalement d'une contribution (utilisateur).
     Route::post('/signaler/{type}/{id}', [SignalementController::class, 'signaler'])
         ->whereIn('type', ['avis', 'entretien', 'mission'])->name('signaler');
+
+    // Sécurité du compte : sessions actives + déconnexion des autres appareils.
+    Route::get('/compte/securite', [SecuriteController::class, 'index'])->name('compte.securite');
+    Route::post('/compte/securite/deconnecter-autres', [SecuriteController::class, 'deconnecterAutres'])
+        ->name('compte.securite.deconnecter-autres');
 });
 
 // --- Modération (administrateur) ---

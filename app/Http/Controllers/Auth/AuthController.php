@@ -38,13 +38,8 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): RedirectResponse
     {
-        $credentials = $request->only('email', 'password');
-
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-            return back()
-                ->withInput($request->only('email'))
-                ->withErrors(['email' => 'Ces identifiants ne correspondent à aucun compte.']);
-        }
+        // Authentification + anti-force brute (voir LoginRequest::authenticate).
+        $request->authenticate();
 
         $request->session()->regenerate();
         Evenement::log(TypeEvenement::Connexion, null, ['user_id' => Auth::id()]);

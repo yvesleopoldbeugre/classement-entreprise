@@ -19,8 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
 
         // Comptage des visites de pages (statistiques admin) — terminable, sans latence.
+        // AuthenticateSession : lie chaque session au hash du mot de passe et permet la
+        // déconnexion des autres appareils (Auth::logoutOtherDevices).
         $middleware->web(append: [
             \App\Http\Middleware\EnregistrerVisite::class,
+            \Illuminate\Session\Middleware\AuthenticateSession::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

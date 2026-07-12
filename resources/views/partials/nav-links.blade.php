@@ -7,6 +7,7 @@
         <a href="{{ route('admin.users.index') }}" class="{{ $lien }}">Utilisateurs</a>
         <a href="{{ route('moderation.index') }}" class="{{ $lien }}">Modération</a>
     @endcan
+    <a href="{{ route('compte.securite') }}" class="{{ $lien }}">Sécurité</a>
     <span class="px-3 py-2 text-sm text-slate-400">{{ auth()->user()->pseudo_public }}</span>
     <form method="POST" action="{{ route('logout') }}"
           data-confirm="Vous allez être déconnecté de votre compte."

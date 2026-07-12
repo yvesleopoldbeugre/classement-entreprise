@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // X-Forwarded-* pour générer des URLs https et des cookies sécurisés.
         // L'app n'étant joignable que par le proxy (réseau interne), '*' est sûr ici.
         $middleware->trustProxies(at: '*');
+
+        // Comptage des visites de pages (statistiques admin) — terminable, sans latence.
+        $middleware->web(append: [
+            \App\Http\Middleware\EnregistrerVisite::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

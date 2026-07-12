@@ -4,14 +4,17 @@ namespace App\Models;
 
 use App\Enums\SecteurActivite;
 use App\Enums\StatutEntreprise;
+use App\Observers\EntrepriseObserver;
 use Database\Factories\EntrepriseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
+#[ObservedBy([EntrepriseObserver::class])]
 #[Fillable([
     'nom', 'slug', 'secteur_activite', 'adresse', 'commune', 'site_web',
     'linkedin_url', 'taille_estimee', 'date_creation', 'source_scraping', 'statut',

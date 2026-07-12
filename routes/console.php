@@ -12,3 +12,8 @@ Artisan::command('inspire', function () {
 Schedule::command('classement:recalculer')
     ->dailyAt('03:00')
     ->withoutOverlapping();
+
+// Purge mensuelle des visites de plus de 12 mois (les actions sont conservées).
+Schedule::command('stats:purger')
+    ->monthlyOn(1, '04:00')
+    ->withoutOverlapping();

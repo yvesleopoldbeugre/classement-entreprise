@@ -5,13 +5,16 @@ namespace App\Models;
 use App\Enums\StatutModeration;
 use App\Enums\TypeMission;
 use App\Models\Concerns\EstSignalable;
+use App\Observers\MissionObserver;
 use Database\Factories\MissionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[ObservedBy([MissionObserver::class])]
 #[Fillable([
     'entreprise_id', 'user_id', 'type_mission', 'duree_mois', 'fourchette_remuneration',
     'paiement_a_temps', 'respect_contrat', 'commentaire', 'statut_moderation',

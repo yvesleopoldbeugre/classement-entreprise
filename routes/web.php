@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\StatistiqueController;
+use App\Http\Controllers\Admin\UtilisateurController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\ClassementController;
@@ -53,6 +55,13 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'can:moderer'])->group(function () {
     // Droit de réponse de l'entreprise (géré par un admin).
     Route::put('/entreprises/{entreprise}/reponse', [ReponseEntrepriseController::class, 'update'])->name('entreprises.reponse');
+});
+
+// --- Espace admin (statistiques) ---
+Route::middleware(['auth', 'can:moderer'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/statistiques', [StatistiqueController::class, 'index'])->name('stats.index');
+    Route::get('/utilisateurs', [UtilisateurController::class, 'index'])->name('users.index');
+    Route::get('/utilisateurs/{user}', [UtilisateurController::class, 'show'])->name('users.show');
 });
 
 Route::middleware(['auth', 'can:moderer'])->prefix('moderation')->name('moderation.')->group(function () {

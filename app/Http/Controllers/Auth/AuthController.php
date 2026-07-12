@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\TypeEvenement;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\Evenement;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,6 +47,7 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
+        Evenement::log(TypeEvenement::Connexion, null, ['user_id' => Auth::id()]);
 
         return redirect()->intended(route('classement.index'))
             ->with('success', 'Content de vous revoir !');

@@ -3,15 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Observers\UserObserver;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+#[ObservedBy([UserObserver::class])]
 #[Fillable(['name', 'email', 'password', 'pseudo_public', 'poste_actuel', 'linkedin_verifie', 'provider', 'provider_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -50,5 +53,11 @@ class User extends Authenticatable
     public function missions(): HasMany
     {
         return $this->hasMany(Mission::class);
+    }
+
+    /** @return HasMany<Evenement, $this> */
+    public function evenements(): HasMany
+    {
+        return $this->hasMany(Evenement::class);
     }
 }

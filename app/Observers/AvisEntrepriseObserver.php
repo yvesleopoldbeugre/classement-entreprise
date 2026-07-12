@@ -2,8 +2,10 @@
 
 namespace App\Observers;
 
+use App\Enums\TypeEvenement;
 use App\Models\AvisEntreprise;
 use App\Models\Entreprise;
+use App\Models\Evenement;
 use App\Services\ClassementService;
 
 /**
@@ -13,6 +15,11 @@ use App\Services\ClassementService;
 class AvisEntrepriseObserver
 {
     public function __construct(private readonly ClassementService $classement) {}
+
+    public function created(AvisEntreprise $avis): void
+    {
+        Evenement::log(TypeEvenement::Avis, $avis, ['user_id' => $avis->user_id]);
+    }
 
     public function saved(AvisEntreprise $avis): void
     {

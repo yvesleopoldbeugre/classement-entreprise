@@ -265,7 +265,8 @@ docker compose exec app php artisan tinker --execute='app(App\Services\Classemen
 **Fait** : front complet (classement, fiche, liste « à éviter » + toggle, responsive), auth session
 + SSO, contributions (modals + filtre AJAX), modération (contributions + entreprises + signalement
 à seuil + droit de réponse), score bayésien **pondéré** (confiance + récence), sortie auto « à éviter »,
-ajout/vérification d'entreprise, commande `admin:creer`, toasts SweetAlert, healthcheck anti-502.
+ajout/vérification d'entreprise, commande `admin:creer`, toasts SweetAlert, healthcheck anti-502,
+**partage OpenGraph** (§5c), **tableau de bord statistiques admin** (§9, visites + actions + graphe Chart.js).
 
 **Reste / pistes** :
 - **Policies** pour centraliser l'autorisation (remplacer les `abort_unless`/`can` inline).
@@ -274,7 +275,16 @@ ajout/vérification d'entreprise, commande `admin:creer`, toasts SweetAlert, hea
 - **Notifications** aux contributeurs (avis publié/retiré), **pagination** de la modération, **édition** d'une entreprise par l'admin.
 - **Score composite** : intégrer les signaux `missions`/`retours_entretiens` (aujourd'hui score = avis seuls).
 
-## 9. Plan — Tableau de bord statistiques (admin)
+## 9. Tableau de bord statistiques (admin) — ✅ implémenté
+
+> Routes (`can:moderer`) : `admin.stats.index` (`/admin/statistiques`),
+> `admin.users.index` (`/admin/utilisateurs` — liste triée par engagement + **graphe comparatif** en barres),
+> `admin.users.show` (`/admin/utilisateurs/{user}` — fiche : KPI par type, **courbe** visites/actions, timeline des dernières actions).
+> Contrôleurs `Admin\StatistiqueController` et `Admin\UtilisateurController`. Graphes : `resources/js/users.js`
+> (barres + courbe) et `resources/js/stats.js`, chart.js factorisé dans un chunk partagé.
+> Les événements de contribution sont attribués à l'**auteur du contenu** (`$model->user_id`), pas au seul
+> utilisateur authentifié. Commande de purge `php artisan stats:purger --mois=12` (planifiée le 1er du mois).
+> Tests : `StatistiquesTest.php`, `UtilisateursAdminTest.php`.
 
 **Objectif** : page admin (`can:moderer`) affichant l'usage de la plateforme — visites + actions
 (inscriptions, avis, entretiens, missions, signalements, entreprises proposées/vérifiées, modération)

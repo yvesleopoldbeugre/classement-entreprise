@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\StatutEntreprise;
 use App\Enums\StatutModeration;
+use App\Enums\TypeEvenement;
 use App\Models\AvisEntreprise;
 use App\Models\Entreprise;
+use App\Models\Evenement;
 use App\Models\Mission;
 use App\Models\RetourEntretien;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +41,7 @@ class ModerationController extends Controller
     public function verifierEntreprise(Entreprise $entreprise): RedirectResponse
     {
         $entreprise->update(['statut' => StatutEntreprise::Verifiee]);
+        Evenement::log(TypeEvenement::EntrepriseVerifiee, $entreprise);
 
         return back()->with('success', 'Entreprise vérifiée.');
     }
@@ -55,6 +58,7 @@ class ModerationController extends Controller
         $contribution = $this->resoudre($type, $id);
         $contribution->update(['statut_moderation' => StatutModeration::Publie]);
         $contribution->signalements()->delete(); // décision prise : on repart de zéro
+        Evenement::log(TypeEvenement::Moderation, $contribution);
 
         return back()->with('success', 'Contribution publiée.');
     }
@@ -64,6 +68,7 @@ class ModerationController extends Controller
         $contribution = $this->resoudre($type, $id);
         $contribution->update(['statut_moderation' => StatutModeration::Retire]);
         $contribution->signalements()->delete();
+        Evenement::log(TypeEvenement::Moderation, $contribution);
 
         return back()->with('success', 'Contribution retirée.');
     }

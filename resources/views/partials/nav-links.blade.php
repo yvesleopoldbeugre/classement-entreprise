@@ -3,6 +3,8 @@
 
 @auth
     @can('moderer')
+        <a href="{{ route('admin.stats.index') }}" class="{{ $lien }}">Statistiques</a>
+        <a href="{{ route('admin.users.index') }}" class="{{ $lien }}">Utilisateurs</a>
         <a href="{{ route('moderation.index') }}" class="{{ $lien }}">Modération</a>
     @endcan
     <span class="px-3 py-2 text-sm text-slate-400">{{ auth()->user()->pseudo_public }}</span>

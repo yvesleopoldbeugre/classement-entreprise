@@ -4,13 +4,16 @@ namespace App\Models;
 
 use App\Enums\StatutModeration;
 use App\Models\Concerns\EstSignalable;
+use App\Observers\RetourEntretienObserver;
 use Database\Factories\RetourEntretienFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[ObservedBy([RetourEntretienObserver::class])]
 #[Fillable([
     'entreprise_id', 'user_id', 'poste_vise', 'date_entretien_mois', 'nb_etapes',
     'duree_processus_jours', 'questions_posees', 'a_recu_reponse', 'delai_reponse_jours',

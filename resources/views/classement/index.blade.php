@@ -54,10 +54,10 @@
                 @endforeach
             </select>
 
-            {{-- Vue : à éviter (défaut) · classement · nouvelles entreprises (sans avis) --}}
+            {{-- Vue : à mieux connaître (défaut) · classement · nouvelles entreprises (sans avis) --}}
             <select name="vue"
                     class="rounded-lg border border-slate-300 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100">
-                <option value="a_eviter" @selected($vue === 'a_eviter')>Les 10 à éviter</option>
+                <option value="a_eviter" @selected($vue === 'a_eviter')>Les 10 à mieux connaître</option>
                 <option value="classement" @selected($vue === 'classement')>Classement</option>
                 <option value="nouvelles" @selected($vue === 'nouvelles')>Nouvelles entreprises</option>
             </select>

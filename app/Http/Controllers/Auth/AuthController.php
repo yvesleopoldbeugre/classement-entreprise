@@ -39,6 +39,16 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
+        // Compte par mot de passe → email non vérifié : on envoie le lien de vérification
+        // (relève le poids des avis). Non bloquant si le SMTP échoue.
+        if (! $user->hasVerifiedEmail()) {
+            try {
+                $user->sendEmailVerificationNotification();
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
         // Flux « avis d'abord » : publie l'avis mémorisé si présent.
         $entrepriseAvis = $this->publierAvisEnAttente($user);
         $redirect = $entrepriseAvis

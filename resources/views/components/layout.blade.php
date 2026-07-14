@@ -79,7 +79,8 @@
         </nav>
     </header>
 
-    {{-- Invitation à définir un mot de passe (comptes créés par lien magique / SSO) --}}
+    {{-- Bannières compte : définir un mot de passe (comptes lien magique/SSO)
+         OU vérifier son email (comptes mot de passe non vérifiés → poids des avis ↑). --}}
     @auth
         @if (is_null(auth()->user()->password))
             <div data-banniere-mdp class="border-b border-amber-200 bg-amber-50">
@@ -90,6 +91,23 @@
                     <div class="flex items-center gap-2">
                         <a href="{{ route('compte.securite') }}"
                            class="rounded-lg bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700">Définir maintenant</a>
+                        <button type="button" data-banniere-fermer aria-label="Masquer"
+                                class="px-1 text-amber-500 hover:text-amber-700">✕</button>
+                    </div>
+                </div>
+            </div>
+        @elseif (! auth()->user()->hasVerifiedEmail())
+            <div data-banniere-mdp class="border-b border-amber-200 bg-amber-50">
+                <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm">
+                    <p class="text-amber-800">
+                        ✉️ <strong>Vérifiez votre email</strong> pour que vos avis comptent davantage dans le classement.
+                    </p>
+                    <div class="flex items-center gap-2">
+                        <form method="POST" action="{{ route('verification.send') }}">
+                            @csrf
+                            <button type="submit"
+                                    class="rounded-lg bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700">Renvoyer le lien</button>
+                        </form>
                         <button type="button" data-banniere-fermer aria-label="Masquer"
                                 class="px-1 text-amber-500 hover:text-amber-700">✕</button>
                     </div>

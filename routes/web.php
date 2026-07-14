@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\UtilisateurController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\LienMagiqueController;
 use App\Http\Controllers\Auth\SocialiteController;
+use App\Http\Controllers\Auth\VerificationEmailController;
 use App\Http\Controllers\ClassementController;
 use App\Http\Controllers\Compte\SecuriteController;
 use App\Http\Controllers\ContributionController;
@@ -61,6 +62,12 @@ Route::middleware('auth')->group(function () {
     // Signalement d'une contribution (utilisateur).
     Route::post('/signaler/{type}/{id}', [SignalementController::class, 'signaler'])
         ->whereIn('type', ['avis', 'entretien', 'mission'])->name('signaler');
+
+    // Vérification d'email (relève le poids des avis ; non bloquant).
+    Route::get('/email/verifier/{id}/{hash}', [VerificationEmailController::class, 'verifier'])
+        ->middleware('signed')->name('verification.verify');
+    Route::post('/email/verifier/renvoyer', [VerificationEmailController::class, 'renvoyer'])
+        ->middleware('throttle:6,1')->name('verification.send');
 
     // Sécurité du compte : sessions actives + déconnexion des autres appareils.
     Route::get('/compte/securite', [SecuriteController::class, 'index'])->name('compte.securite');

@@ -79,24 +79,42 @@ class SocialiteController extends Controller
             return $user;
         }
 
-        // 2. Compte existant avec le même email → on le lie.
+        $estLinkedin = str_contains($driver, 'linkedin');
+
+        // 2. Compte existant avec le même email → on le lie (et on monte son niveau de confiance).
         if ($email = $oauthUser->getEmail()) {
             $user = User::where('email', $email)->first();
             if ($user) {
-                $user->update(['provider' => $driver, 'provider_id' => $oauthUser->getId()]);
+                $maj = ['provider' => $driver, 'provider_id' => $oauthUser->getId()];
+                if ($estLinkedin) {
+                    $maj['linkedin_verifie'] = true;
+                }
+                $user->update($maj);
+                // L'email est vérifié par le fournisseur OAuth.
+                if (! $user->hasVerifiedEmail()) {
+                    $user->markEmailAsVerified();
+                }
 
                 return $user;
             }
         }
 
         // 3. Nouveau compte.
-        return User::create([
+        $user = User::create([
             'name' => $oauthUser->getName() ?: $oauthUser->getNickname() ?: 'Utilisateur',
             'email' => $oauthUser->getEmail() ?: $driver.'_'.$oauthUser->getId().'@sso.local',
             'pseudo_public' => $this->pseudoUnique($oauthUser),
             'provider' => $driver,
             'provider_id' => $oauthUser->getId(),
+            'linkedin_verifie' => $estLinkedin,
         ]);
+
+        // Email fourni par le provider = vérifié (sauf email factice de repli).
+        if ($oauthUser->getEmail()) {
+            $user->markEmailAsVerified();
+        }
+
+        return $user;
     }
 
     private function pseudoUnique(SocialiteUser $oauthUser): string

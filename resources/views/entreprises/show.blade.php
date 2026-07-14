@@ -162,8 +162,13 @@
                 @forelse ($entreprise->avis as $avis)
                     <article class="rounded-xl border border-slate-200 bg-white p-4">
                         <div class="flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-2 text-sm">
+                            <div class="flex flex-wrap items-center gap-2 text-sm">
                                 <span class="font-medium text-slate-800">{{ $avis->user->pseudo_public ?? 'Anonyme' }}</span>
+                                @if ($avis->user?->linkedin_verifie)
+                                    <span class="rounded bg-sky-50 px-1.5 py-0.5 text-xs font-medium text-sky-700" title="LinkedIn vérifié — avis au poids le plus fort">✓ LinkedIn</span>
+                                @elseif ($avis->user?->email_verified_at)
+                                    <span class="rounded bg-emerald-50 px-1.5 py-0.5 text-xs font-medium text-emerald-700" title="Email vérifié — avis à poids renforcé">✓ Email vérifié</span>
+                                @endif
                                 <span class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-500">{{ $avis->statut_emploi->libelle() }}</span>
                             </div>
                             <x-note-etoiles :note="$avis->noteMoyenne()" />

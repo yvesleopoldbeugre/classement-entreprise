@@ -71,6 +71,11 @@ class LienMagiqueController extends Controller
             ]);
         }
 
+        // Le clic sur le lien prouve la possession de l'email → vérifié (poids ↑ des avis).
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
+
         Auth::login($user, remember: true);
         $request->session()->regenerate();
         Evenement::log(TypeEvenement::Connexion, null, ['user_id' => $user->id]);

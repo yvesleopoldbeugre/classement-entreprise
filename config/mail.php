@@ -46,6 +46,9 @@ return [
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
+            // Certificat mutualisé LWS (*.lwspanel.com) ≠ mail.notetaboite.com :
+            // MAIL_VERIFY_PEER=false garde le chiffrement sans vérifier le CN.
+            'verify_peer' => env('MAIL_VERIFY_PEER', true),
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 

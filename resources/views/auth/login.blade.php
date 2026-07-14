@@ -5,18 +5,7 @@
             <h1 class="text-xl font-bold text-slate-900">Connexion</h1>
             <p class="mt-1 text-sm text-slate-500">Content de vous revoir.</p>
 
-            {{-- Option principale : lien magique (sans mot de passe) --}}
-            <div class="mt-6">
-                @include('partials.lien-magique')
-            </div>
-
-            <div class="my-6 flex items-center gap-3 text-xs text-slate-400">
-                <span class="h-px flex-1 bg-slate-200"></span>
-                ou avec un mot de passe
-                <span class="h-px flex-1 bg-slate-200"></span>
-            </div>
-
-            <form method="POST" action="{{ route('login') }}" class="space-y-4">
+            <form method="POST" action="{{ route('login') }}" class="mt-6 space-y-4">
                 @csrf
                 <x-champ label="Email" name="email" :required="true">
                     <input id="email" name="email" type="email" value="{{ old('email') }}" class="{{ $input }}" required autofocus>
@@ -38,6 +27,17 @@
             <p class="mt-4 text-center text-sm text-slate-500">
                 Pas encore de compte ? <a href="{{ route('register') }}" class="font-medium text-indigo-600 hover:underline">S’inscrire</a>
             </p>
+
+            {{-- Repli discret : compte sans mot de passe (créé par lien magique) --}}
+            <details class="mt-3">
+                <summary class="cursor-pointer text-center text-xs text-slate-400 hover:text-slate-600">
+                    Je n’ai pas de mot de passe
+                </summary>
+                <div class="mt-3">
+                    <p class="mb-2 text-xs text-slate-500">Recevez un lien de connexion par email :</p>
+                    @include('partials.lien-magique')
+                </div>
+            </details>
         </div>
     </div>
 </x-layout>

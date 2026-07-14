@@ -27,6 +27,15 @@ class SecuriteSessionTest extends TestCase
         $this->assertTrue(Hash::check('nouveau-mdp-123', $user->fresh()->password));
     }
 
+    public function test_la_banniere_invite_a_definir_un_mot_de_passe_si_absent(): void
+    {
+        $sansMdp = User::factory()->create(['password' => null]);
+        $this->actingAs($sansMdp)->get('/')->assertSee('Définissez un mot de passe');
+
+        $avecMdp = User::factory()->create();
+        $this->actingAs($avecMdp)->get('/')->assertDontSee('Définissez un mot de passe');
+    }
+
     public function test_changer_le_mot_de_passe_exige_le_bon_mot_de_passe_actuel(): void
     {
         $user = User::factory()->create(['password' => 'ancien-mdp-123']);

@@ -341,3 +341,20 @@ document.addEventListener('submit', async (e) => {
     bouton.disabled = false;
     bouton.classList.remove('opacity-70', 'cursor-not-allowed');
 });
+
+// =============================================================
+//  Bannière « définir un mot de passe » (comptes sans mot de passe)
+//  Masquable pour la session ; réapparaît à la prochaine session
+//  tant qu'aucun mot de passe n'est défini (côté serveur).
+// =============================================================
+const banniereMdp = document.querySelector('[data-banniere-mdp]');
+if (banniereMdp) {
+    if (sessionStorage.getItem('banniere_mdp_fermee')) {
+        banniereMdp.remove();
+    } else {
+        banniereMdp.querySelector('[data-banniere-fermer]')?.addEventListener('click', () => {
+            banniereMdp.remove();
+            sessionStorage.setItem('banniere_mdp_fermee', '1');
+        });
+    }
+}

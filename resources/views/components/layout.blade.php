@@ -79,6 +79,25 @@
         </nav>
     </header>
 
+    {{-- Invitation à définir un mot de passe (comptes créés par lien magique / SSO) --}}
+    @auth
+        @if (is_null(auth()->user()->password))
+            <div data-banniere-mdp class="border-b border-amber-200 bg-amber-50">
+                <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm">
+                    <p class="text-amber-800">
+                        🔑 <strong>Définissez un mot de passe</strong> pour vous reconnecter facilement la prochaine fois.
+                    </p>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('compte.securite') }}"
+                           class="rounded-lg bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700">Définir maintenant</a>
+                        <button type="button" data-banniere-fermer aria-label="Masquer"
+                                class="px-1 text-amber-500 hover:text-amber-700">✕</button>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endauth
+
     {{-- Messages flash → toast SweetAlert (voir app.js) --}}
     @php $flashType = collect(['success', 'warning', 'error', 'info'])->first(fn ($k) => session()->has($k)); @endphp
     @if ($flashType)

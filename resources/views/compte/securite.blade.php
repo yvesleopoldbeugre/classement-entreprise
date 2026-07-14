@@ -2,7 +2,41 @@
     <div class="mx-auto max-w-3xl px-4 py-8">
         <div class="mb-6">
             <h1 class="text-2xl font-bold text-slate-900">Sécurité du compte</h1>
-            <p class="mt-1 text-sm text-slate-500">Gérez les appareils actuellement connectés à votre compte.</p>
+            <p class="mt-1 text-sm text-slate-500">Gérez votre mot de passe et les appareils connectés à votre compte.</p>
+        </div>
+
+        {{-- Mot de passe : définir (compte lien magique / SSO) ou changer --}}
+        @php $aMotDePasse = ! is_null(auth()->user()->password); @endphp
+        <div class="mb-6 rounded-2xl border border-slate-200 bg-white p-6">
+            <h2 class="text-sm font-semibold text-slate-700">{{ $aMotDePasse ? 'Changer mon mot de passe' : 'Définir un mot de passe' }}</h2>
+            <p class="mt-1 text-sm text-slate-500">
+                {{ $aMotDePasse
+                    ? 'Choisissez un nouveau mot de passe pour votre compte.'
+                    : 'Votre compte se connecte par lien magique. Définissez un mot de passe pour pouvoir aussi vous connecter classiquement.' }}
+            </p>
+
+            <form method="POST" action="{{ route('compte.securite.mot-de-passe') }}" class="mt-4 space-y-3">
+                @csrf
+                @if ($aMotDePasse)
+                    <div>
+                        <label for="current_password" class="mb-1 block text-sm font-medium text-slate-700">Mot de passe actuel</label>
+                        <x-password-input name="current_password" autocomplete="current-password" />
+                        @error('current_password', 'motDePasse')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+                    </div>
+                @endif
+                <div>
+                    <label for="password" class="mb-1 block text-sm font-medium text-slate-700">Nouveau mot de passe</label>
+                    <x-password-input name="password" autocomplete="new-password" />
+                    @error('password', 'motDePasse')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label for="password_confirmation" class="mb-1 block text-sm font-medium text-slate-700">Confirmer le nouveau mot de passe</label>
+                    <x-password-input name="password_confirmation" autocomplete="new-password" />
+                </div>
+                <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white hover:bg-indigo-700">
+                    {{ $aMotDePasse ? 'Mettre à jour' : 'Définir le mot de passe' }}
+                </button>
+            </form>
         </div>
 
         {{-- Sessions actives --}}

@@ -62,6 +62,8 @@ Route::middleware('auth')->group(function () {
 
     // Sécurité du compte : sessions actives + déconnexion des autres appareils.
     Route::get('/compte/securite', [SecuriteController::class, 'index'])->name('compte.securite');
+    Route::post('/compte/securite/mot-de-passe', [SecuriteController::class, 'motDePasse'])
+        ->name('compte.securite.mot-de-passe');
     Route::post('/compte/securite/deconnecter-autres', [SecuriteController::class, 'deconnecterAutres'])
         ->name('compte.securite.deconnecter-autres');
 });

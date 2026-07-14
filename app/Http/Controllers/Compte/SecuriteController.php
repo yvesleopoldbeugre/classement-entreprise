@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class SecuriteController extends Controller
@@ -35,6 +36,34 @@ class SecuriteController extends Controller
         Auth::logoutOtherDevices($request->string('password'));
 
         return back()->with('success', 'Vous avez été déconnecté de tous les autres appareils.');
+    }
+
+    /** Définit (compte lien magique / SSO) ou change le mot de passe. */
+    public function motDePasse(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $aDejaUnMotDePasse = ! is_null($user->password);
+
+        // Le mot de passe actuel n'est exigé que si le compte en a déjà un.
+        $regles = ['password' => ['required', 'confirmed', Password::defaults()]];
+        if ($aDejaUnMotDePasse) {
+            $regles['current_password'] = ['required', 'current_password'];
+        }
+
+        $request->validateWithBag('motDePasse', $regles, [], [
+            'current_password' => 'mot de passe actuel',
+            'password' => 'nouveau mot de passe',
+        ]);
+
+        // Le cast 'hashed' chiffre à l'enregistrement ; AuthenticateSession met à jour
+        // l'empreinte de la session courante (l'utilisateur reste connecté), les autres
+        // sessions sont invalidées à leur prochaine requête.
+        $user->password = $request->string('password')->toString();
+        $user->save();
+
+        return back()->with('success', $aDejaUnMotDePasse
+            ? 'Mot de passe mis à jour.'
+            : 'Mot de passe défini : vous pouvez désormais vous connecter avec votre email et ce mot de passe.');
     }
 
     private function sessionsBaseDeDonnees(): bool

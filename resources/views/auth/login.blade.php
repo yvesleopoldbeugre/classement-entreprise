@@ -5,7 +5,18 @@
             <h1 class="text-xl font-bold text-slate-900">Connexion</h1>
             <p class="mt-1 text-sm text-slate-500">Content de vous revoir.</p>
 
-            <form method="POST" action="{{ route('login') }}" class="mt-6 space-y-4">
+            {{-- Option principale : lien magique (sans mot de passe) --}}
+            <div class="mt-6">
+                @include('partials.lien-magique')
+            </div>
+
+            <div class="my-6 flex items-center gap-3 text-xs text-slate-400">
+                <span class="h-px flex-1 bg-slate-200"></span>
+                ou avec un mot de passe
+                <span class="h-px flex-1 bg-slate-200"></span>
+            </div>
+
+            <form method="POST" action="{{ route('login') }}" class="space-y-4">
                 @csrf
                 <x-champ label="Email" name="email" :required="true">
                     <input id="email" name="email" type="email" value="{{ old('email') }}" class="{{ $input }}" required autofocus>

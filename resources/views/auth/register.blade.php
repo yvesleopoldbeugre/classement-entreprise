@@ -20,24 +20,30 @@
 
             <form method="POST" action="{{ route('register') }}" class="space-y-4">
                 @csrf
-                <x-champ label="Nom complet" name="name" :required="true">
-                    <input id="name" name="name" type="text" value="{{ old('name') }}" class="{{ $input }}" required>
-                </x-champ>
-                <x-champ label="Pseudo public" name="pseudo_public" :required="true" hint="Affiché sur vos avis. Lettres, chiffres, tirets.">
-                    <input id="pseudo_public" name="pseudo_public" type="text" value="{{ old('pseudo_public') }}" class="{{ $input }}" required>
-                </x-champ>
                 <x-champ label="Email" name="email" :required="true">
-                    <input id="email" name="email" type="email" value="{{ old('email') }}" class="{{ $input }}" required>
-                </x-champ>
-                <x-champ label="Poste actuel" name="poste_actuel">
-                    <input id="poste_actuel" name="poste_actuel" type="text" value="{{ old('poste_actuel') }}" class="{{ $input }}">
+                    <input id="email" name="email" type="email" value="{{ old('email') }}" class="{{ $input }}" required autocomplete="email">
                 </x-champ>
                 <x-champ label="Mot de passe" name="password" :required="true">
                     <x-password-input name="password" :required="true" autocomplete="new-password" />
                 </x-champ>
-                <x-champ label="Confirmer le mot de passe" name="password_confirmation" :required="true">
-                    <x-password-input name="password_confirmation" :required="true" autocomplete="new-password" />
-                </x-champ>
+
+                {{-- Détails facultatifs : pseudo/nom auto-générés sinon --}}
+                <details class="group">
+                    <summary class="cursor-pointer text-sm font-medium text-slate-500 hover:text-slate-700">
+                        Personnaliser mon profil <span class="text-slate-400">(facultatif)</span>
+                    </summary>
+                    <div class="mt-3 space-y-4">
+                        <x-champ label="Pseudo public" name="pseudo_public" hint="Affiché sur vos avis. Laissez vide pour un pseudo automatique.">
+                            <input id="pseudo_public" name="pseudo_public" type="text" value="{{ old('pseudo_public') }}" class="{{ $input }}">
+                        </x-champ>
+                        <x-champ label="Nom complet" name="name">
+                            <input id="name" name="name" type="text" value="{{ old('name') }}" class="{{ $input }}">
+                        </x-champ>
+                        <x-champ label="Poste actuel" name="poste_actuel">
+                            <input id="poste_actuel" name="poste_actuel" type="text" value="{{ old('poste_actuel') }}" class="{{ $input }}">
+                        </x-champ>
+                    </div>
+                </details>
 
                 <button type="submit" class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
                     Créer mon compte

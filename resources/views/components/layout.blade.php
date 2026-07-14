@@ -95,5 +95,12 @@
             <p class="mt-1 text-xs text-slate-400">Score calculé par moyenne bayésienne pour rester fiable même avec peu d’avis.</p>
         </div>
     </footer>
+
+    {{-- Modal d'incitation à l'inscription (invités, hors pages d'authentification) --}}
+    @guest
+        @unless (request()->routeIs('login', 'register'))
+            @include('partials.inscription-modal')
+        @endunless
+    @endguest
 </body>
 </html>

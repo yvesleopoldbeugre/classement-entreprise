@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\StatistiqueController;
 use App\Http\Controllers\Admin\UtilisateurController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\LienMagiqueController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\ClassementController;
 use App\Http\Controllers\Compte\SecuriteController;
@@ -27,6 +28,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/inscription', [AuthController::class, 'register']);
     Route::get('/connexion', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/connexion', [AuthController::class, 'login']);
+
+    // Lien magique : inscription/connexion sans mot de passe.
+    Route::post('/connexion/lien', [LienMagiqueController::class, 'envoyer'])->name('magic.send');
+    Route::get('/connexion/lien/{token}', [LienMagiqueController::class, 'connexion'])->name('magic.login');
 
     // SSO (Google, GitHub, Facebook, LinkedIn) — désactivable via SSO_ENABLED.
     if (config('services.sso.enabled')) {

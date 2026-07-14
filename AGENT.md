@@ -420,3 +420,27 @@ Composant `<x-schema>` injectant du `application/ld+json` :
 
 **Notes** : tout est server-rendered (pas de JS requis pour le SEO) ; sitemap et OG dynamique **cachés** ;
 slugs et `lang=fr` déjà conformes.
+
+## 11. Conversion visiteurs → inscriptions — ✅ Phases 1-2
+
+**Constat** : beaucoup de visites, peu d'inscriptions. Objectif réel = **avis publiés**, l'inscription doit être indolore.
+
+- **Phase 1 — friction réduite** : `RegisterRequest` n'exige plus que **email + mot de passe** (`name`/`pseudo` nullables,
+  confirmation supprimée). `AuthController::register` **auto-génère** `pseudo_public` (via `User::pseudoUnique()`, base = nom
+  ou partie locale de l'email) et `name` si absents ; renvoie du **JSON** si `expectsJson()` (pour l'AJAX). Le formulaire
+  `auth/register.blade.php` n'affiche que 2 champs, le reste replié dans un `<details>` « Personnaliser (facultatif) ».
+- **Phase 2 — modal d'incitation** : `partials/inscription-modal.blade.php` (`<x-modal id="inscription">`), inclus dans
+  `<x-layout>` **pour les invités uniquement** et **hors** pages `login`/`register`. Déclencheur dans `app.js` :
+  **délai 25 s OU intention de sortie**, **une seule fois / 7 j** (`localStorage`), jamais au 1er paint (UX/SEO).
+  Soumission **AJAX** → compte créé → redirection. Couvert par `InscriptionRapideTest`.
+
+- **Phase 3 — lien magique (sans mot de passe)** ✅ : `Auth\LienMagiqueController` — `POST /connexion/lien`
+  (`magic.send`, rate-limité 3/10 min par email+IP) génère un **token aléatoire à usage unique** en **cache**
+  (`magic-login:<token>`, TTL 30 min), envoyé par email (`App\Mail\LienConnexion`, vue `emails/lien-connexion`).
+  `GET /connexion/lien/{token}` (`magic.login`) **consomme** le token (`Cache::pull`), **crée le compte si besoin**
+  (pseudo auto) puis connecte. Formulaire réutilisable `partials/lien-magique` → **option principale** du modal
+  d'inscription **et** de la page `login` ; soumission AJAX (`[data-magic-form]` dans `app.js`). Envoi **synchrone**
+  (pas de worker de queue en prod). Couvert par `LienMagiqueTest`. **Prérequis SMTP** : `MAIL_*` (465/SSL notetaboite).
+
+**Reste (non fait)** : **Phase 4** — flux « avis d'abord » (commencer l'avis en invité, compte demandé à l'envoi).
+Piste mesure : events `evenements` (`modal_affiche`/`modal_cta`) pour le taux de conversion du modal.

@@ -8,9 +8,11 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\Evenement;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -20,12 +22,24 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    public function register(RegisterRequest $request): RedirectResponse
+    public function register(RegisterRequest $request): RedirectResponse|JsonResponse
     {
-        $user = User::create($request->validated());
+        $data = $request->validated();
+
+        // Pseudo public et nom auto-générés si non fournis (inscription rapide).
+        $base = $data['name'] ?? Str::before($data['email'], '@');
+        $data['pseudo_public'] ??= User::pseudoUnique($base);
+        $data['name'] ??= $data['pseudo_public'];
+
+        $user = User::create($data);
 
         Auth::login($user);
         $request->session()->regenerate();
+
+        // Inscription rapide via le modal (AJAX) → réponse JSON, sinon redirection.
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true, 'redirect' => route('classement.index')]);
+        }
 
         return redirect()->route('classement.index')
             ->with('success', 'Bienvenue '.$user->pseudo_public.' ! Votre compte est créé.');

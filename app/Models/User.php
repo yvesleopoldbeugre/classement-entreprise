@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
 #[ObservedBy([UserObserver::class])]
@@ -59,5 +60,20 @@ class User extends Authenticatable
     public function evenements(): HasMany
     {
         return $this->hasMany(Evenement::class);
+    }
+
+    /** Génère un pseudo public unique à partir d'une base (nom ou email). */
+    public static function pseudoUnique(?string $base): string
+    {
+        $base = Str::slug((string) ($base ?: 'membre'), '_') ?: 'membre';
+
+        $pseudo = $base;
+        $i = 2;
+        while (static::where('pseudo_public', $pseudo)->exists()) {
+            $pseudo = $base.'_'.$i;
+            $i++;
+        }
+
+        return $pseudo;
     }
 }

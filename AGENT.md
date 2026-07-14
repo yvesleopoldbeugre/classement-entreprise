@@ -442,5 +442,11 @@ slugs et `lang=fr` déjà conformes.
   d'inscription **et** de la page `login` ; soumission AJAX (`[data-magic-form]` dans `app.js`). Envoi **synchrone**
   (pas de worker de queue en prod). Couvert par `LienMagiqueTest`. **Prérequis SMTP** : `MAIL_*` (465/SSL notetaboite).
 
-**Reste (non fait)** : **Phase 4** — flux « avis d'abord » (commencer l'avis en invité, compte demandé à l'envoi).
-Piste mesure : events `evenements` (`modal_affiche`/`modal_cta`) pour le taux de conversion du modal.
+- **Phase 4 — « avis d'abord »** ✅ : les routes `contrib.avis.*` sont **hors `auth`** ; `StoreAvisEntrepriseRequest`
+  autorise les invités. Un invité qui envoie un avis → `ContributionController::avisStore` **mémorise l'avis validé
+  en session** (`avis_en_attente` + `avis_en_attente_entreprise`) et rouvre la fiche sur la **modal `compte-avis`**
+  (email + mot de passe inline). À l'inscription **ou** la connexion, `AuthController::publierAvisEnAttente()` **publie
+  l'avis** pour le nouveau compte (dédoublonnage inclus) et redirige vers la fiche. La modal d'avis est rendue pour
+  tous ; entretien/mission restent réservés aux connectés. Couvert par `AvisDAbordTest`.
+
+**Piste** : events `evenements` (`modal_affiche`/`modal_cta`) pour le taux de conversion du modal.

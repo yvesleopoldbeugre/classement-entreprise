@@ -27,6 +27,16 @@ class ContributionController extends Controller
 
     public function avisStore(StoreAvisEntrepriseRequest $request, Entreprise $entreprise): RedirectResponse
     {
+        // Flux « avis d'abord » : invité → on mémorise l'avis validé et on ouvre la
+        // création de compte ; l'avis est publié après connexion (voir AuthController).
+        if ($request->user() === null) {
+            $request->session()->put('avis_en_attente', $request->validated());
+            $request->session()->put('avis_en_attente_entreprise', $entreprise->id);
+
+            return redirect()->route('entreprises.show', $entreprise)
+                ->with('info', 'Dernière étape : créez votre compte pour publier votre avis.');
+        }
+
         AvisEntreprise::create([
             ...$request->validated(),
             'user_id' => $request->user()->id,

@@ -36,7 +36,7 @@
         ],
     ];
 @endphp
-<x-layout :title="$entreprise->nom.' — avis & note des salariés · Côte d’Ivoire'" :description="$metaDescription" og-type="article" :open-modal="old('_form')">
+<x-layout :title="$entreprise->nom.' — avis & note des salariés · Côte d’Ivoire'" :description="$metaDescription" og-type="article" :open-modal="session('avis_en_attente') ? 'compte-avis' : old('_form')">
     <x-schema :data="$schemaOrg" />
     <x-schema :data="$schemaBreadcrumb" />
     @php
@@ -136,22 +136,21 @@
 
         {{-- Contribuer --}}
         <section class="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5">
-            @auth
-                <h2 class="text-sm font-semibold text-slate-900">Vous avez une expérience avec {{ $entreprise->nom }} ?</h2>
-                <div class="mt-3 flex flex-wrap gap-2">
-                    <a href="{{ route('contrib.avis.create', $entreprise) }}" data-modal-open="avis"
-                       class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Donner mon avis</a>
+            <h2 class="text-sm font-semibold text-slate-900">Vous avez une expérience avec {{ $entreprise->nom }} ?</h2>
+            <div class="mt-3 flex flex-wrap gap-2">
+                {{-- Avis : ouvrable même en invité (le compte est créé à l'envoi) --}}
+                <a href="{{ route('contrib.avis.create', $entreprise) }}" data-modal-open="avis"
+                   class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Donner mon avis</a>
+                @auth
                     <a href="{{ route('contrib.entretien.create', $entreprise) }}" data-modal-open="entretien"
                        class="rounded-lg border border-indigo-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-50">Retour d’entretien</a>
                     <a href="{{ route('contrib.mission.create', $entreprise) }}" data-modal-open="mission"
                        class="rounded-lg border border-indigo-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-50">Déclarer une mission</a>
-                </div>
-            @else
-                <p class="text-sm text-slate-600">
-                    <a href="{{ route('login') }}" class="font-semibold text-indigo-700 hover:underline">Connectez-vous</a>
-                    pour partager votre avis, un retour d’entretien ou une mission.
-                </p>
-            @endauth
+                @endauth
+            </div>
+            @guest
+                <p class="mt-2 text-xs text-slate-500">Pas besoin de compte pour commencer — il sera créé au moment d'envoyer votre avis.</p>
+            @endguest
         </section>
 
         {{-- Avis --}}
@@ -286,10 +285,12 @@
         @endif
     </div>
 
+    {{-- Avis : disponible aussi en invité (flux « avis d'abord ») --}}
+    <x-modal id="avis" title="Donner mon avis">
+        @include('contributions.partials.avis')
+    </x-modal>
+
     @auth
-        <x-modal id="avis" title="Donner mon avis">
-            @include('contributions.partials.avis')
-        </x-modal>
         <x-modal id="entretien" title="Partager un retour d’entretien">
             @include('contributions.partials.entretien')
         </x-modal>
@@ -297,4 +298,32 @@
             @include('contributions.partials.mission')
         </x-modal>
     @endauth
+
+    @guest
+        {{-- Dernière étape du flux « avis d'abord » : création de compte inline --}}
+        <x-modal id="compte-avis" title="Dernière étape : créez votre compte">
+            <p class="mb-4 text-sm text-slate-600">
+                Votre avis est prêt ✅ Créez votre compte pour le publier — <strong>anonyme, 30 secondes.</strong>
+            </p>
+            <form method="POST" action="{{ route('register') }}" class="space-y-3">
+                @csrf
+                <div>
+                    <input name="email" type="email" required autocomplete="email" placeholder="Votre email"
+                           value="{{ old('email') }}"
+                           class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
+                    @error('email')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <x-password-input name="password" :required="true" autocomplete="new-password" placeholder="Choisissez un mot de passe" />
+                    @error('password')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+                </div>
+                <button type="submit" class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
+                    Publier mon avis
+                </button>
+            </form>
+            <p class="mt-3 text-center text-xs text-slate-400">
+                Déjà un compte ? <a href="{{ route('login') }}" class="text-indigo-600 hover:underline">Se connecter</a>
+            </p>
+        </x-modal>
+    @endguest
 </x-layout>

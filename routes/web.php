@@ -22,6 +22,10 @@ Route::get('/entreprises/{entreprise}', [ClassementController::class, 'show'])->
 // --- SEO ---
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
+// --- Avis « d'abord » : ouvrable en invité (le compte est demandé à la validation) ---
+Route::get('/entreprises/{entreprise}/avis', [ContributionController::class, 'avisCreate'])->name('contrib.avis.create');
+Route::post('/entreprises/{entreprise}/avis', [ContributionController::class, 'avisStore'])->name('contrib.avis.store');
+
 // --- Authentification ---
 Route::middleware('guest')->group(function () {
     Route::get('/inscription', [AuthController::class, 'showRegister'])->name('register');
@@ -49,8 +53,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/proposer-entreprise', [EntrepriseController::class, 'create'])->name('entreprises.create');
     Route::post('/proposer-entreprise', [EntrepriseController::class, 'store'])->name('entreprises.proposer');
 
-    Route::get('/entreprises/{entreprise}/avis', [ContributionController::class, 'avisCreate'])->name('contrib.avis.create');
-    Route::post('/entreprises/{entreprise}/avis', [ContributionController::class, 'avisStore'])->name('contrib.avis.store');
     Route::get('/entreprises/{entreprise}/entretien', [ContributionController::class, 'entretienCreate'])->name('contrib.entretien.create');
     Route::post('/entreprises/{entreprise}/entretien', [ContributionController::class, 'entretienStore'])->name('contrib.entretien.store');
     Route::get('/entreprises/{entreprise}/mission', [ContributionController::class, 'missionCreate'])->name('contrib.mission.create');

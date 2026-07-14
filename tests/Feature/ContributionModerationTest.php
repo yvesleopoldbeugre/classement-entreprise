@@ -74,12 +74,22 @@ class ContributionModerationTest extends TestCase
         ]);
     }
 
-    public function test_un_visiteur_ne_peut_pas_deposer_un_avis(): void
+    public function test_un_visiteur_ne_publie_pas_directement_un_avis(): void
     {
+        // Flux « avis d'abord » : l'invité peut soumettre, mais rien n'est publié
+        // tant que le compte n'est pas créé (voir AvisDAbordTest pour la suite).
         $entreprise = Entreprise::factory()->create();
 
-        $this->post(route('contrib.avis.store', $entreprise), [])
-            ->assertRedirect(route('login'));
+        $this->post(route('contrib.avis.store', $entreprise), [
+            'entreprise_id' => $entreprise->id,
+            'note_ambiance' => 4,
+            'note_management' => 4,
+            'note_salaire' => 4,
+            'note_evolution' => 4,
+            'statut_emploi' => 'ancien',
+        ])->assertRedirect(route('entreprises.show', $entreprise));
+
+        $this->assertDatabaseCount('avis_entreprises', 0);
     }
 
     public function test_la_moderation_est_interdite_aux_non_admins(): void

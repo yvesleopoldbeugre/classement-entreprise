@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\StatutModeration;
 use App\Enums\TypeEvenement;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\AvisEntreprise;
+use App\Models\Entreprise;
 use App\Models\Evenement;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -36,13 +39,20 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
+        // Flux « avis d'abord » : publie l'avis mémorisé si présent.
+        $entrepriseAvis = $this->publierAvisEnAttente($user);
+        $redirect = $entrepriseAvis
+            ? route('entreprises.show', $entrepriseAvis)
+            : route('classement.index');
+
         // Inscription rapide via le modal (AJAX) → réponse JSON, sinon redirection.
         if ($request->expectsJson()) {
-            return response()->json(['ok' => true, 'redirect' => route('classement.index')]);
+            return response()->json(['ok' => true, 'redirect' => $redirect]);
         }
 
-        return redirect()->route('classement.index')
-            ->with('success', 'Bienvenue '.$user->pseudo_public.' ! Votre compte est créé.');
+        return redirect()->to($redirect)->with('success', $entrepriseAvis
+            ? 'Compte créé et avis envoyé ! Il sera publié après modération.'
+            : 'Bienvenue '.$user->pseudo_public.' ! Votre compte est créé.');
     }
 
     public function showLogin(): View
@@ -58,8 +68,43 @@ class AuthController extends Controller
         $request->session()->regenerate();
         Evenement::log(TypeEvenement::Connexion, null, ['user_id' => Auth::id()]);
 
+        // Flux « avis d'abord » : si un avis était en attente, on le publie.
+        if ($entreprise = $this->publierAvisEnAttente($request->user())) {
+            return redirect()->route('entreprises.show', $entreprise)
+                ->with('success', 'Avis envoyé ! Il sera publié après modération.');
+        }
+
         return redirect()->intended(route('classement.index'))
             ->with('success', 'Content de vous revoir !');
+    }
+
+    /**
+     * Publie l'avis mémorisé en session (flux « avis d'abord ») pour l'utilisateur
+     * qui vient de se connecter/s'inscrire. Retourne l'entreprise concernée, ou null.
+     */
+    protected function publierAvisEnAttente(User $user): ?Entreprise
+    {
+        $data = session()->pull('avis_en_attente');
+        $entrepriseId = session()->pull('avis_en_attente_entreprise');
+
+        if (empty($data) || empty($entrepriseId) || ! ($entreprise = Entreprise::find($entrepriseId))) {
+            return null;
+        }
+
+        // Ne pas dupliquer si ce compte a déjà un avis sur cette entreprise.
+        $dejaAvis = AvisEntreprise::where('entreprise_id', $entreprise->id)
+            ->where('user_id', $user->id)
+            ->exists();
+
+        if (! $dejaAvis) {
+            AvisEntreprise::create([
+                ...$data,
+                'user_id' => $user->id,
+                'statut_moderation' => StatutModeration::parDefaut(),
+            ]);
+        }
+
+        return $entreprise;
     }
 
     public function logout(Request $request): RedirectResponse

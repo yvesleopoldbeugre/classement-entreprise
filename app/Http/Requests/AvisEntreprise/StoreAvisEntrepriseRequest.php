@@ -10,7 +10,9 @@ class StoreAvisEntrepriseRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        // Flux « avis d'abord » : un invité peut remplir l'avis ; le compte est
+        // demandé à la validation, puis l'avis est publié une fois connecté.
+        return true;
     }
 
     /**

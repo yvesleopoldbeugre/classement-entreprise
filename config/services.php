@@ -61,4 +61,7 @@ return [
         'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
     ],
 
+    // Jeton de vérification Google Search Console (balise meta) — facultatif.
+    'google_site_verification' => env('GOOGLE_SITE_VERIFICATION'),
+
 ];

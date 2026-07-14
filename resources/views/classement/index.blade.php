@@ -1,4 +1,33 @@
-<x-layout :open-modal="old('_form')">
+@php
+    // Titres/descriptions ciblés (mots-clés + localisation) selon la vue affichée.
+    $pageTitre = match ($vue) {
+        'classement' => 'Classement des entreprises par les salariés · Côte d’Ivoire',
+        'nouvelles' => 'Nouvelles entreprises ajoutées · Côte d’Ivoire',
+        default => 'Entreprises à mieux connaître avant de postuler · Côte d’Ivoire',
+    };
+    $pageDescription = 'Avis vérifiés de salariés, stagiaires et candidats sur les entreprises de Côte d’Ivoire. Des notes fiables (score bayésien) pour choisir où postuler en confiance.';
+@endphp
+<x-layout :title="$pageTitre" :description="$pageDescription" :open-modal="old('_form')" :robots="$recherche !== '' ? 'noindex, follow' : 'index, follow'">
+    {{-- Données structurées : site + moteur de recherche interne (sitelinks searchbox) --}}
+    <x-schema :data="[
+        '@context' => 'https://schema.org',
+        '@type' => 'WebSite',
+        'name' => config('app.name'),
+        'url' => url('/'),
+        'inLanguage' => 'fr',
+        'potentialAction' => [
+            '@type' => 'SearchAction',
+            'target' => ['@type' => 'EntryPoint', 'urlTemplate' => url('/').'?q={search_term_string}'],
+            'query-input' => 'required name=search_term_string',
+        ],
+        'publisher' => [
+            '@type' => 'Organization',
+            'name' => config('app.name'),
+            'url' => url('/'),
+            'logo' => asset('og-image.png'),
+        ],
+    ]" />
+
     {{-- Hero --}}
     <section class="border-b border-slate-200 bg-white">
         <div class="mx-auto max-w-6xl px-4 py-12">

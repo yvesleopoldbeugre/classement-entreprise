@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\TypeEvenement;
 use App\Http\Controllers\Controller;
 use App\Models\Evenement;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -12,6 +13,9 @@ class StatistiqueController extends Controller
 {
     /** Périodes proposées (en jours). */
     private const PERIODES = [7, 30, 90];
+
+    /** Fenêtre considérée comme « en cours de visite » (minutes). */
+    private const FENETRE_EN_LIGNE = 5;
 
     public function index(Request $request): View
     {
@@ -61,11 +65,29 @@ class StatistiqueController extends Controller
             'periodes' => self::PERIODES,
             'totaux' => $totaux,
             'visiteursUniques' => $visiteursUniques,
+            'enLigne' => $this->compterEnLigne(),
+            'fenetreEnLigne' => self::FENETRE_EN_LIGNE,
             'graphe' => [
                 'labels' => $labels,
                 'visites' => $visites,
                 'actions' => $actions,
             ],
         ]);
+    }
+
+    /** Endpoint léger (JSON) pour rafraîchir le compteur « en ligne » en direct. */
+    public function enLigne(): JsonResponse
+    {
+        return response()->json(['count' => $this->compterEnLigne()]);
+    }
+
+    /** Nombre de visiteurs distincts actifs dans les dernières minutes. */
+    private function compterEnLigne(): int
+    {
+        return Evenement::query()
+            ->where('type', TypeEvenement::Visite)
+            ->where('created_at', '>=', now()->subMinutes(self::FENETRE_EN_LIGNE))
+            ->distinct()
+            ->count('visiteur_hash');
     }
 }

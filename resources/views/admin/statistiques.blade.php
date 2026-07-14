@@ -1,4 +1,4 @@
-<x-layout title="Statistiques · ClassementCI">
+<x-layout robots="noindex, nofollow" title="Statistiques · ClassementCI">
     @php
         // Cartes KPI : visiteurs uniques en tête, puis un total par type d'événement.
         $cartes = [['libelle' => 'Visiteurs uniques', 'valeur' => $visiteursUniques, 'accent' => true]];
@@ -22,6 +22,20 @@
                         {{ $p }} jours
                     </a>
                 @endforeach
+            </div>
+        </div>
+
+        {{-- Visiteurs en cours de visite (temps réel) --}}
+        <div class="mb-3 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4"
+             data-en-ligne-url="{{ route('admin.stats.en-ligne') }}">
+            <span class="relative flex h-3 w-3">
+                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"></span>
+            </span>
+            <div>
+                <span id="en-ligne-count" class="text-2xl font-bold text-emerald-700">{{ number_format($enLigne, 0, ',', ' ') }}</span>
+                <span class="ml-1 text-sm font-medium text-emerald-700">en cours de visite</span>
+                <span class="ml-1 text-xs text-emerald-600/70">(actifs sur les {{ $fenetreEnLigne }} dernières minutes)</span>
             </div>
         </div>
 

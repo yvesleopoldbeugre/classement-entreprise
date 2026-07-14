@@ -19,6 +19,23 @@ Chart.register(
     LinearScale, CategoryScale, Filler, Tooltip, Legend,
 );
 
+// --- Compteur « en cours de visite » rafraîchi en direct ---
+const enLigneEl = document.getElementById('en-ligne-count');
+const enLigneUrl = enLigneEl?.closest('[data-en-ligne-url]')?.dataset.enLigneUrl;
+if (enLigneEl && enLigneUrl) {
+    const rafraichir = () => {
+        fetch(enLigneUrl, { headers: { Accept: 'application/json' } })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((d) => {
+                if (d && typeof d.count === 'number') {
+                    enLigneEl.textContent = new Intl.NumberFormat('fr-FR').format(d.count);
+                }
+            })
+            .catch(() => {});
+    };
+    setInterval(rafraichir, 20000);
+}
+
 const source = document.getElementById('stats-data');
 const canvas = document.getElementById('graphe-usage');
 

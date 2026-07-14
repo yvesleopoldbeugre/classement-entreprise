@@ -1,2 +1,13 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Zones privées / sans intérêt pour l'index
+Disallow: /admin
+Disallow: /moderation
+Disallow: /compte
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /proposer-entreprise
+Disallow: /api
+
+Sitemap: https://notetaboite.com/sitemap.xml

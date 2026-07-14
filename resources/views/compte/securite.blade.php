@@ -1,4 +1,4 @@
-<x-layout title="Sécurité du compte · ClassementCI">
+<x-layout robots="noindex, nofollow" title="Sécurité du compte · ClassementCI">
     <div class="mx-auto max-w-3xl px-4 py-8">
         <div class="mb-6">
             <h1 class="text-2xl font-bold text-slate-900">Sécurité du compte</h1>

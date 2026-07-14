@@ -1,4 +1,4 @@
-<x-layout :title="($utilisateur->pseudo_public ?? $utilisateur->name).' · Utilisateur'">
+<x-layout robots="noindex, nofollow" :title="($utilisateur->pseudo_public ?? $utilisateur->name).' · Utilisateur'">
     @php
         $cartes = [];
         foreach (\App\Enums\TypeEvenement::cases() as $t) {
@@ -53,27 +53,36 @@
             </div>
         </div>
 
-        {{-- Dernières actions --}}
+        {{-- Journal d'activité (actions + visites) --}}
         <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
-            <h2 class="mb-4 text-sm font-semibold text-slate-700">Dernières actions</h2>
+            <h2 class="mb-4 text-sm font-semibold text-slate-700">Activité récente</h2>
             <ul class="divide-y divide-slate-100">
                 @forelse ($recentes as $action)
                     <li class="flex items-center justify-between gap-3 py-2.5 text-sm">
-                        <div class="min-w-0">
-                            <span class="font-medium text-slate-800">{{ $action['type'] }}</span>
-                            @if ($action['sujet']['libelle'])
-                                <span class="text-slate-400"> · </span>
-                                @if ($action['sujet']['url'])
-                                    <a href="{{ $action['sujet']['url'] }}" class="text-indigo-600 hover:underline">{{ $action['sujet']['libelle'] }}</a>
-                                @else
-                                    <span class="text-slate-500">{{ $action['sujet']['libelle'] }}</span>
+                        <div class="flex min-w-0 items-center gap-2">
+                            <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs
+                                {{ $action['estVisite'] ? 'bg-slate-100 text-slate-500' : 'bg-indigo-50 text-indigo-600' }}">
+                                {{ $action['estVisite'] ? '↗' : '★' }}
+                            </span>
+                            <div class="min-w-0">
+                                <span class="font-medium text-slate-800">{{ $action['type'] }}</span>
+                                @if ($action['sujet']['libelle'])
+                                    <span class="text-slate-400"> · </span>
+                                    @if ($action['sujet']['url'])
+                                        <a href="{{ $action['sujet']['url'] }}" class="text-indigo-600 hover:underline">{{ $action['sujet']['libelle'] }}</a>
+                                    @else
+                                        <span class="text-slate-500">{{ $action['sujet']['libelle'] }}</span>
+                                    @endif
+                                @elseif ($action['estVisite'] && $action['page'])
+                                    <span class="text-slate-400"> · </span>
+                                    <span class="truncate text-slate-500">/{{ ltrim($action['page'], '/') }}</span>
                                 @endif
-                            @endif
+                            </div>
                         </div>
                         <time class="shrink-0 text-xs text-slate-400">{{ $action['date']->diffForHumans() }}</time>
                     </li>
                 @empty
-                    <li class="py-6 text-center text-slate-400">Aucune action enregistrée.</li>
+                    <li class="py-6 text-center text-slate-400">Aucune activité enregistrée.</li>
                 @endforelse
             </ul>
         </div>

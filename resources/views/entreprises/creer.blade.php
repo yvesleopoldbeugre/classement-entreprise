@@ -1,4 +1,4 @@
-<x-layout title="Proposer une entreprise · ClassementCI" :open-modal="old('_form')">
+<x-layout robots="noindex, nofollow" title="Proposer une entreprise · ClassementCI" :open-modal="old('_form')">
     <div class="mx-auto max-w-2xl px-4 py-10">
         <a href="{{ route('classement.index') }}" class="mb-4 inline-block text-sm text-slate-500 hover:text-slate-800">← Retour au classement</a>
         <div class="rounded-2xl border border-slate-200 bg-white p-6">

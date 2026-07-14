@@ -5,8 +5,40 @@
             .($rang ? ' (#'.$rang.' au classement)' : '')
             .' d’après les avis d’anciens salariés en Côte d’Ivoire. Secteur : '.$entreprise->secteur_activite->libelle().'.'
         : 'Découvrez les avis sur '.$entreprise->nom.' ('.$entreprise->secteur_activite->libelle().') en Côte d’Ivoire et partagez votre propre expérience.';
+
+    // Données structurées : entreprise + note agrégée (extraits enrichis) + fil d'Ariane.
+    $schemaOrg = array_filter([
+        '@context' => 'https://schema.org',
+        '@type' => $entreprise->commune ? 'LocalBusiness' : 'Organization',
+        'name' => $entreprise->nom,
+        'url' => route('entreprises.show', $entreprise),
+        'sameAs' => $entreprise->site_web ? [$entreprise->site_web] : null,
+        'address' => $entreprise->commune ? [
+            '@type' => 'PostalAddress',
+            'addressLocality' => $entreprise->commune,
+            'addressCountry' => 'CI',
+        ] : null,
+        'aggregateRating' => ($entreprise->score_bayesien !== null && $entreprise->nb_avis_total > 0) ? [
+            '@type' => 'AggregateRating',
+            'ratingValue' => number_format((float) $entreprise->score_bayesien, 1, '.', ''),
+            'reviewCount' => $entreprise->nb_avis_total,
+            'bestRating' => 5,
+            'worstRating' => 1,
+        ] : null,
+    ]);
+
+    $schemaBreadcrumb = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => [
+            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Classement', 'item' => route('classement.index')],
+            ['@type' => 'ListItem', 'position' => 2, 'name' => $entreprise->nom, 'item' => route('entreprises.show', $entreprise)],
+        ],
+    ];
 @endphp
-<x-layout :title="$entreprise->nom.' · ClassementCI'" :description="$metaDescription" og-type="article" :open-modal="old('_form')">
+<x-layout :title="$entreprise->nom.' — avis & note des salariés · Côte d’Ivoire'" :description="$metaDescription" og-type="article" :open-modal="old('_form')">
+    <x-schema :data="$schemaOrg" />
+    <x-schema :data="$schemaBreadcrumb" />
     @php
         $score = $entreprise->score_bayesien !== null ? (float) $entreprise->score_bayesien : null;
         $classesTon = match (true) {
@@ -232,6 +264,26 @@
                 @endforelse
             </div>
         </section>
+
+        {{-- Maillage interne : même secteur --}}
+        @if ($similaires->isNotEmpty())
+            <section class="mt-10">
+                <h2 class="mb-3 text-lg font-bold text-slate-900">Autres entreprises — {{ $entreprise->secteur_activite->libelle() }}</h2>
+                <div class="grid gap-3 sm:grid-cols-2">
+                    @foreach ($similaires as $similaire)
+                        <a href="{{ route('entreprises.show', $similaire) }}"
+                           class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-indigo-300 hover:shadow-sm">
+                            <span class="truncate font-semibold text-slate-900">{{ $similaire->nom }}</span>
+                            @if ($similaire->score_bayesien !== null)
+                                <span class="shrink-0 text-sm font-medium text-slate-500 tabular-nums">{{ number_format((float) $similaire->score_bayesien, 1, ',', ' ') }}/5</span>
+                            @else
+                                <span class="shrink-0 rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700">Nouveau</span>
+                            @endif
+                        </a>
+                    @endforeach
+                </div>
+            </section>
+        @endif
     </div>
 
     @auth

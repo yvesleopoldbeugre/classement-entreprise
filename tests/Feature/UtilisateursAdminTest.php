@@ -57,7 +57,7 @@ class UtilisateursAdminTest extends TestCase
             ->get(route('admin.users.show', $membre))
             ->assertOk()
             ->assertSee('awa_prod')
-            ->assertSee('Dernières actions')
+            ->assertSee('Activité récente')
             ->assertSee('Neurones Technologiques') // sujet de l'action « Avis »
             ->assertSee('graphe-utilisateur', false);
     }

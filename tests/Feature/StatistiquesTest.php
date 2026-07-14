@@ -85,6 +85,24 @@ class StatistiquesTest extends TestCase
             ->get(route('admin.stats.index'))
             ->assertOk()
             ->assertSee('Visiteurs uniques')
+            ->assertSee('en cours de visite')
             ->assertSee('graphe-usage', false);
+    }
+
+    public function test_le_compteur_en_ligne_renvoie_un_json(): void
+    {
+        // Génère une visite récente (comptée dans la fenêtre « en ligne »).
+        $this->get('/')->assertOk();
+
+        $this->actingAs($this->admin())
+            ->getJson(route('admin.stats.en-ligne'))
+            ->assertOk()
+            ->assertJsonStructure(['count']);
+    }
+
+    public function test_le_compteur_en_ligne_est_reserve_aux_admins(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->getJson(route('admin.stats.en-ligne'))->assertForbidden();
     }
 }

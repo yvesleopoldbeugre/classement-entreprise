@@ -1,4 +1,4 @@
-<x-layout :title="'Donner mon avis · '.$entreprise->nom">
+<x-layout robots="noindex, nofollow" :title="'Donner mon avis · '.$entreprise->nom">
     <div class="mx-auto max-w-2xl px-4 py-10">
         <a href="{{ route('entreprises.show', $entreprise) }}" class="mb-4 inline-block text-sm text-slate-500 hover:text-slate-800">← {{ $entreprise->nom }}</a>
         <div class="rounded-2xl border border-slate-200 bg-white p-6">

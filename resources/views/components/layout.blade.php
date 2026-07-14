@@ -3,6 +3,7 @@
     'description' => 'Le classement des entreprises de Côte d’Ivoire basé sur les retours de ceux qui y ont réellement travaillé. Avis vérifiés, score bayésien fiable dès le premier avis.',
     'ogImage' => null,       // URL absolue d’une image de partage spécifique à la page (facultatif)
     'ogType' => 'website',   // « article » pour une fiche entreprise, par ex.
+    'robots' => 'index, follow', // « noindex, nofollow » sur les pages privées / sans intérêt SEO
     'openModal' => null,
 ])
 @php
@@ -17,9 +18,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title }}</title>
     <meta name="description" content="{{ $description }}">
+    <meta name="robots" content="{{ $robots }}">
     <link rel="canonical" href="{{ $canonical }}">
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <meta name="theme-color" content="#4f46e5">
+    @if (config('services.google_site_verification'))
+        <meta name="google-site-verification" content="{{ config('services.google_site_verification') }}">
+    @endif
 
     {{-- Open Graph (Facebook, LinkedIn, WhatsApp, Slack, iMessage…) --}}
     <meta property="og:type" content="{{ $ogType }}">

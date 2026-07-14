@@ -90,9 +90,19 @@ class ClassementController extends Controller
             ? Entreprise::classable()->where('score_bayesien', '>', $entreprise->score_bayesien)->count() + 1
             : null;
 
+        // Maillage interne : quelques entreprises publiques du même secteur.
+        $similaires = Entreprise::query()
+            ->where('secteur_activite', $entreprise->secteur_activite)
+            ->whereKeyNot($entreprise->getKey())
+            ->where(fn ($q) => $q->whereNotNull('rang_a_eviter')->orWhere('statut', StatutEntreprise::Verifiee))
+            ->orderByDesc('score_bayesien')
+            ->limit(4)
+            ->get(['nom', 'slug', 'secteur_activite', 'score_bayesien']);
+
         return view('entreprises.show', [
             'entreprise' => $entreprise,
             'rang' => $rang,
+            'similaires' => $similaires,
         ]);
     }
 }

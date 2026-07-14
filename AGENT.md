@@ -286,6 +286,10 @@ ajout/vérification d'entreprise, commande `admin:creer`, toasts SweetAlert, hea
 > `admin.users.show` (`/admin/utilisateurs/{user}` — fiche : KPI par type, **courbe** visites/actions, timeline des dernières actions).
 > Contrôleurs `Admin\StatistiqueController` et `Admin\UtilisateurController`. Graphes : `resources/js/users.js`
 > (barres + courbe) et `resources/js/stats.js`, chart.js factorisé dans un chunk partagé.
+> La page stats affiche une carte **« en cours de visite »** (visiteurs distincts actifs sur 5 min),
+> rafraîchie en direct via l'endpoint `admin.stats.en-ligne` (JSON, polling 20 s dans `stats.js`).
+> La fiche utilisateur affiche un **journal d'activité** (`Activité récente`) : actions **et** visites
+> (avec la page consultée), pas seulement les compteurs.
 > Les événements de contribution sont attribués à l'**auteur du contenu** (`$model->user_id`), pas au seul
 > utilisateur authentifié. Commande de purge `php artisan stats:purger --mois=12` (planifiée le 1er du mois).
 > Tests : `StatistiquesTest.php`, `UtilisateursAdminTest.php`.
@@ -350,3 +354,69 @@ avec un helper statique `Evenement::log(TypeEvenement $type, ?Model $sujet = nul
 
 **Notes** : aucune IP en clair (hash seul) ; insertion 1 ligne/pageview suffisante à cette échelle
 (passer en queue seulement si volumétrie forte) ; réutiliser le style cartes de `moderation/index`.
+
+## 10. SEO — ✅ implémenté
+
+> `SitemapController` → `GET /sitemap.xml` (cache 6 h, entreprises publiques) ; `robots.txt` (sitemap + zones privées).
+> `<x-schema>` (JSON-LD) : `WebSite`+`SearchAction` (accueil), `Organization`/`LocalBusiness`+`AggregateRating`+`BreadcrumbList` (fiche).
+> Prop `robots` sur `<x-layout>` (défaut `index, follow`) → `noindex, nofollow` sur les 11 vues privées ; `noindex` sur les recherches `?q=`.
+> Titres/descriptions ciblés (accueil selon `$vue`, fiche `{nom} — avis & note des salariés · Côte d'Ivoire`).
+> Maillage « même secteur » sur la fiche. Vérif Search Console : `GOOGLE_SITE_VERIFICATION` (config `services.google_site_verification`).
+> Tests : `SeoTest.php`. **Manuel restant** : soumettre le sitemap dans Google Search Console.
+
+**Objectif** : maximiser la visibilité Google (« avis entreprise Côte d'Ivoire », noms d'entreprises)
+par une indexation complète, des **extraits enrichis** (étoiles) et des pages ciblées.
+
+**Déjà en place** (§5c) : OG/Twitter, meta description (dynamique sur la fiche), `canonical`, `lang=fr`,
+titres par page, **URLs en slug**. Il manque : sitemap, données structurées, contrôle d'indexation,
+titres/descriptions optimisés.
+
+### 10.1 Indexation — sitemap + robots  *(priorité haute)*
+- `Seo\SitemapController@index` → `GET /sitemap.xml` (name `sitemap`). Contenu : `/` + les vues clés
+  + **toutes les entreprises vérifiées** (`Entreprise::where('statut', Verifiee)`), `lastmod = updated_at`.
+  Réponse XML **mise en cache** (`Cache::remember`, ~6 h). Vue `resources/views/sitemap.blade.php`.
+- `public/robots.txt` : ajouter `Sitemap: {APP_URL}/sitemap.xml` + `Disallow:` des zones privées
+  (`/admin`, `/moderation`, `/compte`, `/connexion`, `/inscription`, `/proposer-entreprise`, `/api`).
+
+### 10.2 Données structurées JSON-LD  *(priorité haute — extraits enrichis)*
+Composant `<x-schema>` injectant du `application/ld+json` :
+- **Accueil** : `WebSite` + `Organization` + `SearchAction` (searchbox → `/?q={query}`).
+- **Fiche entreprise** : `Organization`/`LocalBusiness` (si `commune`/`adresse`) avec `name`, `url`,
+  `address` (CI) et surtout **`AggregateRating`** (`ratingValue = score_bayesien`,
+  `reviewCount = nb_avis_total`, `bestRating = 5`) → **étoiles dans Google**. + `Review` (avis publiés) en option.
+- **Fil d'Ariane** : `BreadcrumbList` (Accueil › Entreprise).
+- ⚠️ Les extraits « avis » suivent les règles Google (pas d'auto-avis) ; le balisage reste valable mais
+  l'affichage des étoiles n'est jamais garanti. La note doit être **visible** sur la page (elle l'est).
+
+### 10.3 Contrôle de l'indexation  *(priorité moyenne)*
+- Prop `robots` sur `<x-layout>` (défaut `index,follow`) → `noindex,nofollow` sur modération, admin,
+  compte, connexion/inscription, formulaires de contribution (`create`).
+- **Canonical des vues filtrées** : la home avec `?vue=&secteur=&q=&page=` = contenu dupliqué.
+  Poser `canonical` vers l'URL propre et `noindex` sur les recherches (`?q=`).
+
+### 10.4 Titres & descriptions ciblés  *(priorité moyenne)*
+- Titres uniques riches en mots-clés + **localisation** par vue (ex. fiche :
+  `{nom} — avis & note des salariés · Côte d'Ivoire`). Meta descriptions uniques (l'accueil utilise
+  encore la description par défaut).
+
+### 10.5 Maillage & performance  *(priorité basse)*
+- **Maillage interne** : bloc « entreprises du même secteur » sur la fiche, fil d'Ariane visible, liens
+  footer vers les vues clés.
+- **Perf / Core Web Vitals** : `width/height` + `loading="lazy"` sur les images ; déjà bon (FrankenPHP,
+  assets buildés, JS minimal côté public).
+- (option) **OG image dynamique par entreprise** (nom + note) via le générateur GD en route cachée.
+- (manuel) **Google Search Console** : balise meta de vérif (prop `googleVerification` depuis `.env`)
+  + soumission du sitemap.
+
+### 10.6 Étapes (ordre)
+1. `SitemapController` + `/sitemap.xml` (cache) ; MAJ `robots.txt`.
+2. `<x-schema>` : accueil (WebSite/Organization/SearchAction) + fiche (Organization+AggregateRating+BreadcrumbList).
+3. Prop `robots` sur `<x-layout>` + `noindex` pages privées ; canonical propre + `noindex` sur `?q=`.
+4. Titres + meta descriptions ciblés par vue.
+5. Maillage interne + attributs images.
+6. (option) OG dynamique par entreprise ; (manuel) Search Console.
+7. Tests : `/sitemap.xml` 200 + contient une entreprise vérifiée ; pages privées `noindex` ;
+   fiche contient le JSON-LD `AggregateRating`.
+
+**Notes** : tout est server-rendered (pas de JS requis pour le SEO) ; sitemap et OG dynamique **cachés** ;
+slugs et `lang=fr` déjà conformes.

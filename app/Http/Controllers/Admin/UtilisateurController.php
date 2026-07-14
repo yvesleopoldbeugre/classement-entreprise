@@ -91,21 +91,22 @@ class UtilisateurController extends Controller
                 ->sum(fn (TypeEvenement $t) => (int) ($parJourType->get($cle.'|'.$t->value)->n ?? 0));
         }
 
-        // Dernières actions (hors visites) avec leur sujet.
+        // Journal d'activité : toutes les actions ET les visites (avec la page consultée).
         $recentes = $user->evenements()
-            ->where('type', '!=', self::VISITE)
             ->with(['sujet' => fn (MorphTo $m) => $m->morphWith([
                 AvisEntreprise::class => ['entreprise'],
                 RetourEntretien::class => ['entreprise'],
                 Mission::class => ['entreprise'],
             ])])
             ->latest()
-            ->limit(30)
+            ->limit(40)
             ->get()
             ->map(fn ($e) => [
                 'type' => $e->type->libelle(),
+                'estVisite' => $e->type->estVisite(),
                 'date' => $e->created_at,
                 'sujet' => $this->decrireSujet($e->sujet),
+                'page' => $e->url,
             ]);
 
         return view('admin.utilisateurs.show', [

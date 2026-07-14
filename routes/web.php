@@ -10,12 +10,16 @@ use App\Http\Controllers\ContributionController;
 use App\Http\Controllers\EntrepriseController;
 use App\Http\Controllers\ModerationController;
 use App\Http\Controllers\ReponseEntrepriseController;
+use App\Http\Controllers\Seo\SitemapController;
 use App\Http\Controllers\SignalementController;
 use Illuminate\Support\Facades\Route;
 
 // --- Public : classement + fiches ---
 Route::get('/', [ClassementController::class, 'index'])->name('classement.index');
 Route::get('/entreprises/{entreprise}', [ClassementController::class, 'show'])->name('entreprises.show');
+
+// --- SEO ---
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // --- Authentification ---
 Route::middleware('guest')->group(function () {
@@ -66,6 +70,7 @@ Route::middleware(['auth', 'can:moderer'])->group(function () {
 // --- Espace admin (statistiques) ---
 Route::middleware(['auth', 'can:moderer'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/statistiques', [StatistiqueController::class, 'index'])->name('stats.index');
+    Route::get('/statistiques/en-ligne', [StatistiqueController::class, 'enLigne'])->name('stats.en-ligne');
     Route::get('/utilisateurs', [UtilisateurController::class, 'index'])->name('users.index');
     Route::get('/utilisateurs/{user}', [UtilisateurController::class, 'show'])->name('users.show');
 });

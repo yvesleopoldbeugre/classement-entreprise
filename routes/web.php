@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\LiveController;
 use App\Http\Controllers\Admin\StatistiqueController;
 use App\Http\Controllers\Admin\UtilisateurController;
+use App\Http\Controllers\Chat\ChatVisiteurController;
+use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\LienMagiqueController;
 use App\Http\Controllers\Auth\SocialiteController;
@@ -26,6 +29,14 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 // --- Avis « d'abord » : ouvrable en invité (le compte est demandé à la validation) ---
 Route::get('/entreprises/{entreprise}/avis', [ContributionController::class, 'avisCreate'])->name('contrib.avis.create');
 Route::post('/entreprises/{entreprise}/avis', [ContributionController::class, 'avisStore'])->name('contrib.avis.store');
+
+// --- Présence temps réel + chat visiteur (public, throttlé, scoping par visiteur_token) ---
+Route::post('/presence', [PresenceController::class, 'heartbeat'])->middleware('throttle:60,1')->name('presence');
+Route::middleware('throttle:40,1')->group(function () {
+    Route::post('/chat/ouvrir', [ChatVisiteurController::class, 'ouvrir'])->name('chat.ouvrir');
+    Route::post('/chat/message', [ChatVisiteurController::class, 'envoyer'])->name('chat.message');
+    Route::get('/chat/messages', [ChatVisiteurController::class, 'messages'])->name('chat.messages');
+});
 
 // --- Authentification ---
 Route::middleware('guest')->group(function () {
@@ -87,6 +98,13 @@ Route::middleware(['auth', 'can:moderer'])->group(function () {
 Route::middleware(['auth', 'can:moderer'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/statistiques', [StatistiqueController::class, 'index'])->name('stats.index');
     Route::get('/statistiques/en-ligne', [StatistiqueController::class, 'enLigne'])->name('stats.en-ligne');
+
+    // Visiteurs en direct + chat (admin).
+    Route::get('/live', [LiveController::class, 'index'])->name('live.index');
+    Route::get('/live/visiteurs', [LiveController::class, 'visiteurs'])->name('live.visiteurs');
+    Route::post('/live/conversations', [LiveController::class, 'demarrer'])->name('live.demarrer');
+    Route::get('/live/conversations/{conversation}/messages', [LiveController::class, 'conversation'])->name('live.conversation');
+    Route::post('/live/conversations/{conversation}/messages', [LiveController::class, 'repondre'])->name('live.repondre');
     Route::get('/utilisateurs', [UtilisateurController::class, 'index'])->name('users.index');
     Route::get('/utilisateurs/{user}', [UtilisateurController::class, 'show'])->name('users.show');
 });

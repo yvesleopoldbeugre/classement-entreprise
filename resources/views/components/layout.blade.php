@@ -16,6 +16,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title }}</title>
     <meta name="description" content="{{ $description }}">
     <meta name="robots" content="{{ $robots }}">
@@ -139,5 +140,10 @@
             @include('partials.inscription-modal')
         @endunless
     @endguest
+
+    {{-- Chat visiteur + présence temps réel (hors espace admin/modération) --}}
+    @unless (request()->routeIs('admin.*') || request()->routeIs('moderation.*'))
+        @include('partials.chat-widget')
+    @endunless
 </body>
 </html>

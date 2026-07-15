@@ -17,3 +17,8 @@ Schedule::command('classement:recalculer')
 Schedule::command('stats:purger')
     ->monthlyOn(1, '04:00')
     ->withoutOverlapping();
+
+// Purge quotidienne du chat : présences périmées + conversations inactives.
+Schedule::command('chat:purger')
+    ->dailyAt('04:30')
+    ->withoutOverlapping();

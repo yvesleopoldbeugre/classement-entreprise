@@ -3,6 +3,7 @@
 
 @auth
     @can('moderer')
+        <a href="{{ route('admin.live.index') }}" class="{{ $lien }}">En direct</a>
         <a href="{{ route('admin.stats.index') }}" class="{{ $lien }}">Statistiques</a>
         <a href="{{ route('admin.users.index') }}" class="{{ $lien }}">Utilisateurs</a>
         <a href="{{ route('moderation.index') }}" class="{{ $lien }}">Modération</a>

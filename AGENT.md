@@ -455,3 +455,69 @@ slugs et `lang=fr` déjà conformes.
   tous ; entretien/mission restent réservés aux connectés. Couvert par `AvisDAbordTest`.
 
 **Piste** : events `evenements` (`modal_affiche`/`modal_cta`) pour le taux de conversion du modal.
+
+## 12. Visiteurs en direct + live-chat (admin) — ✅ implémenté (v1 polling + bot)
+
+> **Public** : widget `partials/chat-widget` (+ `resources/js/chat.js`) sur toutes les pages hors admin/modération ;
+> identité `visiteur_token` (localStorage). Heartbeat `POST /presence` (25 s). Chat `POST /chat/ouvrir|message`,
+> `GET /chat/messages` (scoping strict par token, throttlé). **Bot** `App\Services\ChatBot` (accueil + FAQ
+> `config/chatbot.php` + escalade/fallback) répond auto tant qu'aucun admin n'a pris la main.
+> **Admin** (`can:moderer`) : `Admin\LiveController` + page `admin.live.index` (nav « En direct ») + `resources/js/live.js` :
+> liste des présents (poll 5 s, page/appareil/identité), conversation (poll 4 s), l'admin répond → `humain_actif=true`
+> (le bot se tait). Purge `chat:purger` (quotidienne). Tests : `ChatTest`. **v2 possible** : bascule SSE/Mercure (FrankenPHP).
+
+**Objectif** : dans l'espace admin, voir **en temps réel** qui est sur le site (page consultée, durée,
+appareil, identité si connecté) et **écrire directement** à un visiteur via un **widget de chat**.
+
+### 12.1 Décision d'architecture — transport temps réel
+| Option | Pour | Contre | Verdict |
+|---|---|---|---|
+| **Polling HTTP** (v1) | zéro infra, marche sur la stack actuelle, simple, fiable | latence 3-5 s, + de requêtes | ✅ **recommandé pour v1** (échelle actuelle faible) |
+| **SSE / Mercure** (FrankenPHP l'embarque) | push natif serveur→client, pas de serveur WS séparé | config hub + reverse-proxy | 🔜 v2 (fit natif FrankenPHP) |
+| **Laravel Reverb** (WebSocket) | idiomatique, bidirectionnel | process + port + Echo + route Traefik WS | ❌ surdimensionné ici |
+→ **v1 en polling**, conçu pour brancher SSE/Mercure ensuite sans refonte (mêmes endpoints JSON).
+
+### 12.2 Modèle de données
+- **`presences`** (qui est en ligne) : `visiteur_token` (uuid client, pk), `user_id?`, `url`, `user_agent`,
+  `ip_hash`, `derniere_activite`. Upsert par **heartbeat**. « En ligne » = `derniere_activite` < ~60 s.
+- **`conversations`** : `id`, `visiteur_token`, `user_id?`, `statut` (ouverte/fermée), `admin_id?` (assigné), timestamps.
+- **`messages`** : `id`, `conversation_id`, `expediteur` (enum `visiteur|admin|bot`), `admin_id?`, `corps`, `lu_at?`, `created_at`.
+- **Identité visiteur** : un **`visiteur_token`** (uuid) en `localStorage` (persistant, distinct du `visiteur_hash`
+  serveur) → continuité du chat entre pages/sessions ; lié à `user_id` si connecté.
+
+### 12.3 Capture & endpoints
+- **Heartbeat** (public, throttlé) : `POST /presence` toutes les ~20-30 s tant que l'onglet est ouvert
+  (+ à chaque navigation) → upsert `presences` (token, url, user, ip_hash, now).
+- **Chat visiteur** (public, scoping par token, rate-limité) :
+  - `POST /chat/message` (envoie), `GET /chat/messages?depuis=<id>` (poll ses propres messages),
+    `POST /chat/ouvrir` (crée la conversation à la 1ʳᵉ ouverture).
+- **Chat admin** (`can:moderer`) :
+  - `GET /admin/live` (page), `GET /admin/live/visiteurs` (liste JSON des présents),
+    `GET /admin/live/conversations/{conversation}/messages`, `POST .../messages` (répond),
+    `POST /admin/live/conversations` (démarre une conv. avec un visiteur en ligne).
+- **Purge** : commande `presence:purger` (présences périmées) + `chat:purger` (vieilles conversations) planifiées.
+
+### 12.4 Front
+- **Widget visiteur** : bulle de chat sur toutes les pages publiques (`partials/chat-widget`), entrée Vite dédiée
+  `resources/js/chat.js` — heartbeat + poll des messages quand ouvert + envoi. Notif « nouveau message ».
+- **Admin `live`** : liste des visiteurs en ligne (page, durée, appareil, nom/email si connecté, badge « écrit… »)
+  + panneau de conversation (poll). `resources/js/live.js`. Lien nav sous `@can('moderer')`.
+
+### 12.5 « Chatbot » (optionnel, couche au-dessus)
+- **Auto-greeting** : message `bot` automatique après X s sur une page (règles simples en config).
+- **Réponses auto** (FAQ) : mapping mots-clés → réponse, avant reprise par un humain. (Étape ultérieure.)
+
+### 12.6 Étapes
+1. Migrations `presences` / `conversations` / `messages` + modèles + enum `Expediteur`.
+2. Heartbeat + `visiteur_token` (localStorage) + `PresenceController`.
+3. `Chat\ChatVisiteurController` (ouvrir/envoyer/poll) — public scoping token + rate-limit.
+4. Widget visiteur (`partials/chat-widget` + `resources/js/chat.js`) inclus au layout (public).
+5. `Admin\LiveController` (page + JSON visiteurs/messages/répondre/démarrer) + route groupe `admin` + nav.
+6. Vue `admin/live` + `resources/js/live.js` (polling).
+7. Purges planifiées (`presence:purger`, `chat:purger`).
+8. Tests : heartbeat crée/maj présence ; visiteur↔admin échangent des messages scoping token ;
+   `admin.live*` protégé `can:moderer`.
+9. (option) auto-greeting bot ; (v2) bascule SSE/Mercure.
+
+**Notes** : RGPD — pas d'IP en clair (hash), présence éphémère purgée. Scoping strict des messages par
+`visiteur_token` (secret client) côté serveur. Polling = intervalles adaptatifs (chat ouvert : 3-5 s ; sinon : 20-30 s).

@@ -1,58 +1,78 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Note ta boîte — Classement des entreprises (Côte d'Ivoire)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plateforme communautaire qui **note les entreprises de Côte d'Ivoire** à partir des retours de
+celles et ceux qui y travaillent (salariés, stagiaires, freelances, candidats), pour aider les
+futurs candidats à choisir **en connaissance de cause**.
 
-## About Laravel
+🌐 Production : **[notetaboite.com](https://notetaboite.com)**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Fonctionnalités clés
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Classement fiable** : score **bayésien** (façon IMDb) + **moyenne pondérée** des avis selon la
+  **confiance du contributeur** (LinkedIn vérifié > email vérifié > non vérifié) et la **récence**.
+- **Liste éditoriale** « à mieux connaître avant de s'y aventurer » + sortie automatique quand la note remonte.
+- **Contributions** : avis, retours d'entretien, missions — modérés avant publication ; signalement à seuil ; droit de réponse.
+- **Avis d'abord** : un visiteur peut rédiger son avis **sans compte**, le compte est créé à l'envoi.
+- **Inscription sans friction** : email + mot de passe, ou **lien magique** (sans mot de passe) ; SSO (Google/LinkedIn/GitHub/Facebook).
+- **Vérification d'email** (relève le poids des avis) + badges de confiance.
+- **Espace admin** (`can:moderer`) : modération, **statistiques d'usage** (visites/actions, graphes),
+  **utilisateurs**, et **visiteurs en direct + chat** (widget visiteur + **bot FAQ** + reprise humaine).
+- **SEO** : sitemap, données structurées JSON-LD (`AggregateRating`…), OpenGraph, titres ciblés.
 
-## Learning Laravel
+## Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Laravel 13 · PHP 8.4 · MySQL 8 · Tailwind v4 + Vite · Sanctum (API) · Socialite (SSO) ·
+Scramble (doc OpenAPI) · **FrankenPHP** (image de production) · Traefik (reverse-proxy).
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Démarrage (dev, Docker)
 
 ```bash
-composer require laravel/boost --dev
+cp .env.example .env            # puis renseigner les variables
+docker compose up -d            # app (php-fpm) + web (nginx) + db (mysql)
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
 
-php artisan boost:install
+# Assets front (obligatoire pour le style) :
+docker compose run --rm --no-deps node sh -c "npm install && npm run build"
+# ou en dev avec HMR :  docker compose --profile dev up -d node
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+App : http://localhost:8088 · API : `/api` · Doc API : `/docs/api`
 
-## Contributing
+Créer un compte admin :
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+docker compose exec app php artisan admin:creer
+```
 
-## Code of Conduct
+## Tests
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+> ⚠️ Le conteneur injecte `DB_CONNECTION=mysql` via `env_file` (écrase `phpunit.xml`). Forcer l'env de test :
 
-## Security Vulnerabilities
+```bash
+docker compose exec -e APP_ENV=testing -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: -e DB_HOST=127.0.0.1 app php artisan test
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Style : `./vendor/bin/pint`
 
-## License
+## Production (image unique FrankenPHP)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+# Build & push (hors VPS)
+docker build -f Dockerfile.prod --target app -t yvesleopold98/classement-entreprise:X.Y.Z .
+docker push yvesleopold98/classement-entreprise:X.Y.Z
+
+# Déploiement (sur le VPS, avec docker-compose.prod.yml + .env.production)
+./deploy.sh X.Y.Z     # pull → up → migrate → seed → optimize
+```
+
+La configuration de prod (`docker-compose.prod.yml`, `.env.production`) est **gitignorée**
+(secrets hors dépôt et hors image).
+
+## Documentation
+
+L'architecture complète, les conventions et le fonctionnement détaillé de chaque brique sont
+documentés dans **[AGENT.md](AGENT.md)** (modèle de données, classement, auth, stats, chat, SEO,
+déploiement, etc.).

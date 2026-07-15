@@ -34,24 +34,50 @@ class LiveController extends Controller
             ->get()
             ->keyBy('visiteur_token');
 
+        $enLigne = $presences->map(function (Presence $p) use ($conversations) {
+            $c = $conversations->get($p->visiteur_token);
+
+            return [
+                'token' => $p->visiteur_token,
+                'nom' => $p->user?->pseudo_public ?? 'Visiteur anonyme',
+                'email' => $p->user?->email,
+                'connecte' => $p->user !== null,
+                'url' => $p->url,
+                'appareil' => $this->appareil($p->user_agent),
+                'activite' => $p->derniere_activite?->diffForHumans(),
+                'conversation_id' => $c?->id,
+                'non_lus' => (int) ($c->non_lus_admin ?? 0),
+                'en_ligne' => true,
+            ];
+        });
+
+        // Conversations en attente (message visiteur non lu) dont le visiteur n'est plus en ligne.
+        $enAttente = Conversation::with('user')
+            ->whereNotIn('visiteur_token', $presences->pluck('visiteur_token'))
+            ->whereHas('messages', fn ($q) => $q
+                ->where('expediteur', Expediteur::Visiteur->value)->whereNull('lu_at'))
+            ->withCount(['messages as non_lus_admin' => fn ($q) => $q
+                ->where('expediteur', Expediteur::Visiteur->value)->whereNull('lu_at')])
+            ->latest('updated_at')
+            ->limit(50)
+            ->get()
+            ->map(fn (Conversation $c) => [
+                'token' => $c->visiteur_token,
+                'nom' => $c->user?->pseudo_public ?? 'Visiteur anonyme',
+                'email' => $c->user?->email,
+                'connecte' => $c->user !== null,
+                'url' => null,
+                'appareil' => 'Hors ligne',
+                'activite' => $c->updated_at?->diffForHumans(),
+                'conversation_id' => $c->id,
+                'non_lus' => (int) $c->non_lus_admin,
+                'en_ligne' => false,
+            ]);
+
         return response()->json([
             'total' => $presences->count(),
-            'visiteurs' => $presences->map(function (Presence $p) use ($conversations) {
-                $c = $conversations->get($p->visiteur_token);
-
-                return [
-                    'token' => $p->visiteur_token,
-                    'nom' => $p->user?->pseudo_public ?? 'Visiteur anonyme',
-                    'email' => $p->user?->email,
-                    'connecte' => $p->user !== null,
-                    'url' => $p->url,
-                    'appareil' => $this->appareil($p->user_agent),
-                    'depuis' => $p->created_at?->diffForHumans(),
-                    'activite' => $p->derniere_activite?->diffForHumans(),
-                    'conversation_id' => $c?->id,
-                    'non_lus' => (int) ($c->non_lus_admin ?? 0),
-                ];
-            })->values(),
+            'en_attente' => $enAttente->count(),
+            'visiteurs' => $enLigne->concat($enAttente)->values(),
         ]);
     }
 

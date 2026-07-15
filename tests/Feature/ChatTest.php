@@ -71,6 +71,19 @@ class ChatTest extends TestCase
             ->getJson(route('admin.live.visiteurs'))->assertOk()->assertJsonStructure(['total', 'visiteurs']);
     }
 
+    public function test_une_conversation_en_attente_apparait_meme_hors_ligne(): void
+    {
+        // Le visiteur écrit mais n'envoie pas de heartbeat → hors ligne, message non lu.
+        $this->postJson(route('chat.message'), ['visiteur_token' => 'visiteur-off', 'corps' => 'bonjour']);
+
+        $data = $this->actingAs($this->admin())
+            ->getJson(route('admin.live.visiteurs'))->assertOk()->json();
+
+        $this->assertSame(0, $data['total']); // personne en ligne
+        $this->assertGreaterThanOrEqual(1, $data['en_attente']);
+        $this->assertContains('visiteur-off', collect($data['visiteurs'])->pluck('token')->all());
+    }
+
     public function test_quand_un_admin_repond_le_bot_se_tait(): void
     {
         $this->postJson(route('chat.message'), ['visiteur_token' => 'visiteur-C', 'corps' => 'salut']);

@@ -31,29 +31,34 @@ if (live) {
             body: JSON.stringify(corps),
         }).then((r) => (r.ok ? r.json() : null));
 
-    // --- Liste des visiteurs en ligne ---
-    const rendreListe = (visiteurs) => {
-        count.textContent = visiteurs.length;
+    // --- Liste des visiteurs (en ligne + conversations en attente) ---
+    const rendreListe = (data) => {
+        const visiteurs = data.visiteurs || [];
+        count.textContent = data.total ?? 0;
         listeVide.classList.toggle('hidden', visiteurs.length > 0);
         liste.innerHTML = '';
         visiteurs.forEach((v) => {
             const li = document.createElement('li');
             li.className =
                 'cursor-pointer rounded-xl border border-slate-100 p-3 hover:border-indigo-200 hover:bg-indigo-50/40';
+            const pastille = v.en_ligne
+                ? '<span class="inline-block h-2 w-2 shrink-0 rounded-full bg-emerald-500"></span>'
+                : '<span class="inline-block h-2 w-2 shrink-0 rounded-full bg-slate-300"></span>';
             li.innerHTML =
                 `<div class="flex items-center justify-between gap-2">
-                    <span class="truncate font-medium text-slate-800">${escapeHtml(v.nom)}</span>
-                    ${v.non_lus > 0 ? `<span class="rounded-full bg-rose-500 px-1.5 text-xs font-bold text-white">${v.non_lus}</span>` : ''}
+                    <span class="flex min-w-0 items-center gap-2">${pastille}<span class="truncate font-medium text-slate-800">${escapeHtml(v.nom)}</span></span>
+                    ${v.non_lus > 0 ? `<span class="shrink-0 rounded-full bg-rose-500 px-1.5 text-xs font-bold text-white">${v.non_lus}</span>` : ''}
                  </div>
                  <div class="mt-0.5 truncate text-xs text-slate-400">${v.connecte ? escapeHtml(v.email || '') + ' · ' : ''}${escapeHtml(v.appareil)}</div>
-                 <div class="mt-0.5 truncate text-xs text-slate-400">📍 ${escapeHtml(v.url || '—')} · ${escapeHtml(v.activite || '')}</div>`;
+                 <div class="mt-0.5 truncate text-xs text-slate-400">${v.en_ligne ? '📍 ' + escapeHtml(v.url || '—') : '💤 en attente'} · ${escapeHtml(v.activite || '')}</div>
+                 <div class="mt-1 text-xs font-medium text-indigo-600">Cliquez pour écrire →</div>`;
             li.addEventListener('click', () => ouvrirConversation(v));
             liste.appendChild(li);
         });
     };
 
     const chargerVisiteurs = () =>
-        getJson(visiteursUrl).then((d) => d && rendreListe(d.visiteurs || []));
+        getJson(visiteursUrl).then((d) => d && rendreListe(d));
 
     // --- Conversation ---
     const bulle = (m) => {

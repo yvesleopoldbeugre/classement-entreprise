@@ -87,6 +87,11 @@
                 </div>
             </div>
 
+            {{-- Partage : inviter des tiers à donner leur avis --}}
+            <x-partage class="mt-5 border-t border-slate-100 pt-4"
+                       :url="route('entreprises.show', $entreprise)"
+                       :texte="'Donnez votre avis sur '.$entreprise->nom.' 👉'" />
+
             {{-- Notes détaillées --}}
             @if ($entreprise->nb_avis_total > 0)
                 <div class="mt-6 grid gap-6 border-t border-slate-100 pt-6 sm:grid-cols-2">

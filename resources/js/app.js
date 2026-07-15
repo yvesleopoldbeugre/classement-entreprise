@@ -358,3 +358,23 @@ if (banniereMdp) {
         });
     }
 }
+
+// =============================================================
+//  Copier un lien (boutons [data-copier])
+// =============================================================
+document.addEventListener('click', (e) => {
+    const bouton = e.target.closest('[data-copier]');
+    if (!bouton || !navigator.clipboard) return;
+    navigator.clipboard.writeText(bouton.dataset.copier).then(() => {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Lien copié !',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            customClass: { popup: 'swal-compact' },
+        });
+    }).catch(() => {});
+});

@@ -66,4 +66,22 @@ class VerificationCompteTest extends TestCase
         $user = User::factory()->unverified()->create(['password' => 'motdepasse123']);
         $this->actingAs($user)->get('/')->assertSee('Vérifiez votre email');
     }
+
+    public function test_la_page_securite_montre_l_email_non_verifie(): void
+    {
+        $user = User::factory()->unverified()->create(['password' => 'motdepasse123']);
+
+        $this->actingAs($user)->get(route('compte.securite'))
+            ->assertSee('Email non vérifié')
+            ->assertSee('Renvoyer le lien');
+    }
+
+    public function test_la_page_securite_montre_l_email_verifie(): void
+    {
+        $user = User::factory()->create(['password' => 'motdepasse123']); // email_verified_at par défaut
+
+        $this->actingAs($user)->get(route('compte.securite'))
+            ->assertSee('Email vérifié')
+            ->assertDontSee('Renvoyer le lien');
+    }
 }

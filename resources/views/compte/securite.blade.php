@@ -2,7 +2,34 @@
     <div class="mx-auto max-w-3xl px-4 py-8">
         <div class="mb-6">
             <h1 class="text-2xl font-bold text-slate-900">Sécurité du compte</h1>
-            <p class="mt-1 text-sm text-slate-500">Gérez votre mot de passe et les appareils connectés à votre compte.</p>
+            <p class="mt-1 text-sm text-slate-500">Gérez votre email, votre mot de passe et les appareils connectés à votre compte.</p>
+        </div>
+
+        {{-- Statut de vérification de l'email — persistant tant que non vérifié --}}
+        @php $emailVerifie = auth()->user()->hasVerifiedEmail(); @endphp
+        <div class="mb-6 rounded-2xl border p-6 {{ $emailVerifie ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50' }}">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="min-w-0">
+                    <h2 class="text-sm font-semibold {{ $emailVerifie ? 'text-emerald-800' : 'text-amber-800' }}">
+                        {{ $emailVerifie ? '✓ Email vérifié' : '✉️ Email non vérifié' }}
+                    </h2>
+                    <p class="mt-1 text-sm {{ $emailVerifie ? 'text-emerald-700' : 'text-amber-700' }}">
+                        @if ($emailVerifie)
+                            <span class="font-medium">{{ auth()->user()->email }}</span> est vérifié — vos avis comptent au maximum.
+                        @else
+                            Vérifiez <span class="font-medium">{{ auth()->user()->email }}</span> pour que vos avis pèsent davantage dans le classement.
+                        @endif
+                    </p>
+                </div>
+                @unless ($emailVerifie)
+                    <form method="POST" action="{{ route('verification.send') }}">
+                        @csrf
+                        <button type="submit" class="shrink-0 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700">
+                            Renvoyer le lien
+                        </button>
+                    </form>
+                @endunless
+            </div>
         </div>
 
         {{-- Mot de passe : définir (compte lien magique / SSO) ou changer --}}

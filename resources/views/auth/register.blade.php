@@ -5,10 +5,15 @@
             <h1 class="text-xl font-bold text-slate-900">Créer un compte</h1>
             <p class="mt-1 text-sm text-slate-500">Pour partager vos avis et retours d’expérience.</p>
 
-            {{-- Connexion sociale (masquée si SSO désactivé) --}}
-            @if (config('services.sso.enabled'))
+            {{-- Connexion sociale : uniquement les fournisseurs réellement configurés --}}
+            @php
+                $ssoProviders = config('services.sso.enabled')
+                    ? \App\Http\Controllers\Auth\SocialiteController::providersConfigures()
+                    : [];
+            @endphp
+            @if ($ssoProviders)
                 <div class="mt-6">
-                    @include('auth.partials.sso')
+                    @include('auth.partials.sso', ['providers' => $ssoProviders])
                 </div>
 
                 <div class="my-6 flex items-center gap-3 text-xs text-slate-400">

@@ -71,6 +71,20 @@ class SocialiteController extends Controller
             && filled(config("services.{$driver}.client_secret"));
     }
 
+    /**
+     * Slugs des fournisseurs SSO réellement configurés (client_id + secret présents).
+     *
+     * @return list<string>
+     */
+    public static function providersConfigures(): array
+    {
+        return array_values(array_filter(
+            array_keys(self::DRIVERS),
+            fn (string $slug) => filled(config('services.'.self::DRIVERS[$slug].'.client_id'))
+                && filled(config('services.'.self::DRIVERS[$slug].'.client_secret')),
+        ));
+    }
+
     private function trouverOuCreer(string $driver, SocialiteUser $oauthUser): User
     {
         // 1. Compte déjà lié à ce fournisseur.

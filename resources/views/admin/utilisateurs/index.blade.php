@@ -1,4 +1,4 @@
-<x-layout robots="noindex, nofollow" title="Utilisateurs · ClassementCI">
+<x-layout robots="noindex, nofollow" title="Utilisateurs · Note ta boîte">
     @php $lienPeriode = 'rounded-lg px-3 py-1.5 text-sm font-medium'; @endphp
 
     <div class="mx-auto max-w-6xl px-4 py-8">

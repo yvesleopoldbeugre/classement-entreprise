@@ -1,4 +1,4 @@
-<x-layout robots="noindex, nofollow" title="Visiteurs en direct · ClassementCI">
+<x-layout robots="noindex, nofollow" title="Visiteurs en direct · Note ta boîte">
     <div id="live"
          data-visiteurs-url="{{ route('admin.live.visiteurs') }}"
          data-demarrer-url="{{ route('admin.live.demarrer') }}"

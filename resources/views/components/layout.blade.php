@@ -1,6 +1,6 @@
 @props([
     'title' => 'Classement des entreprises · Côte d’Ivoire',
-    'description' => 'Le classement des entreprises de Côte d’Ivoire basé sur les retours de ceux qui y ont réellement travaillé. Avis vérifiés, score bayésien fiable dès le premier avis.',
+    'description' => 'Note ta boîte — le classement des entreprises de Côte d’Ivoire par les avis de celles et ceux qui y travaillent. Avis vérifiés et notes fiables pour choisir où postuler en confiance.',
     'ogImage' => null,       // URL absolue d’une image de partage spécifique à la page (facultatif)
     'ogType' => 'website',   // « article » pour une fiche entreprise, par ex.
     'robots' => 'index, follow', // « noindex, nofollow » sur les pages privées / sans intérêt SEO
@@ -54,8 +54,11 @@
     <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
         <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
             <a href="{{ route('classement.index') }}" class="flex items-center gap-2 font-semibold text-slate-900">
-                <span class="grid h-8 w-8 place-items-center rounded-lg bg-indigo-600 text-white">★</span>
-                <span>Classement<span class="text-indigo-600">CI</span></span>
+                <svg viewBox="0 0 32 32" class="h-8 w-8" aria-hidden="true">
+                    <rect width="32" height="32" rx="8" fill="#4f46e5"/>
+                    <path d="M16 7l2.47 5.26 5.53.66-4.1 3.86 1.08 5.56L16 25.4l-4.98 2.9 1.08-5.56-4.1-3.86 5.53-.66z" fill="#fff"/>
+                </svg>
+                <span>Note ta <span class="text-indigo-600">boîte</span></span>
             </a>
 
             {{-- Navigation bureau --}}
@@ -129,7 +132,7 @@
 
     <footer class="mt-16 border-t border-slate-200 bg-white">
         <div class="mx-auto max-w-6xl px-4 py-8 text-sm text-slate-500">
-            <p>Classement<span class="text-indigo-600">CI</span> — les avis sont laissés par la communauté et modérés avant publication.</p>
+            <p><span class="font-semibold text-slate-700">Note ta boîte</span> — les avis sont laissés par la communauté et modérés avant publication.</p>
             <p class="mt-1 text-xs text-slate-400">Score calculé par moyenne bayésienne pour rester fiable même avec peu d’avis.</p>
         </div>
     </footer>

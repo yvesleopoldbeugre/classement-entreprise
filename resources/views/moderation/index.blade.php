@@ -1,4 +1,4 @@
-<x-layout robots="noindex, nofollow" title="Modération · ClassementCI">
+<x-layout robots="noindex, nofollow" title="Modération · Note ta boîte">
     @php
         $total = $avis->count() + $entretiens->count() + $missions->count();
         $badge = fn ($statut) => $statut->value === 'signale'

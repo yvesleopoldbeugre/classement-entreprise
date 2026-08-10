@@ -1,4 +1,4 @@
-<x-layout robots="noindex, nofollow" title="Statistiques · ClassementCI">
+<x-layout robots="noindex, nofollow" title="Statistiques · Note ta boîte">
     @php
         // Cartes KPI : visiteurs uniques en tête, puis un total par type d'événement.
         $cartes = [['libelle' => 'Visiteurs uniques', 'valeur' => $visiteursUniques, 'accent' => true]];

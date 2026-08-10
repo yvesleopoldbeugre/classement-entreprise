@@ -41,24 +41,30 @@ return [
         'enabled' => env('SSO_ENABLED', true),
     ],
 
+    // Le slug de callback est celui des routes (auth/{provider}/callback) ; Socialite
+    // rend l'URL absolue (localhost en dev, notetaboite.com en prod) via url()->to().
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => '/auth/google/callback',
     ],
 
     'github' => [
         'client_id' => env('GITHUB_CLIENT_ID'),
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'redirect' => '/auth/github/callback',
     ],
 
     'facebook' => [
         'client_id' => env('FACEBOOK_CLIENT_ID'),
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => '/auth/facebook/callback',
     ],
 
     'linkedin-openid' => [
         'client_id' => env('LINKEDIN_CLIENT_ID'),
         'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
+        'redirect' => '/auth/linkedin/callback',
     ],
 
     // Jeton de vérification Google Search Console (balise meta) — facultatif.

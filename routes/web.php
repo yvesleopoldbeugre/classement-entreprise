@@ -49,14 +49,19 @@ Route::middleware('guest')->group(function () {
     Route::post('/connexion/lien', [LienMagiqueController::class, 'envoyer'])->name('magic.send');
     Route::get('/connexion/lien/{token}', [LienMagiqueController::class, 'connexion'])->name('magic.login');
 
-    // SSO (Google, GitHub, Facebook, LinkedIn) — désactivable via SSO_ENABLED.
+    // SSO — connexion (invité). Désactivable via SSO_ENABLED.
     if (config('services.sso.enabled')) {
         Route::get('/auth/{provider}/redirect', [SocialiteController::class, 'redirect'])
             ->whereIn('provider', ['google', 'github', 'facebook', 'linkedin'])->name('social.redirect');
-        Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback'])
-            ->whereIn('provider', ['google', 'github', 'facebook', 'linkedin'])->name('social.callback');
     }
 });
+
+// SSO — callback partagé (connexion invité OU liaison utilisateur connecté).
+if (config('services.sso.enabled')) {
+    Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback'])
+        ->whereIn('provider', ['google', 'github', 'facebook', 'linkedin'])->name('social.callback');
+}
+
 Route::post('/deconnexion', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 // --- Contributions (authentifié) ---
@@ -79,6 +84,14 @@ Route::middleware('auth')->group(function () {
         ->middleware('signed')->name('verification.verify');
     Route::post('/email/verifier/renvoyer', [VerificationEmailController::class, 'renvoyer'])
         ->middleware('throttle:6,1')->name('verification.send');
+
+    // Comptes sociaux liés (connecter / déconnecter un fournisseur).
+    if (config('services.sso.enabled')) {
+        Route::get('/compte/comptes/{provider}/connecter', [SocialiteController::class, 'connecter'])
+            ->whereIn('provider', ['google', 'github', 'facebook', 'linkedin'])->name('compte.comptes.connecter');
+        Route::delete('/compte/comptes/{provider}', [SocialiteController::class, 'delier'])
+            ->whereIn('provider', ['google', 'github', 'facebook', 'linkedin'])->name('compte.comptes.delier');
+    }
 
     // Sécurité du compte : sessions actives + déconnexion des autres appareils.
     Route::get('/compte/securite', [SecuriteController::class, 'index'])->name('compte.securite');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Compte;
 
+use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,6 +24,10 @@ class SecuriteController extends Controller
         return view('compte.securite', [
             'sessions' => $sessions,
             'driverSupporte' => $this->sessionsBaseDeDonnees(),
+            'providersSSO' => config('services.sso.enabled')
+                ? SocialiteController::providersConfigures()
+                : [],
+            'comptesLies' => $request->user()->comptesLies()->pluck('provider')->all(),
         ]);
     }
 

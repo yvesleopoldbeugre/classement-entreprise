@@ -66,6 +66,39 @@
             </form>
         </div>
 
+        {{-- Comptes sociaux liés --}}
+        @if (! empty($providersSSO))
+            @php $noms = ['google' => 'Google', 'github' => 'GitHub', 'facebook' => 'Facebook', 'linkedin' => 'LinkedIn']; @endphp
+            <div class="mb-6 rounded-2xl border border-slate-200 bg-white p-6">
+                <h2 class="text-sm font-semibold text-slate-700">Comptes connectés</h2>
+                <p class="mt-1 text-sm text-slate-500">Reliez vos comptes sociaux pour vous identifier plus vite — et renforcer la confiance de vos avis.</p>
+                <ul class="mt-4 divide-y divide-slate-100">
+                    @foreach ($providersSSO as $p)
+                        @php $lie = in_array($p, $comptesLies, true); @endphp
+                        <li class="flex items-center justify-between gap-3 py-3">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium text-slate-800">{{ $noms[$p] ?? ucfirst($p) }}</span>
+                                @if ($lie)
+                                    <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">connecté</span>
+                                @endif
+                            </div>
+                            @if ($lie)
+                                <form method="POST" action="{{ route('compte.comptes.delier', $p) }}"
+                                      data-confirm="Déconnecter {{ $noms[$p] ?? ucfirst($p) }} de votre compte ?"
+                                      data-confirm-title="Déconnecter ?" data-confirm-button="Déconnecter" data-confirm-icon="warning">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50">Déconnecter</button>
+                                </form>
+                            @else
+                                <a href="{{ route('compte.comptes.connecter', $p) }}"
+                                   class="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700">Connecter</a>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         {{-- Sessions actives --}}
         <div class="rounded-2xl border border-slate-200 bg-white p-6">
             <h2 class="text-sm font-semibold text-slate-700">Appareils connectés</h2>

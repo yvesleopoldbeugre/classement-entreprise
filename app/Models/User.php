@@ -62,6 +62,12 @@ class User extends Authenticatable
         return $this->hasMany(Evenement::class);
     }
 
+    /** @return HasMany<CompteLie, $this> */
+    public function comptesLies(): HasMany
+    {
+        return $this->hasMany(CompteLie::class);
+    }
+
     /** Génère un pseudo public unique à partir d'une base (nom ou email). */
     public static function pseudoUnique(?string $base): string
     {

@@ -521,3 +521,56 @@ appareil, identité si connecté) et **écrire directement** à un visiteur via 
 
 **Notes** : RGPD — pas d'IP en clair (hash), présence éphémère purgée. Scoping strict des messages par
 `visiteur_token` (secret client) côté serveur. Polling = intervalles adaptatifs (chat ouvert : 3-5 s ; sinon : 20-30 s).
+
+## 13. Comptes sociaux liés (plusieurs fournisseurs par utilisateur) — ✅ implémenté
+
+> Table **`comptes_lies`** (`CompteLie`, unique `(provider,provider_id)` + `(user_id,provider)`) + `User::comptesLies()` ;
+> data-migration depuis `users.provider/provider_id`. `SocialiteController` refondu : **callback partagé** (hors `guest`)
+> qui **connecte** (invité, via la table puis par email, sinon crée) **ou lie** (utilisateur connecté + `session('sso_intention'='lier')`).
+> Routes `compte.comptes.connecter` (GET) / `compte.comptes.delier` (DELETE, `auth`). UI **« Comptes connectés »** sur la page
+> Sécurité (fournisseurs configurés, connecter/déconnecter). Garde-fous : conflit (compte déjà lié ailleurs), anti-verrouillage
+> (pas de suppression du dernier moyen de connexion). Liaison → `linkedin_verifie`/`email_verified_at`. Tests : `ComptesLiesTest`
+> (+ `phpunit.xml` `SSO_ENABLED=true` pour enregistrer les routes SSO en test).
+
+**Objectif** : permettre à un utilisateur **connecté** de **lier** plusieurs comptes sociaux (Google, LinkedIn,
+GitHub, Facebook) à son compte et de se connecter par n'importe lequel, avec gestion depuis la page Sécurité.
+
+**Limite actuelle** : `users.provider` + `users.provider_id` = **un seul** fournisseur par compte, uniquement posé
+à l'inscription/login (`SocialiteController::trouverOuCreer`). Il faut une table dédiée.
+
+### 13.1 Modèle de données
+- **`comptes_lies`** : `id`, `user_id` (FK cascade), `provider` (`google|github|facebook|linkedin`), `provider_id`,
+  `email?`, `avatar?`, `created_at`. **Unique(provider, provider_id)** (un compte social lié à un seul utilisateur),
+  **Unique(user_id, provider)** (un fournisseur par utilisateur).
+- **Migration de données** : recopier les `(provider, provider_id)` existants de `users` → `comptes_lies`.
+  Colonnes `users.provider/provider_id` conservées le temps de la transition, puis dépréciées.
+- Modèle `CompteLie` + relation `User::comptesLies()` (hasMany).
+
+### 13.2 Flux
+- **Connexion (login)** : callback → chercher `comptes_lies` par `(provider, provider_id)` → connecter ;
+  sinon email connu → **lier** au compte existant + connecter ; sinon → créer `User` + `comptes_lies`.
+- **Lier (utilisateur connecté)** : `GET /compte/comptes/{provider}/connecter` (auth) → `session('sso_intention'='lier')`
+  → redirige vers le fournisseur. Le **callback** détecte l'utilisateur connecté + l'intention → **attache** au compte
+  courant. Garde-fous : `(provider,provider_id)` déjà lié à **un autre** user → erreur ; déjà lié au même → « déjà connecté ».
+  Met à jour `linkedin_verifie` / `email_verified_at` (pondération §4).
+- **Délier** : `DELETE /compte/comptes/{provider}` (auth) → supprime la ligne, **sauf** si c'est le **seul** moyen de
+  connexion (aucun mot de passe **et** un seul compte lié) → refus « définissez d'abord un mot de passe ».
+
+### 13.3 UI
+- Page **Sécurité** : section **« Comptes connectés »** — pour chaque fournisseur **configuré** (`providersConfigures`) :
+  statut lié/non lié + bouton **Connecter** / **Déconnecter** (réutilise les icônes de marque `<x-partage>`).
+
+### 13.4 Refactor SocialiteController
+- `trouverOuCreer` s'appuie sur `comptes_lies` ; méthode partagée `lier(User, provider, oauthUser)` ;
+  `redirect()` gère l'intention (login vs lier) via session ; le callback route selon `Auth::check()` + intention.
+
+### 13.5 Étapes
+1. Migration `comptes_lies` + modèle `CompteLie` + relation + **data migration** depuis `users`.
+2. Refactor `SocialiteController` (login via table + liaison + conflits).
+3. Routes `compte.comptes.connecter` (GET, redirect intention) + `compte.comptes.delier` (DELETE).
+4. Section « Comptes connectés » sur `compte.securite`.
+5. Garde-fous (dernier moyen de login, conflit, verrouillage anti-vol de compte).
+6. Tests : lier ajoute une ligne ; login via compte lié ; délier refusé si seul moyen ; conflit refusé.
+
+**Notes** : sécurité — la liaison **exige** d'être connecté **et** de repasser par l'OAuth (preuve de possession) ;
+RGPD — stocker le minimum (`provider_id`, `email`). Réutilise l'interrupteur `SSO_ENABLED` et `providersConfigures()`.

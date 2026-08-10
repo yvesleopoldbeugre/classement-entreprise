@@ -41,6 +41,14 @@ class ComptesLiesTest extends TestCase
         });
     }
 
+    public function test_la_banniere_incite_a_connecter_les_comptes(): void
+    {
+        // Compte avec mot de passe + email vérifié mais sans LinkedIn → CTA crédibilité.
+        $user = User::factory()->create(['password' => 'motdepasse123', 'linkedin_verifie' => false]);
+
+        $this->actingAs($user)->get('/')->assertSee('Renforcez la crédibilité');
+    }
+
     public function test_la_connexion_sso_cree_un_compte_et_un_lien(): void
     {
         $this->fakeSocialite('EXT-1', 'nouveau@example.com');

@@ -117,6 +117,20 @@
                     </div>
                 </div>
             </div>
+        @elseif (config('services.sso.enabled') && ! auth()->user()->linkedin_verifie)
+            <div data-banniere-mdp class="border-b border-indigo-200 bg-indigo-50">
+                <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm">
+                    <p class="text-indigo-800">
+                        🔒 <strong>Renforcez la crédibilité de vos avis</strong> en connectant vos comptes (LinkedIn, Google…).
+                    </p>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('compte.securite') }}"
+                           class="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-700">Connecter mes comptes</a>
+                        <button type="button" data-banniere-fermer aria-label="Masquer"
+                                class="px-1 text-indigo-400 hover:text-indigo-700">✕</button>
+                    </div>
+                </div>
+            </div>
         @endif
     @endauth
 

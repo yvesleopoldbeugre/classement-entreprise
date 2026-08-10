@@ -79,7 +79,9 @@
                             <div class="flex items-center gap-2">
                                 <span class="font-medium text-slate-800">{{ $noms[$p] ?? ucfirst($p) }}</span>
                                 @if ($lie)
-                                    <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">connecté</span>
+                                    <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">✓ vérifié</span>
+                                @else
+                                    <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">non vérifié</span>
                                 @endif
                             </div>
                             @if ($lie)

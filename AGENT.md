@@ -574,3 +574,48 @@ GitHub, Facebook) à son compte et de se connecter par n'importe lequel, avec ge
 
 **Notes** : sécurité — la liaison **exige** d'être connecté **et** de repasser par l'OAuth (preuve de possession) ;
 RGPD — stocker le minimum (`provider_id`, `email`). Réutilise l'interrupteur `SSO_ENABLED` et `providersConfigures()`.
+
+## 14. Lot UX + admin + note — ✅ implémenté
+
+> Aide « ? » cliquable sur les champs (`<x-champ :aide>` + toggle `app.js`) ; header « Sécurité »→« Mon compte » + nav admin
+> « + Ajouter » ; vue accueil par défaut = **classement** ; **note affichée = `score_bayesien`** (étoiles cartes+fiche, moyenne
+> brute en détail libellé) ; **auto-remplissage** depuis le site web (`EntrepriseController::depuisSite` → nom/description via
+> meta/og, préremplit le formulaire, éditable). Tests : `ImportSiteTest`, `ClassementVueTest` (adapté).
+
+### (plan initial ci-dessous)
+## 14bis. Plan d'origine — Lot UX + admin + note
+
+### 14.1 Aide « ? » sur chaque champ *(priorité moyenne)*
+Étendre `<x-champ>` : un bouton **« ? » dans un cercle** à côté du label ; au clic → affiche la description du champ.
+Impl. : prop `aide` (ré-utilise/complète `hint`) → petit bouton `data-aide` + panneau caché togglé dans `app.js`
+(ou `<details>` sans JS). Renseigner les descriptions champ par champ dans les formulaires (avis, entretien, mission,
+proposer entreprise, inscription). Fichiers : `components/champ.blade.php`, `resources/js/app.js`, partials de formulaires.
+
+### 14.2 Header « Sécurité » → « Mon compte » *(rapide)*
+`partials/nav-links.blade.php` : le lien vers `compte.securite` devient **« Mon compte »** (page inchangée ; H1 optionnel).
+
+### 14.3 Admin : entrée « Ajouter une entreprise » *(rapide)*
+L'admin **peut déjà** ajouter (`EntrepriseController::store` → `verifiee` si `can:moderer`). Manque l'**entrée visible** :
+lien **« + Ajouter une entreprise »** dans la nav `@can('moderer')` (vers le formulaire/modal). Option : formulaire admin
+plus complet (statut, secteur…) via `ProposerEntrepriseRequest` conditionnel.
+
+### 14.4 Auto-remplissage depuis le site web *(priorité haute, + gros)*
+Bouton **« Récupérer les infos »** à côté du champ « Site web » (modal proposer **et** page créer) →
+`POST /entreprises/importer-site` (auth, rate-limité) : `Http::timeout()->get($url)` puis parse
+`<title>`, `meta description`, `og:site_name`, `og:image` (+ devinette secteur) → renvoie un JSON pour **préremplir**
+les champs (tous **éditables**). Garde-fous : validation URL, timeout, taille max, gestion d'échec.
+Limite : nom + description + logo surtout ; adresse/taille rarement disponibles. Fichiers : `EntrepriseController::depuisSite`,
+route, JS de préremplissage, partial `entreprises/partials/proposer`.
+
+### 14.5 Vue par défaut = « classement » *(rapide)*
+`ClassementController@index` : défaut `$vue = 'classement'` (override `?vue=a_eviter|nouvelles`). Adapter `ClassementVueTest`
+(la vue par défaut change).
+
+### 14.6 Cohérence de la note affichée *(priorité haute — correctif)*
+**L'algo est bon** (`score_bayesien` lissé vers C). Le souci : les **étoiles** (cartes + fiche) utilisent `note_globale`
+(moyenne brute R) → **1 avis de 5 = 5 étoiles** (surévalué). **Correctif** : afficher la note « vedette » (étoiles + chiffre)
+sur **`score_bayesien`** partout ; garder `note_globale` en détail clairement libellé **« moyenne des avis (n) »**.
+Option : masquer la note vedette sous `min_avis_classement` (« Note en attente de plus d'avis »).
+Fichiers : `classement/partials/liste.blade.php`, `entreprises/show.blade.php`.
+
+**Ordre suggéré** : 14.2 + 14.3 + 14.5 (rapides) → 14.6 (correctif note) → 14.1 (tooltips) → 14.4 (auto-remplissage).

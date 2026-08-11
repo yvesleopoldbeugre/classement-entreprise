@@ -45,7 +45,7 @@
 
         @unless ($estNouveau)
             <div class="hidden shrink-0 sm:block">
-                <x-note-etoiles :note="$entreprise->note_globale" />
+                <x-note-etoiles :note="$entreprise->score_bayesien" />
             </div>
         @endunless
 

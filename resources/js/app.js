@@ -378,3 +378,65 @@ document.addEventListener('click', (e) => {
         });
     }).catch(() => {});
 });
+
+// =============================================================
+//  Aide contextuelle « ? » sur les champs de formulaire (<x-champ :aide>)
+// =============================================================
+document.addEventListener('click', (e) => {
+    const bouton = e.target.closest('[data-aide-toggle]');
+    if (!bouton) return;
+    bouton.closest('[data-champ]')?.querySelector('[data-aide-contenu]')?.classList.toggle('hidden');
+});
+
+// =============================================================
+//  Auto-remplissage d'une entreprise depuis son site web
+// =============================================================
+document.addEventListener('click', async (e) => {
+    const bouton = e.target.closest('[data-import-site]');
+    if (!bouton) return;
+
+    const form = bouton.closest('form');
+    const url = form.querySelector('#site_web_import')?.value.trim();
+    const erreur = form.querySelector('[data-import-erreur]');
+    erreur.classList.add('hidden');
+
+    if (!url) {
+        erreur.textContent = 'Entrez d’abord l’adresse du site.';
+        erreur.classList.remove('hidden');
+        return;
+    }
+
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    const libelle = bouton.textContent;
+    bouton.disabled = true;
+    bouton.textContent = '…';
+
+    try {
+        const res = await fetch(form.dataset.importUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, Accept: 'application/json' },
+            body: JSON.stringify({ url }),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok) {
+            const remplir = (sel, val) => { const el = form.querySelector(sel); if (el && val) el.value = val; };
+            remplir('#nom', data.nom);
+            remplir('#site_web', data.site_web);
+            remplir('#commentaire_proposition', data.commentaire);
+            if (!data.nom && !data.commentaire) {
+                erreur.textContent = 'Rien trouvé sur ce site — remplissez manuellement.';
+                erreur.classList.remove('hidden');
+            }
+        } else {
+            erreur.textContent = data.message || 'Échec de la récupération.';
+            erreur.classList.remove('hidden');
+        }
+    } catch {
+        erreur.textContent = 'Erreur réseau, réessayez.';
+        erreur.classList.remove('hidden');
+    }
+
+    bouton.disabled = false;
+    bouton.textContent = libelle;
+});

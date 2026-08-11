@@ -18,14 +18,15 @@ class ClassementVueTest extends TestCase
             'statut' => StatutEntreprise::Verifiee,
         ]);
 
-        // Vue classement : présente, avec la mention « Nouveau ».
+        // Vue par défaut = classement : présente, avec la mention « Nouveau ».
+        $this->get('/')->assertOk()->assertSee('Vérifiée Sans Avis')->assertSee('Nouveau');
         $this->get('/?vue=classement')->assertOk()->assertSee('Vérifiée Sans Avis')->assertSee('Nouveau');
 
         // Vue nouvelles : présente.
         $this->get('/?vue=nouvelles')->assertOk()->assertSee('Vérifiée Sans Avis');
 
-        // Vue par défaut (à éviter) : absente (elle n'est pas dans les pires).
-        $this->get('/')->assertOk()->assertDontSee('Vérifiée Sans Avis');
+        // Vue « à mieux connaître » : absente (elle n'est pas dans la sélection).
+        $this->get('/?vue=a_eviter')->assertOk()->assertDontSee('Vérifiée Sans Avis');
     }
 
     public function test_une_proposition_non_verifiee_n_apparait_pas_dans_le_classement(): void

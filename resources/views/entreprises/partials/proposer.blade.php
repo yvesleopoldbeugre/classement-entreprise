@@ -1,14 +1,30 @@
 @php $input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'; @endphp
-<form method="POST" action="{{ route('entreprises.proposer') }}" class="space-y-3">
+<form method="POST" action="{{ route('entreprises.proposer') }}" class="space-y-3"
+      data-import-url="{{ route('entreprises.importer-site') }}">
     @csrf
     <input type="hidden" name="_form" value="proposer">
 
-    <x-champ label="Nom de l’entreprise" name="nom" :required="true">
+    {{-- Auto-remplissage depuis le site web --}}
+    <div class="rounded-xl border border-indigo-100 bg-indigo-50/60 p-3">
+        <label for="site_web_import" class="mb-1 block text-xs font-medium text-indigo-800">Remplissage automatique</label>
+        <div class="flex gap-2">
+            <input id="site_web_import" type="url" placeholder="https://site-de-l-entreprise.com"
+                   class="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
+            <button type="button" data-import-site
+                    class="shrink-0 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700">Récupérer</button>
+        </div>
+        <p class="mt-1 text-xs text-indigo-700/70">On tente de pré-remplir le nom et la description depuis le site (tout reste modifiable).</p>
+        <p data-import-erreur class="mt-1 hidden text-xs text-rose-600"></p>
+    </div>
+
+    <x-champ label="Nom de l’entreprise" name="nom" :required="true"
+             aide="Le nom officiel/commercial de l’entreprise, tel qu’on le connaît en Côte d’Ivoire.">
         <input id="nom" name="nom" type="text" value="{{ old('nom') }}" class="{{ $input }}" required>
     </x-champ>
 
     <div class="grid gap-3 sm:grid-cols-2">
-        <x-champ label="Secteur d’activité" name="secteur_activite" :required="true">
+        <x-champ label="Secteur d’activité" name="secteur_activite" :required="true"
+                 aide="Le domaine principal de l’entreprise (SSII, banque, télécom, startup…). Choisissez le plus proche.">
             <select id="secteur_activite" name="secteur_activite" class="{{ $input }}" required>
                 <option value="">—</option>
                 @foreach (\App\Enums\SecteurActivite::cases() as $secteur)
@@ -16,10 +32,10 @@
                 @endforeach
             </select>
         </x-champ>
-        <x-champ label="Commune" name="commune">
+        <x-champ label="Commune" name="commune" aide="La commune/quartier du siège ou du bureau principal (ex. Cocody, Plateau, Marcory).">
             <input id="commune" name="commune" type="text" value="{{ old('commune') }}" class="{{ $input }}" placeholder="Cocody, Plateau…">
         </x-champ>
-        <x-champ label="Site web" name="site_web">
+        <x-champ label="Site web" name="site_web" aide="L’adresse du site officiel de l’entreprise. Elle sert aussi au remplissage automatique ci-dessus.">
             <input id="site_web" name="site_web" type="url" value="{{ old('site_web') }}" class="{{ $input }}" placeholder="https://…">
         </x-champ>
         <x-champ label="Page LinkedIn" name="linkedin_url">
@@ -28,7 +44,8 @@
     </div>
 
     <x-champ label="Pourquoi proposez-vous cette entreprise ?" name="commentaire_proposition" :required="true"
-             hint="Expliquez brièvement votre expérience ou pourquoi elle mérite d’être suivie.">
+             hint="Expliquez brièvement votre expérience ou pourquoi elle mérite d’être suivie."
+             aide="Un mot pour le modérateur : votre lien avec l’entreprise ou pourquoi elle mérite d’être suivie. Peut être pré-rempli depuis le site (modifiable).">
         <textarea id="commentaire_proposition" name="commentaire_proposition" rows="3" class="{{ $input }}" required>{{ old('commentaire_proposition') }}</textarea>
     </x-champ>
 

@@ -14,9 +14,10 @@ class ClassementController extends Controller
     /** Page d'accueil : 3 vues (à éviter / classement / nouvelles entreprises). */
     public function index(Request $request): View
     {
-        $vue = in_array($request->query('vue'), ['classement', 'nouvelles'], true)
+        // Vue par défaut = le classement ; « à éviter » / « nouvelles » en option.
+        $vue = in_array($request->query('vue'), ['a_eviter', 'nouvelles'], true)
             ? $request->query('vue')
-            : 'a_eviter';
+            : 'classement';
 
         $secteur = $request->query('secteur');
         $terme = $request->query('q');

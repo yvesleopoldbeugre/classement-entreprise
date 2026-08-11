@@ -96,10 +96,10 @@
             @if ($entreprise->nb_avis_total > 0)
                 <div class="mt-6 grid gap-6 border-t border-slate-100 pt-6 sm:grid-cols-2">
                     <div class="flex flex-col items-start justify-center gap-2">
-                        <x-note-etoiles :note="$entreprise->note_globale" class="text-xl" />
+                        <x-note-etoiles :note="$entreprise->score_bayesien" class="text-xl" />
                         <p class="text-sm text-slate-500">
-                            Note moyenne <span class="font-semibold text-slate-800">{{ number_format((float) $entreprise->note_globale, 2) }}/5</span>
-                            sur <span class="font-semibold text-slate-800">{{ $entreprise->nb_avis_total }}</span> avis
+                            Score <span class="font-semibold text-slate-800">{{ number_format((float) $entreprise->score_bayesien, 2) }}/5</span>
+                            <span class="text-slate-400">· moyenne des avis {{ number_format((float) $entreprise->note_globale, 2) }}/5 sur {{ $entreprise->nb_avis_total }} avis</span>
                         </p>
                     </div>
                     <div class="space-y-3">

@@ -3,12 +3,13 @@
 
 @auth
     @can('moderer')
+        <a href="{{ route('entreprises.create') }}" class="{{ $lien }}">+ Ajouter</a>
         <a href="{{ route('admin.live.index') }}" class="{{ $lien }}">En direct</a>
         <a href="{{ route('admin.stats.index') }}" class="{{ $lien }}">Statistiques</a>
         <a href="{{ route('admin.users.index') }}" class="{{ $lien }}">Utilisateurs</a>
         <a href="{{ route('moderation.index') }}" class="{{ $lien }}">Modération</a>
     @endcan
-    <a href="{{ route('compte.securite') }}" class="{{ $lien }}">Sécurité</a>
+    <a href="{{ route('compte.securite') }}" class="{{ $lien }}">Mon compte</a>
     <span class="px-3 py-2 text-sm text-slate-400">{{ auth()->user()->pseudo_public }}</span>
     <form method="POST" action="{{ route('logout') }}"
           data-confirm="Vous allez être déconnecté de votre compte."

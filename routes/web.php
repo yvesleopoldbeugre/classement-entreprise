@@ -69,6 +69,8 @@ Route::middleware('auth')->group(function () {
     // Proposer une entreprise (utilisateur → a_verifier ; admin → verifiee).
     Route::get('/proposer-entreprise', [EntrepriseController::class, 'create'])->name('entreprises.create');
     Route::post('/proposer-entreprise', [EntrepriseController::class, 'store'])->name('entreprises.proposer');
+    Route::post('/entreprises/importer-site', [EntrepriseController::class, 'depuisSite'])
+        ->middleware('throttle:20,1')->name('entreprises.importer-site');
 
     Route::get('/entreprises/{entreprise}/entretien', [ContributionController::class, 'entretienCreate'])->name('contrib.entretien.create');
     Route::post('/entreprises/{entreprise}/entretien', [ContributionController::class, 'entretienStore'])->name('contrib.entretien.store');

@@ -384,8 +384,12 @@ document.addEventListener('click', (e) => {
 // =============================================================
 document.addEventListener('click', (e) => {
     const bouton = e.target.closest('[data-aide-toggle]');
-    if (!bouton) return;
-    bouton.closest('[data-champ]')?.querySelector('[data-aide-contenu]')?.classList.toggle('hidden');
+    const cible = bouton?.closest('[data-champ]')?.querySelector('[data-aide-contenu]');
+    // Ferme les autres bulles (et toutes si on clique ailleurs).
+    document.querySelectorAll('[data-aide-contenu]:not(.hidden)').forEach((b) => {
+        if (b !== cible) b.classList.add('hidden');
+    });
+    if (cible) cible.classList.toggle('hidden');
 });
 
 // =============================================================
@@ -409,7 +413,8 @@ document.addEventListener('click', async (e) => {
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
     const libelle = bouton.textContent;
     bouton.disabled = true;
-    bouton.textContent = '…';
+    bouton.classList.add('opacity-80');
+    bouton.innerHTML = spinnerSvg;
 
     try {
         const res = await fetch(form.dataset.importUrl, {
@@ -438,5 +443,6 @@ document.addEventListener('click', async (e) => {
     }
 
     bouton.disabled = false;
+    bouton.classList.remove('opacity-80');
     bouton.textContent = libelle;
 });

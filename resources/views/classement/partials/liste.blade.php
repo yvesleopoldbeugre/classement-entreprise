@@ -7,6 +7,7 @@
     @php
         $rang = $rangDepart + $i + 1;
         $estNouveau = $entreprise->nb_avis_total === 0;
+        $assezDAvis = $entreprise->nb_avis_total >= (int) config('classement.min_avis_classement');
         $score = $entreprise->score_bayesien !== null ? (float) $entreprise->score_bayesien : null;
         $classesTon = match (true) {
             $score === null => 'bg-slate-100 text-slate-500',
@@ -43,15 +44,17 @@
             </div>
         </div>
 
-        @unless ($estNouveau)
+        @if ($assezDAvis)
             <div class="hidden shrink-0 sm:block">
                 <x-note-etoiles :note="$entreprise->score_bayesien" />
             </div>
-        @endunless
+        @endif
 
         <div class="shrink-0 text-right">
             @if ($estNouveau)
                 <span class="inline-flex items-center rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">À découvrir</span>
+            @elseif (! $assezDAvis)
+                <span class="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">Peu d’avis</span>
             @else
                 <div class="inline-flex items-baseline gap-1 rounded-lg px-2.5 py-1 {{ $classesTon }}">
                     <span class="text-lg font-bold tabular-nums">{{ number_format($score, 2) }}</span>

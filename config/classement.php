@@ -14,6 +14,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Ancrage de la moyenne globale C (démarrage à froid)
+    |--------------------------------------------------------------------------
+    | Tant que le site a peu d'avis, la moyenne globale (C) est mélangée à la
+    | moyenne neutre (`moyenne_defaut`) : C_effectif = (N/(N+K))·C_réel +
+    | (K/(N+K))·neutre, avec N = total d'avis publiés et K = ce paramètre.
+    | Évite qu'un unique avis 5★ fasse remonter C (et donc le score) à 5.
+    */
+    'prior_avis' => (int) env('CLASSEMENT_PRIOR_AVIS', 10),
+
+    /*
+    |--------------------------------------------------------------------------
     | Moyenne globale par défaut (C de repli)
     |--------------------------------------------------------------------------
     | Utilisée quand le site n'a encore aucun avis publié pour calculer une

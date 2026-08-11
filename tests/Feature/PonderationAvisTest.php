@@ -28,6 +28,18 @@ class PonderationAvisTest extends TestCase
         ]);
     }
 
+    public function test_un_unique_avis_5_ne_donne_pas_un_score_de_5(): void
+    {
+        // Démarrage à froid : la moyenne globale (C) est ancrée vers la valeur neutre,
+        // donc un seul avis 5★ ne doit pas produire un score de 5.
+        $entreprise = Entreprise::factory()->create();
+        $this->avis($entreprise, User::factory()->create(), 5);
+
+        $entreprise->refresh();
+        $this->assertSame('5.00', number_format((float) $entreprise->note_globale, 2)); // moyenne brute = 5
+        $this->assertLessThan(4.0, (float) $entreprise->score_bayesien);                 // score ancré ≪ 5
+    }
+
     public function test_un_avis_linkedin_verifie_pese_plus_qu_un_anonyme(): void
     {
         config([

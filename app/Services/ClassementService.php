@@ -78,13 +78,22 @@ class ClassementService
      */
     public function moyenneGlobaleSite(): float
     {
-        $moyenne = DB::table('avis_entreprises')
-            ->where('statut_moderation', StatutModeration::Publie->value)
-            ->avg(DB::raw('(note_ambiance + note_management + note_salaire + note_evolution) / 4.0'));
+        $neutre = (float) config('classement.moyenne_defaut');
+        $k = max(0, (int) config('classement.prior_avis'));
 
-        return $moyenne !== null
-            ? (float) $moyenne
-            : (float) config('classement.moyenne_defaut');
+        $stats = DB::table('avis_entreprises')
+            ->where('statut_moderation', StatutModeration::Publie->value)
+            ->selectRaw('COUNT(*) as n, AVG((note_ambiance + note_management + note_salaire + note_evolution) / 4.0) as moy')
+            ->first();
+
+        $n = (int) ($stats->n ?? 0);
+        if ($n === 0) {
+            return $neutre;
+        }
+
+        // Ancrage : mélange de la moyenne réelle et de la moyenne neutre selon N.
+        // Tant que le site a peu d'avis (N ≪ K), C reste proche de la valeur neutre.
+        return ($n / ($n + $k)) * (float) $stats->moy + ($k / ($n + $k)) * $neutre;
     }
 
     /**

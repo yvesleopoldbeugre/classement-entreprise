@@ -41,6 +41,8 @@
     <x-schema :data="$schemaBreadcrumb" />
     @php
         $score = $entreprise->score_bayesien !== null ? (float) $entreprise->score_bayesien : null;
+        $minAvis = (int) config('classement.min_avis_classement');
+        $assezDAvis = $entreprise->nb_avis_total >= $minAvis;
         $classesTon = match (true) {
             $score === null => 'bg-slate-100 text-slate-600',
             $score >= 4 => 'bg-emerald-50 text-emerald-700',
@@ -80,10 +82,17 @@
                 </div>
 
                 <div class="shrink-0 text-center">
-                    <div class="rounded-xl px-4 py-2 {{ $classesTon }}">
-                        <div class="text-3xl font-bold tabular-nums">{{ $score !== null ? number_format($score, 2) : '—' }}</div>
-                        <div class="text-xs opacity-70">score /5</div>
-                    </div>
+                    @if ($assezDAvis && $score !== null)
+                        <div class="rounded-xl px-4 py-2 {{ $classesTon }}">
+                            <div class="text-3xl font-bold tabular-nums">{{ number_format($score, 2) }}</div>
+                            <div class="text-xs opacity-70">score /5</div>
+                        </div>
+                    @else
+                        <div class="rounded-xl bg-slate-100 px-4 py-2 text-slate-500">
+                            <div class="text-sm font-semibold">Note en attente</div>
+                            <div class="text-xs opacity-70">{{ $minAvis }} avis requis</div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -100,6 +109,7 @@
                         <p class="text-sm text-slate-500">
                             Score <span class="font-semibold text-slate-800">{{ number_format((float) $entreprise->score_bayesien, 2) }}/5</span>
                             <span class="text-slate-400">· moyenne des avis {{ number_format((float) $entreprise->note_globale, 2) }}/5 sur {{ $entreprise->nb_avis_total }} avis</span>
+                            @unless ($assezDAvis)<span class="font-medium text-amber-600">· note provisoire (peu d’avis)</span>@endunless
                         </p>
                     </div>
                     <div class="space-y-3">

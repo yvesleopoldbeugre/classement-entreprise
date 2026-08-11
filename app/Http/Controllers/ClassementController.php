@@ -86,8 +86,11 @@ class ClassementController extends Controller
             'missions' => fn ($q) => $q->publie()->with('user')->latest(),
         ]);
 
-        // Rang dans le classement (seulement si l'entreprise est classée).
-        $rang = $entreprise->score_bayesien !== null
+        // Rang dans le classement : uniquement si l'entreprise est réellement classable
+        // (assez d'avis), sinon on n'affiche pas de rang trompeur.
+        $estClassable = $entreprise->score_bayesien !== null
+            && $entreprise->nb_avis_total >= (int) config('classement.min_avis_classement');
+        $rang = $estClassable
             ? Entreprise::classable()->where('score_bayesien', '>', $entreprise->score_bayesien)->count() + 1
             : null;
 

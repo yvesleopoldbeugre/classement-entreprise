@@ -34,7 +34,12 @@ class ModerationController extends Controller
             'avis' => $aModerer(AvisEntreprise::query()),
             'entretiens' => $aModerer(RetourEntretien::query()),
             'missions' => $aModerer(Mission::query()),
-            'entreprises' => Entreprise::where('statut', StatutEntreprise::AVerifier)->latest()->get(),
+            // Les entrées éditoriales « à éviter » (rang_a_eviter) sont publiques et ne sont
+            // pas des propositions utilisateur à modérer : on ne les compte pas dans la file.
+            'entreprises' => Entreprise::where('statut', StatutEntreprise::AVerifier)
+                ->whereNull('rang_a_eviter')
+                ->latest()
+                ->get(),
         ]);
     }
 

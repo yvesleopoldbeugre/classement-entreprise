@@ -21,16 +21,22 @@ class EntrepriseReelleSeeder extends Seeder
         foreach ($entreprises as $index => $data) {
             $slug = Str::slug($data['nom']);
 
-            Entreprise::updateOrCreate(
-                ['slug' => $slug],
-                array_merge([
-                    'secteur_activite' => SecteurActivite::Autre->value,
-                    'statut' => StatutEntreprise::AVerifier->value,
-                    'source_scraping' => 'liste_fondateurs',
-                    // Ordre de la liste éditoriale « à éviter » (position dans le fichier).
-                    'rang_a_eviter' => $index + 1,
-                ], $data, ['slug' => $slug]),
-            );
+            $entreprise = Entreprise::firstOrNew(['slug' => $slug]);
+            $nouveau = ! $entreprise->exists;
+
+            // Champs du référentiel (rafraîchis à chaque seed).
+            $entreprise->fill(array_merge($data, ['slug' => $slug]));
+
+            // Champs gérés APRÈS coup (modération, sortie de « à éviter »…) : uniquement
+            // à la création, pour ne pas écraser le travail admin à chaque déploiement.
+            if ($nouveau) {
+                $entreprise->secteur_activite ??= SecteurActivite::Autre->value;
+                $entreprise->statut = StatutEntreprise::AVerifier->value;
+                $entreprise->source_scraping = 'liste_fondateurs';
+                $entreprise->rang_a_eviter = $index + 1;
+            }
+
+            $entreprise->save();
         }
     }
 }

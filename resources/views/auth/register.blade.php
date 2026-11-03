@@ -1,9 +1,9 @@
 <x-layout robots="noindex, nofollow" title="Inscription · Note ta boîte">
-    @php $input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'; @endphp
+    @php $input = 'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'; @endphp
     <div class="mx-auto max-w-md px-4 py-12">
-        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h1 class="text-xl font-bold text-slate-900">Créer un compte</h1>
-            <p class="mt-1 text-sm text-slate-500">Pour partager vos avis et retours d’expérience.</p>
+        <div class="rounded-md border border-regle bg-white p-6 shadow-sm">
+            <h1 class="text-xl font-bold text-encre">Créer un compte</h1>
+            <p class="mt-1 text-sm text-encre-doux">Pour partager vos avis et retours d’expérience.</p>
 
             {{-- Connexion sociale : uniquement les fournisseurs réellement configurés --}}
             @php
@@ -34,7 +34,7 @@
 
                 {{-- Détails facultatifs : pseudo/nom auto-générés sinon --}}
                 <details class="group">
-                    <summary class="cursor-pointer text-sm font-medium text-slate-500 hover:text-slate-700">
+                    <summary class="cursor-pointer text-sm font-medium text-encre-doux hover:text-encre">
                         Personnaliser mon profil <span class="text-slate-400">(facultatif)</span>
                     </summary>
                     <div class="mt-3 space-y-4">
@@ -50,12 +50,12 @@
                     </div>
                 </details>
 
-                <button type="submit" class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
+                <button type="submit" class="w-full rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
                     Créer mon compte
                 </button>
             </form>
 
-            <p class="mt-4 text-center text-sm text-slate-500">
+            <p class="mt-4 text-center text-sm text-encre-doux">
                 Déjà inscrit ? <a href="{{ route('login') }}" class="font-medium text-indigo-600 hover:underline">Se connecter</a>
             </p>
         </div>

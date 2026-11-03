@@ -112,6 +112,31 @@ class Entreprise extends Model
         return $query->whereNotNull('rang_a_eviter')->orderBy('rang_a_eviter');
     }
 
+    /** Appréciation façon bulletin scolaire, déduite du score (null tant que non classée). */
+    public function appreciation(): ?string
+    {
+        if ($this->score_bayesien === null || $this->nb_avis_total < (int) config('classement.min_avis_classement')) {
+            return null;
+        }
+
+        $score = (float) $this->score_bayesien;
+
+        return match (true) {
+            $score >= 4.3 => 'Excellent',
+            $score >= 3.8 => 'Très bien',
+            $score >= 3.3 => 'Bien',
+            $score >= 2.8 => 'Assez bien',
+            $score >= 2.3 => 'Passable',
+            default => 'Insuffisant',
+        };
+    }
+
+    /** Rang écrit comme sur un bulletin : « 1er », « 2e »… */
+    public static function rangOrdinal(int $rang): string
+    {
+        return $rang === 1 ? '1er' : $rang.'e';
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';

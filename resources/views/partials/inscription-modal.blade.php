@@ -2,8 +2,8 @@
 <x-modal id="inscription" title="Rejoignez la communauté">
     <div class="text-center">
         <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-indigo-50 text-2xl">⭐</div>
-        <h3 class="text-lg font-bold text-slate-900">Notez votre entreprise en 30 secondes</h3>
-        <p class="mt-1 text-sm text-slate-600">
+        <h3 class="text-lg font-bold text-encre">Notez votre entreprise en 30 secondes</h3>
+        <p class="mt-1 text-sm text-encre-doux">
             Aidez les futurs candidats à savoir où ils mettent les pieds.
             <strong>Anonyme et gratuit.</strong>
         </p>
@@ -16,18 +16,18 @@
 
     {{-- Option secondaire : mot de passe --}}
     <details class="mt-4">
-        <summary class="cursor-pointer text-center text-xs text-slate-400 hover:text-slate-600">
+        <summary class="cursor-pointer text-center text-xs text-slate-400 hover:text-encre-doux">
             ou créer un compte avec un mot de passe
         </summary>
         <form method="POST" action="{{ route('register') }}" data-inscription-rapide class="mt-3 space-y-3">
             @csrf
             <input type="hidden" name="_source" value="modal">
             <input name="email" type="email" required autocomplete="email" placeholder="Votre email"
-                   class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
+                   class="w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
             <x-password-input name="password" :required="true" autocomplete="new-password" placeholder="Choisissez un mot de passe" />
             <p data-erreur class="hidden text-sm text-rose-600"></p>
             <button type="submit"
-                    class="w-full rounded-lg bg-slate-900 px-4 py-2.5 font-semibold text-white hover:bg-slate-800">
+                    class="w-full rounded-md bg-slate-900 px-4 py-2.5 font-semibold text-white hover:bg-slate-800">
                 Créer mon compte
             </button>
         </form>

@@ -1,5 +1,5 @@
 @php
-    $input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100';
+    $input = 'w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100';
     $dimensions = ['note_ambiance' => 'Ambiance', 'note_management' => 'Management', 'note_salaire' => 'Salaire', 'note_evolution' => 'Évolution'];
     $aides = [
         'note_ambiance' => 'L’ambiance de travail : relations entre collègues, esprit d’équipe, bien-être au quotidien (1 = très mauvaise, 5 = excellente).',
@@ -14,7 +14,7 @@
     <input type="hidden" name="_form" value="avis">
 
     @error('entreprise_id')
-        <div class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ $message }}</div>
+        <div class="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ $message }}</div>
     @enderror
 
     <div class="grid gap-3 sm:grid-cols-2">
@@ -45,7 +45,7 @@
         <textarea id="commentaire" name="commentaire" rows="3" class="{{ $input }}">{{ old('commentaire') }}</textarea>
     </x-champ>
 
-    <button type="submit" class="w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+    <button type="submit" class="w-full rounded-md bg-orange-ci px-4 py-3 text-base font-bold text-encre hover:brightness-105">
         Publier mon avis
     </button>
 </form>

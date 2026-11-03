@@ -1,13 +1,13 @@
 <x-layout robots="noindex, nofollow" title="Sécurité du compte · Note ta boîte">
     <div class="mx-auto max-w-3xl px-4 py-8">
         <div class="mb-6">
-            <h1 class="text-2xl font-bold text-slate-900">Sécurité du compte</h1>
-            <p class="mt-1 text-sm text-slate-500">Gérez votre email, votre mot de passe et les appareils connectés à votre compte.</p>
+            <h1 class="text-2xl font-bold text-encre">Sécurité du compte</h1>
+            <p class="mt-1 text-sm text-encre-doux">Gérez votre email, votre mot de passe et les appareils connectés à votre compte.</p>
         </div>
 
         {{-- Statut de vérification de l'email — persistant tant que non vérifié --}}
         @php $emailVerifie = auth()->user()->hasVerifiedEmail(); @endphp
-        <div class="mb-6 rounded-2xl border p-6 {{ $emailVerifie ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50' }}">
+        <div class="mb-6 rounded-md border p-6 {{ $emailVerifie ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50' }}">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="min-w-0">
                     <h2 class="text-sm font-semibold {{ $emailVerifie ? 'text-emerald-800' : 'text-amber-800' }}">
@@ -24,7 +24,7 @@
                 @unless ($emailVerifie)
                     <form method="POST" action="{{ route('verification.send') }}">
                         @csrf
-                        <button type="submit" class="shrink-0 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700">
+                        <button type="submit" class="shrink-0 rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700">
                             Renvoyer le lien
                         </button>
                     </form>
@@ -34,9 +34,9 @@
 
         {{-- Mot de passe : définir (compte lien magique / SSO) ou changer --}}
         @php $aMotDePasse = ! is_null(auth()->user()->password); @endphp
-        <div class="mb-6 rounded-2xl border border-slate-200 bg-white p-6">
-            <h2 class="text-sm font-semibold text-slate-700">{{ $aMotDePasse ? 'Changer mon mot de passe' : 'Définir un mot de passe' }}</h2>
-            <p class="mt-1 text-sm text-slate-500">
+        <div class="mb-6 rounded-md border border-regle bg-white p-6">
+            <h2 class="text-sm font-semibold text-encre">{{ $aMotDePasse ? 'Changer mon mot de passe' : 'Définir un mot de passe' }}</h2>
+            <p class="mt-1 text-sm text-encre-doux">
                 {{ $aMotDePasse
                     ? 'Choisissez un nouveau mot de passe pour votre compte.'
                     : 'Votre compte se connecte par lien magique. Définissez un mot de passe pour pouvoir aussi vous connecter classiquement.' }}
@@ -46,21 +46,21 @@
                 @csrf
                 @if ($aMotDePasse)
                     <div>
-                        <label for="current_password" class="mb-1 block text-sm font-medium text-slate-700">Mot de passe actuel</label>
+                        <label for="current_password" class="mb-1 block text-sm font-medium text-encre">Mot de passe actuel</label>
                         <x-password-input name="current_password" autocomplete="current-password" />
                         @error('current_password', 'motDePasse')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
                     </div>
                 @endif
                 <div>
-                    <label for="password" class="mb-1 block text-sm font-medium text-slate-700">Nouveau mot de passe</label>
+                    <label for="password" class="mb-1 block text-sm font-medium text-encre">Nouveau mot de passe</label>
                     <x-password-input name="password" autocomplete="new-password" />
                     @error('password', 'motDePasse')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label for="password_confirmation" class="mb-1 block text-sm font-medium text-slate-700">Confirmer le nouveau mot de passe</label>
+                    <label for="password_confirmation" class="mb-1 block text-sm font-medium text-encre">Confirmer le nouveau mot de passe</label>
                     <x-password-input name="password_confirmation" autocomplete="new-password" />
                 </div>
-                <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white hover:bg-indigo-700">
+                <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2.5 font-semibold text-white hover:bg-indigo-700">
                     {{ $aMotDePasse ? 'Mettre à jour' : 'Définir le mot de passe' }}
                 </button>
             </form>
@@ -69,19 +69,19 @@
         {{-- Comptes sociaux liés --}}
         @if (! empty($providersSSO))
             @php $noms = ['google' => 'Google', 'github' => 'GitHub', 'facebook' => 'Facebook', 'linkedin' => 'LinkedIn']; @endphp
-            <div class="mb-6 rounded-2xl border border-slate-200 bg-white p-6">
-                <h2 class="text-sm font-semibold text-slate-700">Comptes connectés</h2>
-                <p class="mt-1 text-sm text-slate-500">Reliez vos comptes sociaux pour vous identifier plus vite — et renforcer la confiance de vos avis.</p>
+            <div class="mb-6 rounded-md border border-regle bg-white p-6">
+                <h2 class="text-sm font-semibold text-encre">Comptes connectés</h2>
+                <p class="mt-1 text-sm text-encre-doux">Reliez vos comptes sociaux pour vous identifier plus vite — et renforcer la confiance de vos avis.</p>
                 <ul class="mt-4 divide-y divide-slate-100">
                     @foreach ($providersSSO as $p)
                         @php $lie = in_array($p, $comptesLies, true); @endphp
                         <li class="flex items-center justify-between gap-3 py-3">
                             <div class="flex items-center gap-2">
-                                <span class="font-medium text-slate-800">{{ $noms[$p] ?? ucfirst($p) }}</span>
+                                <span class="font-medium text-encre">{{ $noms[$p] ?? ucfirst($p) }}</span>
                                 @if ($lie)
                                     <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">✓ vérifié</span>
                                 @else
-                                    <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">non vérifié</span>
+                                    <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-encre-doux">non vérifié</span>
                                 @endif
                             </div>
                             @if ($lie)
@@ -89,11 +89,11 @@
                                       data-confirm="Déconnecter {{ $noms[$p] ?? ucfirst($p) }} de votre compte ?"
                                       data-confirm-title="Déconnecter ?" data-confirm-button="Déconnecter" data-confirm-icon="warning">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50">Déconnecter</button>
+                                    <button type="submit" class="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-encre-doux hover:bg-slate-50">Déconnecter</button>
                                 </form>
                             @else
                                 <a href="{{ route('compte.comptes.connecter', $p) }}"
-                                   class="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700">Connecter</a>
+                                   class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700">Connecter</a>
                             @endif
                         </li>
                     @endforeach
@@ -102,18 +102,18 @@
         @endif
 
         {{-- Sessions actives --}}
-        <div class="rounded-2xl border border-slate-200 bg-white p-6">
-            <h2 class="text-sm font-semibold text-slate-700">Appareils connectés</h2>
+        <div class="rounded-md border border-regle bg-white p-6">
+            <h2 class="text-sm font-semibold text-encre">Appareils connectés</h2>
 
             @unless ($driverSupporte)
-                <p class="mt-4 text-sm text-slate-500">La liste des sessions n’est disponible qu’avec le stockage de session en base de données.</p>
+                <p class="mt-4 text-sm text-encre-doux">La liste des sessions n’est disponible qu’avec le stockage de session en base de données.</p>
             @else
                 <ul class="mt-4 divide-y divide-slate-100">
                     @forelse ($sessions as $s)
                         <li class="flex items-center justify-between gap-3 py-3">
                             <div class="min-w-0">
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span class="font-medium text-slate-800">{{ $s->appareil }}</span>
+                                    <span class="font-medium text-encre">{{ $s->appareil }}</span>
                                     @if ($s->actuelle)
                                         <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">appareil actuel</span>
                                     @endif
@@ -131,9 +131,9 @@
         </div>
 
         {{-- Déconnexion des autres appareils --}}
-        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
-            <h2 class="text-sm font-semibold text-slate-700">Se déconnecter des autres appareils</h2>
-            <p class="mt-1 text-sm text-slate-500">
+        <div class="mt-6 rounded-md border border-regle bg-white p-6">
+            <h2 class="text-sm font-semibold text-encre">Se déconnecter des autres appareils</h2>
+            <p class="mt-1 text-sm text-encre-doux">
                 Déconnecte toutes les sessions sauf celle-ci. Saisissez votre mot de passe pour confirmer.
             </p>
 
@@ -146,7 +146,7 @@
                     @enderror
                 </div>
                 <button type="submit"
-                        class="rounded-lg bg-slate-900 px-4 py-2.5 font-semibold text-white hover:bg-slate-800">
+                        class="rounded-md bg-slate-900 px-4 py-2.5 font-semibold text-white hover:bg-slate-800">
                     Déconnecter les autres
                 </button>
             </form>

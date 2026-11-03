@@ -1,11 +1,11 @@
-@php $input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'; @endphp
+@php $input = 'w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'; @endphp
 <form method="POST" action="{{ route('contrib.entretien.store', $entreprise) }}" class="space-y-3">
     @csrf
     <input type="hidden" name="entreprise_id" value="{{ $entreprise->id }}">
     <input type="hidden" name="_form" value="entretien">
 
     @error('entreprise_id')
-        <div class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ $message }}</div>
+        <div class="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ $message }}</div>
     @enderror
 
     <div class="grid gap-3 sm:grid-cols-2">
@@ -32,12 +32,12 @@
             <input id="delai_reponse_jours" name="delai_reponse_jours" type="number" min="0" value="{{ old('delai_reponse_jours') }}" class="{{ $input }}">
         </x-champ>
         <div class="flex flex-col justify-center gap-2 pt-2">
-            <label class="flex items-center gap-2 text-sm text-slate-700">
+            <label class="flex items-center gap-2 text-sm text-encre">
                 <input type="hidden" name="a_recu_reponse" value="0">
                 <input type="checkbox" name="a_recu_reponse" value="1" @checked(old('a_recu_reponse')) class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
                 J’ai reçu une réponse
             </label>
-            <label class="flex items-center gap-2 text-sm text-slate-700">
+            <label class="flex items-center gap-2 text-sm text-encre">
                 <input type="hidden" name="a_eu_offre" value="0">
                 <input type="checkbox" name="a_eu_offre" value="1" @checked(old('a_eu_offre')) class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
                 J’ai eu une offre
@@ -49,7 +49,7 @@
         <textarea id="ressenti_general" name="ressenti_general" rows="2" class="{{ $input }}">{{ old('ressenti_general') }}</textarea>
     </x-champ>
 
-    <button type="submit" class="w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+    <button type="submit" class="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
         Publier mon retour
     </button>
 </form>

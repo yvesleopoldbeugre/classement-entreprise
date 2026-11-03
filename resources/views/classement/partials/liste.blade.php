@@ -1,73 +1,58 @@
-<div class="mb-4">
-    <h2 class="text-xl font-bold text-slate-900">{{ $titre ?? 'Classement communautaire' }}</h2>
-    <p class="text-sm text-slate-500">{{ $intro ?? 'Basé sur les avis publiés et vérifiés.' }}</p>
+@php $minAvis = (int) config('classement.min_avis_classement'); @endphp
+<div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+    <h2 class="text-2xl font-extrabold tracking-tight text-encre font-stretch-condensed">{{ $titre ?? 'Classement communautaire' }}</h2>
+    <p class="text-sm text-encre-doux">{{ $intro ?? 'Basé sur les avis publiés et vérifiés.' }}</p>
 </div>
 
-@forelse ($entreprises as $i => $entreprise)
-    @php
-        $rang = $rangDepart + $i + 1;
-        $estNouveau = $entreprise->nb_avis_total === 0;
-        $assezDAvis = $entreprise->nb_avis_total >= (int) config('classement.min_avis_classement');
-        $score = $entreprise->score_bayesien !== null ? (float) $entreprise->score_bayesien : null;
-        $classesTon = match (true) {
-            $score === null => 'bg-slate-100 text-slate-500',
-            $score >= 4 => 'bg-emerald-50 text-emerald-700',
-            $score >= 3 => 'bg-amber-50 text-amber-700',
-            default => 'bg-rose-50 text-rose-700',
-        };
-    @endphp
-    <a href="{{ route('entreprises.show', $entreprise) }}"
-       class="group mb-3 flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-indigo-300 hover:shadow-sm">
-        <div class="w-10 shrink-0 text-center">
-            @if ($estNouveau)
-                <span class="text-lg">🆕</span>
-            @elseif ($rang <= 3)
-                <span class="text-2xl">{{ ['🥇','🥈','🥉'][$rang - 1] }}</span>
-            @else
-                <span class="text-lg font-bold text-slate-400 tabular-nums">{{ $rang }}</span>
-            @endif
-        </div>
-
-        <div class="min-w-0 flex-1">
-            <div class="flex flex-wrap items-center gap-2">
-                <h2 class="truncate font-semibold text-slate-900 group-hover:text-indigo-700">{{ $entreprise->nom }}</h2>
-                @if ($estNouveau)
-                    <span class="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700">Nouveau</span>
-                @endif
-            </div>
-            <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
-                <span class="rounded-md bg-slate-100 px-2 py-0.5 font-medium text-slate-600">{{ $entreprise->secteur_activite->libelle() }}</span>
-                @if ($entreprise->commune)
-                    <span>📍 {{ $entreprise->commune }}</span>
-                @endif
-                <span>{{ $estNouveau ? 'Pas encore d’avis' : $entreprise->nb_avis_total.' avis' }}</span>
-            </div>
-        </div>
-
-        @if ($assezDAvis)
-            <div class="hidden shrink-0 sm:block">
-                <x-note-etoiles :note="$entreprise->score_bayesien" />
-            </div>
-        @endif
-
-        <div class="shrink-0 text-right">
-            @if ($estNouveau)
-                <span class="inline-flex items-center rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">À découvrir</span>
-            @elseif (! $assezDAvis)
-                <span class="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">Peu d’avis</span>
-            @else
-                <div class="inline-flex items-baseline gap-1 rounded-lg px-2.5 py-1 {{ $classesTon }}">
-                    <span class="text-lg font-bold tabular-nums">{{ number_format($score, 2) }}</span>
-                    <span class="text-xs opacity-70">/5</span>
-                </div>
-            @endif
-        </div>
-    </a>
-@empty
-    <div class="rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center">
-        <p class="text-slate-500">Aucune entreprise à afficher ici pour le moment.</p>
+{{-- Bulletin : une ligne par entreprise, colonnes Rang / Entreprise / Avis / Moyenne / Appréciation --}}
+<div class="border-y-2 border-encre">
+    <div class="hidden grid-cols-[4rem_1fr_6rem_7rem_9rem] gap-4 border-b border-regle py-2 text-xs font-semibold text-encre-doux sm:grid">
+        <span>Rang</span><span>Entreprise</span><span class="text-right">Avis</span><span class="text-center">Moyenne /5</span><span>Appréciation</span>
     </div>
-@endforelse
+
+    @forelse ($entreprises as $i => $entreprise)
+        @php
+            $assezDAvis = $entreprise->nb_avis_total >= $minAvis && $entreprise->score_bayesien !== null;
+            $rang = $rangDepart + $i + 1;
+        @endphp
+        <a href="{{ route('entreprises.show', $entreprise) }}"
+           class="group grid grid-cols-[3rem_1fr_auto] items-center gap-3 border-b border-regle py-4 last:border-b-0 hover:bg-white sm:grid-cols-[4rem_1fr_6rem_7rem_9rem] sm:gap-4">
+            <span class="text-xl font-extrabold tabular-nums font-stretch-condensed {{ $assezDAvis ? 'text-encre' : 'text-encre-doux/40' }}">
+                {{ $assezDAvis ? \App\Models\Entreprise::rangOrdinal($rang) : '–' }}
+            </span>
+
+            <span class="min-w-0">
+                <span class="block truncate text-base font-semibold text-encre group-hover:underline group-hover:decoration-2 group-hover:underline-offset-4">{{ $entreprise->nom }}</span>
+                <span class="mt-0.5 block truncate text-sm text-encre-doux">
+                    {{ $entreprise->secteur_activite->libelle() }}@if ($entreprise->commune), {{ $entreprise->commune }}@endif
+                </span>
+            </span>
+
+            <span class="hidden text-right text-sm tabular-nums text-encre-doux sm:block">
+                {{ $entreprise->nb_avis_total }} avis
+            </span>
+
+            <span class="text-center">
+                @if ($assezDAvis)
+                    <x-moyenne :note="$entreprise->score_bayesien" />
+                @else
+                    <span class="text-xs text-encre-doux sm:hidden">{{ $entreprise->nb_avis_total }}/{{ $minAvis }} avis</span>
+                    <span class="hidden text-2xl font-extrabold text-regle font-stretch-condensed sm:inline">–</span>
+                @endif
+            </span>
+
+            <span class="hidden text-sm sm:block">
+                @if ($assezDAvis)
+                    <span class="font-semibold text-encre">{{ $entreprise->appreciation() }}</span>
+                @else
+                    <span class="text-encre-doux">Pas encore notée, {{ $entreprise->nb_avis_total }}/{{ $minAvis }} avis</span>
+                @endif
+            </span>
+        </a>
+    @empty
+        <p class="py-12 text-center text-encre-doux">Aucune entreprise ne correspond à cette recherche. Essayez un autre nom ou un autre secteur.</p>
+    @endforelse
+</div>
 
 <div class="mt-6">
     {{ $entreprises->links() }}

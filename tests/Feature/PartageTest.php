@@ -16,7 +16,7 @@ class PartageTest extends TestCase
 
         $this->get(route('entreprises.show', $entreprise))
             ->assertOk()
-            ->assertSee('Inviter à donner un avis')
+            ->assertSee('Inviter d’anciens collègues')
             ->assertSee('wa.me/?text=', false)
             ->assertSee('facebook.com/sharer', false)
             ->assertSee('linkedin.com/sharing', false)

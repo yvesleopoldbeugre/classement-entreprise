@@ -50,15 +50,11 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-800 antialiased" @if ($openModal) data-open-modal="{{ $openModal }}" @endif>
-    <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
+<body class="min-h-screen bg-papier text-encre antialiased" @if ($openModal) data-open-modal="{{ $openModal }}" @endif>
+    <header class="sticky top-0 z-20 border-b border-regle bg-papier/90 backdrop-blur">
         <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-            <a href="{{ route('classement.index') }}" class="flex items-center gap-2 font-semibold text-slate-900">
-                <svg viewBox="0 0 32 32" class="h-8 w-8" aria-hidden="true">
-                    <rect width="32" height="32" rx="8" fill="#4f46e5"/>
-                    <path d="M16 7l2.47 5.26 5.53.66-4.1 3.86 1.08 5.56L16 25.4l-4.98 2.9 1.08-5.56-4.1-3.86 5.53-.66z" fill="#fff"/>
-                </svg>
-                <span>Note ta <span class="text-indigo-600">boîte</span></span>
+            <a href="{{ route('classement.index') }}" class="text-xl font-extrabold tracking-tight text-encre font-stretch-condensed">
+                Note ta boîte
             </a>
 
             {{-- Navigation bureau --}}
@@ -68,7 +64,7 @@
 
             {{-- Bouton menu mobile --}}
             <button type="button" data-menu-toggle aria-label="Ouvrir le menu" aria-expanded="false"
-                    class="rounded-lg p-2 text-slate-600 hover:bg-slate-100 md:hidden">
+                    class="rounded-md p-2 text-encre hover:bg-indigo-50 md:hidden">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
                 </svg>
@@ -76,7 +72,7 @@
         </div>
 
         {{-- Menu mobile déroulant --}}
-        <nav id="menu-mobile" class="hidden border-t border-slate-200 bg-white md:hidden">
+        <nav id="menu-mobile" class="hidden border-t border-regle bg-papier md:hidden">
             <div class="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3 text-sm">
                 @include('partials.nav-links')
             </div>
@@ -94,7 +90,7 @@
                     </p>
                     <div class="flex items-center gap-2">
                         <a href="{{ route('compte.securite') }}"
-                           class="rounded-lg bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700">Définir maintenant</a>
+                           class="rounded-md bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700">Définir maintenant</a>
                         <button type="button" data-banniere-fermer aria-label="Masquer"
                                 class="px-1 text-amber-500 hover:text-amber-700">✕</button>
                     </div>
@@ -110,7 +106,7 @@
                         <form method="POST" action="{{ route('verification.send') }}">
                             @csrf
                             <button type="submit"
-                                    class="rounded-lg bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700">Renvoyer le lien</button>
+                                    class="rounded-md bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700">Renvoyer le lien</button>
                         </form>
                         <button type="button" data-banniere-fermer aria-label="Masquer"
                                 class="px-1 text-amber-500 hover:text-amber-700">✕</button>
@@ -125,7 +121,7 @@
                     </p>
                     <div class="flex items-center gap-2">
                         <a href="{{ route('compte.securite') }}"
-                           class="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-700">Connecter mes comptes</a>
+                           class="rounded-md bg-indigo-600 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-700">Connecter mes comptes</a>
                         <button type="button" data-banniere-fermer aria-label="Masquer"
                                 class="px-1 text-indigo-400 hover:text-indigo-700">✕</button>
                     </div>
@@ -144,10 +140,13 @@
         {{ $slot }}
     </main>
 
-    <footer class="mt-16 border-t border-slate-200 bg-white">
-        <div class="mx-auto max-w-6xl px-4 py-8 text-sm text-slate-500">
-            <p><span class="font-semibold text-slate-700">Note ta boîte</span> — les avis sont laissés par la communauté et modérés avant publication.</p>
-            <p class="mt-1 text-xs text-slate-400">Score calculé par moyenne bayésienne pour rester fiable même avec peu d’avis.</p>
+    <footer class="mt-20 border-t border-regle">
+        <div class="mx-auto grid max-w-6xl gap-2 px-4 py-10 text-sm text-encre-doux sm:grid-cols-[1fr_auto]">
+            <p class="max-w-xl">
+                <span class="font-bold text-encre">Note ta boîte</span> classe les entreprises de Côte d’Ivoire
+                d’après les avis de celles et ceux qui y ont travaillé. Chaque avis est relu avant publication.
+            </p>
+            <p class="max-w-xs text-xs sm:text-right">La moyenne tient compte du nombre d’avis : une entreprise ne monte pas sur un seul avis élogieux.</p>
         </div>
     </footer>
 

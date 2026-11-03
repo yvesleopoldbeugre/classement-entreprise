@@ -8,7 +8,7 @@
 
     {{-- Panneau --}}
     <div data-chat-panel
-         class="mb-3 hidden h-[28rem] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+         class="mb-3 hidden h-[28rem] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-md border border-regle bg-white shadow-2xl">
         <div class="flex items-center justify-between bg-indigo-600 px-4 py-3 text-white">
             <div>
                 <p class="text-sm font-semibold">Assistant Note ta boîte</p>
@@ -19,11 +19,11 @@
 
         <div data-chat-messages class="flex-1 space-y-2 overflow-y-auto bg-slate-50 p-3 text-sm"></div>
 
-        <form data-chat-form class="flex items-center gap-2 border-t border-slate-100 p-2">
+        <form data-chat-form class="flex items-center gap-2 border-t border-regle p-2">
             <input data-chat-input type="text" required maxlength="2000" autocomplete="off" placeholder="Votre message…"
-                   class="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
+                   class="min-w-0 flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
             <button type="submit" aria-label="Envoyer"
-                    class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">➤</button>
+                    class="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-indigo-600 text-white hover:bg-indigo-700">➤</button>
         </form>
     </div>
 

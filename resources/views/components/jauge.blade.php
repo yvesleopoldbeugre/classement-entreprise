@@ -4,8 +4,8 @@
 @endphp
 <div>
     <div class="mb-1 flex items-baseline justify-between text-sm">
-        <span class="text-slate-600">{{ $label }}</span>
-        <span class="font-semibold tabular-nums text-slate-900">
+        <span class="text-encre-doux">{{ $label }}</span>
+        <span class="font-semibold tabular-nums text-encre">
             {{ $valeur !== null ? number_format($valeur, 1) : '—' }}
         </span>
     </div>

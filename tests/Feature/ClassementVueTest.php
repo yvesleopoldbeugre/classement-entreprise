@@ -18,9 +18,9 @@ class ClassementVueTest extends TestCase
             'statut' => StatutEntreprise::Verifiee,
         ]);
 
-        // Vue par défaut = classement : présente, avec la mention « Nouveau ».
-        $this->get('/')->assertOk()->assertSee('Vérifiée Sans Avis')->assertSee('Nouveau');
-        $this->get('/?vue=classement')->assertOk()->assertSee('Vérifiée Sans Avis')->assertSee('Nouveau');
+        // Vue par défaut = classement : présente, marquée « Pas encore notée ».
+        $this->get('/')->assertOk()->assertSee('Vérifiée Sans Avis')->assertSee('Pas encore notée');
+        $this->get('/?vue=classement')->assertOk()->assertSee('Vérifiée Sans Avis')->assertSee('Pas encore notée');
 
         // Vue nouvelles : présente.
         $this->get('/?vue=nouvelles')->assertOk()->assertSee('Vérifiée Sans Avis');

@@ -161,6 +161,8 @@ annotation à écrire.
 
 Interface **server-rendered** (pas de SPA) :
 
+- **Direction visuelle « bulletin de notes »** (tokens dans `resources/css/app.css`, `@theme`) : `papier` (fond), `encre` / `encre-doux` (texte, bleu Bic), `regle` (lignes), `stylo-vert` / `stylo-rouge` (**uniquement** pour des notes bonnes / faibles et la liste « à éviter »), `orange-ci` (**réservé** à l'action « Donner mon avis » / « Publier mon avis », texte en encre pour le contraste). L'échelle `indigo-*` est **remappée sur l'encre** : l'existant suit sans réécriture. Police **Archivo variable** (`@fontsource-variable/archivo`, axe largeur) : `font-stretch-condensed` + `font-extrabold` pour titres, rangs et moyennes. Listes = lignes réglées (pas de cartes), `rounded-md` partout. Élément signature : `<x-moyenne>` (moyenne entourée au stylo, `tracer` = tracé animé une fois, respecte `prefers-reduced-motion`). `Entreprise::appreciation()` (Excellent → Insuffisant) et `Entreprise::rangOrdinal()` (« 1er », « 2e »).
+
 - Routes web : `routes/web.php` → `ClassementController@index` (`/`, le classement) et `@show` (`/entreprises/{slug}`, la fiche).
 - Vues : `resources/views/classement/index.blade.php`, `resources/views/entreprises/show.blade.php`.
 - Composants Blade anonymes : `resources/views/components/` → `<x-layout>`, `<x-note-etoiles :note>`, `<x-jauge label valeur>`.

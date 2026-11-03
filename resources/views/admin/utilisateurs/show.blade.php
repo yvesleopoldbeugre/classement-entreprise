@@ -4,30 +4,30 @@
         foreach (\App\Enums\TypeEvenement::cases() as $t) {
             $cartes[] = ['libelle' => $t->libelle(), 'valeur' => $totaux[$t->value] ?? 0];
         }
-        $lienPeriode = 'rounded-lg px-3 py-1.5 text-sm font-medium';
+        $lienPeriode = 'rounded-md px-3 py-1.5 text-sm font-medium';
     @endphp
 
     <div class="mx-auto max-w-5xl px-4 py-8">
-        <a href="{{ route('admin.users.index') }}" class="mb-6 inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-slate-800">
+        <a href="{{ route('admin.users.index') }}" class="mb-6 inline-flex items-center gap-1 text-sm font-medium text-encre-doux hover:text-encre">
             ← Retour aux utilisateurs
         </a>
 
         {{-- En-tête --}}
-        <div class="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 sm:flex-row sm:items-start sm:justify-between">
+        <div class="mb-6 flex flex-col gap-4 rounded-md border border-regle bg-white p-6 sm:flex-row sm:items-start sm:justify-between">
             <div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <h1 class="text-2xl font-bold text-slate-900">{{ $utilisateur->pseudo_public ?? $utilisateur->name }}</h1>
+                    <h1 class="text-2xl font-bold text-encre">{{ $utilisateur->pseudo_public ?? $utilisateur->name }}</h1>
                     @if ($utilisateur->is_admin)
                         <span class="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">admin</span>
                     @endif
                 </div>
-                <div class="mt-1 text-sm text-slate-500">{{ $utilisateur->email }}</div>
+                <div class="mt-1 text-sm text-encre-doux">{{ $utilisateur->email }}</div>
                 <div class="mt-1 text-xs text-slate-400">Inscrit le {{ $utilisateur->created_at->translatedFormat('d F Y') }}</div>
             </div>
-            <div class="inline-flex gap-1 rounded-xl border border-slate-200 bg-white p-1">
+            <div class="inline-flex gap-1 rounded-md border border-regle bg-white p-1">
                 @foreach ($periodes as $p)
                     <a href="{{ route('admin.users.show', ['user' => $utilisateur, 'jours' => $p]) }}"
-                       class="{{ $lienPeriode }} {{ $jours === $p ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                       class="{{ $lienPeriode }} {{ $jours === $p ? 'bg-indigo-600 text-white' : 'text-encre-doux hover:bg-slate-100' }}">
                         {{ $p }} jours
                     </a>
                 @endforeach
@@ -37,16 +37,16 @@
         {{-- KPI par type (tous temps) --}}
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             @foreach ($cartes as $carte)
-                <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                    <div class="text-2xl font-bold text-slate-900">{{ number_format($carte['valeur'], 0, ',', ' ') }}</div>
-                    <div class="mt-1 text-xs font-medium text-slate-500">{{ $carte['libelle'] }}</div>
+                <div class="rounded-md border border-regle bg-white p-4">
+                    <div class="text-2xl font-bold text-encre">{{ number_format($carte['valeur'], 0, ',', ' ') }}</div>
+                    <div class="mt-1 text-xs font-medium text-encre-doux">{{ $carte['libelle'] }}</div>
                 </div>
             @endforeach
         </div>
 
         {{-- Graphique d'évolution --}}
-        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
-            <h2 class="text-sm font-semibold text-slate-700">Activité sur {{ $jours }} jours</h2>
+        <div class="mt-6 rounded-md border border-regle bg-white p-6">
+            <h2 class="text-sm font-semibold text-encre">Activité sur {{ $jours }} jours</h2>
             <p class="mb-4 text-xs text-slate-400">Visites et actions de cet utilisateur, par jour.</p>
             <div class="relative h-64 w-full">
                 <canvas id="graphe-utilisateur"></canvas>
@@ -54,28 +54,28 @@
         </div>
 
         {{-- Journal d'activité (actions + visites) --}}
-        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
-            <h2 class="mb-4 text-sm font-semibold text-slate-700">Activité récente</h2>
+        <div class="mt-6 rounded-md border border-regle bg-white p-6">
+            <h2 class="mb-4 text-sm font-semibold text-encre">Activité récente</h2>
             <ul class="divide-y divide-slate-100">
                 @forelse ($recentes as $action)
                     <li class="flex items-center justify-between gap-3 py-2.5 text-sm">
                         <div class="flex min-w-0 items-center gap-2">
                             <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs
-                                {{ $action['estVisite'] ? 'bg-slate-100 text-slate-500' : 'bg-indigo-50 text-indigo-600' }}">
+                                {{ $action['estVisite'] ? 'bg-slate-100 text-encre-doux' : 'bg-indigo-50 text-indigo-600' }}">
                                 {{ $action['estVisite'] ? '↗' : '★' }}
                             </span>
                             <div class="min-w-0">
-                                <span class="font-medium text-slate-800">{{ $action['type'] }}</span>
+                                <span class="font-medium text-encre">{{ $action['type'] }}</span>
                                 @if ($action['sujet']['libelle'])
                                     <span class="text-slate-400"> · </span>
                                     @if ($action['sujet']['url'])
                                         <a href="{{ $action['sujet']['url'] }}" class="text-indigo-600 hover:underline">{{ $action['sujet']['libelle'] }}</a>
                                     @else
-                                        <span class="text-slate-500">{{ $action['sujet']['libelle'] }}</span>
+                                        <span class="text-encre-doux">{{ $action['sujet']['libelle'] }}</span>
                                     @endif
                                 @elseif ($action['estVisite'] && $action['page'])
                                     <span class="text-slate-400"> · </span>
-                                    <span class="truncate text-slate-500">/{{ ltrim($action['page'], '/') }}</span>
+                                    <span class="truncate text-encre-doux">/{{ ltrim($action['page'], '/') }}</span>
                                 @endif
                             </div>
                         </div>

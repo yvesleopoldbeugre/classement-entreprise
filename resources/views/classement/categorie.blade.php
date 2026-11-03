@@ -12,15 +12,13 @@
         ],
     ]" />
 
-    <section class="border-b border-slate-200 bg-white">
-        <div class="mx-auto max-w-6xl px-4 py-10">
-            <a href="{{ route('classement.index') }}" class="mb-4 inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-slate-800">
-                ← Tout le classement
-            </a>
-            <h1 class="max-w-3xl text-3xl font-bold tracking-tight text-slate-900">{{ $titre }}</h1>
-            <p class="mt-3 max-w-2xl text-slate-600">{{ $intro }}</p>
-            <p class="mt-2 text-sm text-slate-500">{{ $entreprises->total() }} {{ $entreprises->total() > 1 ? 'entreprises suivies' : 'entreprise suivie' }}</p>
-        </div>
+    <section class="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
+        <a href="{{ route('classement.index') }}" class="text-sm font-medium text-encre-doux underline underline-offset-4 hover:text-encre">Tout le classement</a>
+        <h1 class="mt-4 max-w-4xl text-4xl font-extrabold leading-[0.95] tracking-tight text-encre font-stretch-condensed sm:text-6xl">{{ $titre }}</h1>
+        <p class="mt-4 max-w-2xl text-lg text-encre-doux">
+            {{ $intro }}
+            {{ $entreprises->total() }} {{ $entreprises->total() > 1 ? 'entreprises suivies' : 'entreprise suivie' }}.
+        </p>
     </section>
 
     <div class="mx-auto max-w-6xl px-4 py-8">

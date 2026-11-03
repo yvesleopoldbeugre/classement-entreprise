@@ -1,5 +1,5 @@
 @php
-    $btn = 'flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50';
+    $btn = 'flex items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-encre hover:bg-slate-50';
     $providers = $providers ?? ['google', 'github', 'facebook', 'linkedin'];
 @endphp
 <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">

@@ -1,20 +1,20 @@
-@php $input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'; @endphp
+@php $input = 'w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'; @endphp
 <form method="POST" action="{{ route('entreprises.proposer') }}" class="space-y-3"
       data-import-url="{{ route('entreprises.importer-site') }}">
     @csrf
     <input type="hidden" name="_form" value="proposer">
 
     {{-- Remplissage automatique depuis le site web (masqué par défaut, dépliable) --}}
-    <details class="rounded-xl border border-indigo-100 bg-indigo-50/60">
+    <details class="rounded-md border border-indigo-100 bg-indigo-50/60">
         <summary class="cursor-pointer select-none px-3 py-2 text-xs font-semibold text-indigo-800 hover:text-indigo-900">
             ⚡ Remplir automatiquement depuis le site web
         </summary>
         <div class="px-3 pb-3">
             <div class="flex gap-2">
                 <input id="site_web_import" type="url" placeholder="https://site-de-l-entreprise.com"
-                       class="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
+                       class="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
                 <button type="button" data-import-site
-                        class="grid min-w-[6rem] shrink-0 place-items-center rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700">Récupérer</button>
+                        class="grid min-w-[6rem] shrink-0 place-items-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700">Récupérer</button>
             </div>
             <p class="mt-1 text-xs text-indigo-700/70">On tente de pré-remplir le nom et la description depuis le site (tout reste modifiable).</p>
             <p data-import-erreur class="mt-1 hidden text-xs text-rose-600"></p>
@@ -53,7 +53,7 @@
         <textarea id="commentaire_proposition" name="commentaire_proposition" rows="3" class="{{ $input }}" required>{{ old('commentaire_proposition') }}</textarea>
     </x-champ>
 
-    <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+    <button type="submit" class="rounded-md bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
         @can('moderer') Ajouter l’entreprise @else Proposer l’entreprise @endcan
     </button>
 </form>

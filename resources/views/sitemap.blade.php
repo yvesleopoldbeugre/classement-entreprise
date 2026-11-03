@@ -5,6 +5,20 @@
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
+@foreach ($secteurs as $secteur)
+    <url>
+        <loc>{{ route('classement.secteur', $secteur->slug()) }}</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+@endforeach
+@foreach ($communes as $commune)
+    <url>
+        <loc>{{ route('classement.commune', \Illuminate\Support\Str::slug($commune)) }}</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+@endforeach
 @foreach ($entreprises as $entreprise)
     <url>
         <loc>{{ route('entreprises.show', $entreprise->slug) }}</loc>

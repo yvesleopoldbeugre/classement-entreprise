@@ -23,6 +23,31 @@ enum SecteurActivite: string
         };
     }
 
+    /** Segment d'URL de la page secteur (ex. « banque-dsi »). */
+    public function slug(): string
+    {
+        return str_replace('_', '-', $this->value);
+    }
+
+    public static function depuisSlug(string $slug): ?self
+    {
+        return self::tryFrom(str_replace('-', '_', $slug));
+    }
+
+    /** Valeur d'enum depuis une saisie libre (valeur, slug ou libellé), sinon null. */
+    public static function depuisSaisie(?string $saisie): ?self
+    {
+        $saisie = mb_strtolower(trim((string) $saisie));
+
+        foreach (self::cases() as $cas) {
+            if (in_array($saisie, [$cas->value, $cas->slug(), mb_strtolower($cas->libelle())], true)) {
+                return $cas;
+            }
+        }
+
+        return null;
+    }
+
     /** @return list<string> */
     public static function values(): array
     {

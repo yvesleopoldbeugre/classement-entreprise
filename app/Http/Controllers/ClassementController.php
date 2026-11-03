@@ -7,6 +7,8 @@ use App\Enums\StatutEntreprise;
 use App\Models\AvisEntreprise;
 use App\Models\Entreprise;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ClassementController extends Controller
@@ -71,6 +73,7 @@ class ClassementController extends Controller
             'vue' => $vue,
             'secteurs' => SecteurActivite::cases(),
             'secteurActif' => $secteur,
+            'communes' => self::communes(),
             'recherche' => (string) $terme,
             'nbSuivies' => Entreprise::count(),
             'nbAvis' => AvisEntreprise::publie()->count(),
@@ -98,7 +101,7 @@ class ClassementController extends Controller
         $similaires = Entreprise::query()
             ->where('secteur_activite', $entreprise->secteur_activite)
             ->whereKeyNot($entreprise->getKey())
-            ->where(fn ($q) => $q->whereNotNull('rang_a_eviter')->orWhere('statut', StatutEntreprise::Verifiee))
+            ->publique()
             ->orderByDesc('score_bayesien')
             ->limit(4)
             ->get(['nom', 'slug', 'secteur_activite', 'score_bayesien']);
@@ -107,6 +110,66 @@ class ClassementController extends Controller
             'entreprise' => $entreprise,
             'rang' => $rang,
             'similaires' => $similaires,
+        ]);
+    }
+
+    /** Page d'atterrissage SEO : classement d'un secteur (« /secteur/ssii »). */
+    public function secteur(string $slug): View
+    {
+        $secteur = SecteurActivite::depuisSlug($slug) ?? abort(404);
+
+        return $this->categorie(
+            fn ($q) => $q->where('secteur_activite', $secteur),
+            titre: 'Meilleures entreprises '.$secteur->libelle().' en Côte d’Ivoire',
+            intro: 'Classement des entreprises du secteur '.$secteur->libelle().' selon les avis de leurs salariés, stagiaires et prestataires.',
+            ariane: $secteur->libelle(),
+        );
+    }
+
+    /** Page d'atterrissage SEO : classement d'une commune (« /commune/cocody »). */
+    public function commune(string $slug): View
+    {
+        $commune = self::communes()->first(fn (string $c) => Str::slug($c) === $slug) ?? abort(404);
+
+        return $this->categorie(
+            fn ($q) => $q->where('commune', $commune),
+            titre: 'Entreprises où travailler à '.$commune,
+            intro: 'Les entreprises de '.$commune.' classées par les avis de celles et ceux qui y ont travaillé.',
+            ariane: $commune,
+        );
+    }
+
+    /** Communes ayant au moins une entreprise publique (libellés distincts). */
+    public static function communes(): Collection
+    {
+        return Entreprise::publique()
+            ->whereNotNull('commune')
+            ->where('commune', '!=', '')
+            ->distinct()
+            ->orderBy('commune')
+            ->pluck('commune')
+            ->unique(fn (string $c) => Str::slug($c))
+            ->values();
+    }
+
+    private function categorie(\Closure $filtre, string $titre, string $intro, string $ariane): View
+    {
+        $paginator = $filtre(Entreprise::query()
+            ->where('statut', StatutEntreprise::Verifiee)
+            ->whereNull('rang_a_eviter'))
+            ->orderByRaw('score_bayesien IS NULL')
+            ->orderByDesc('score_bayesien')
+            ->orderByDesc('nb_avis_total')
+            ->paginate(12);
+
+        return view('classement.categorie', [
+            'entreprises' => $paginator,
+            'rangDepart' => ($paginator->currentPage() - 1) * $paginator->perPage(),
+            'titre' => $titre,
+            'intro' => $intro,
+            'ariane' => $ariane,
+            'secteurs' => SecteurActivite::cases(),
+            'communes' => self::communes(),
         ]);
     }
 }

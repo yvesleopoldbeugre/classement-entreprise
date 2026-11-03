@@ -16,9 +16,10 @@ use Illuminate\Support\Str;
 
 #[ObservedBy([EntrepriseObserver::class])]
 #[Fillable([
-    'nom', 'slug', 'secteur_activite', 'adresse', 'commune', 'site_web',
+    'nom', 'description', 'slug', 'secteur_activite', 'adresse', 'commune', 'site_web',
     'linkedin_url', 'taille_estimee', 'date_creation', 'source_scraping', 'statut',
     'rang_a_eviter', 'reponse_entreprise', 'reponse_entreprise_le', 'commentaire_proposition',
+    'enrichi_le',
 ])]
 class Entreprise extends Model
 {
@@ -39,6 +40,7 @@ class Entreprise extends Model
             'score_bayesien' => 'decimal:3',
             'rang_a_eviter' => 'integer',
             'reponse_entreprise_le' => 'datetime',
+            'enrichi_le' => 'datetime',
         ];
     }
 
@@ -81,6 +83,14 @@ class Entreprise extends Model
     public function missions(): HasMany
     {
         return $this->hasMany(Mission::class);
+    }
+
+    /** Entreprises affichées publiquement : vérifiées, ou dans la liste éditoriale. */
+    public function scopePublique(Builder $query): Builder
+    {
+        return $query->where(fn ($q) => $q
+            ->whereNotNull('rang_a_eviter')
+            ->orWhere('statut', StatutEntreprise::Verifiee));
     }
 
     /** Entreprises éligibles au classement public (assez d'avis publiés). */

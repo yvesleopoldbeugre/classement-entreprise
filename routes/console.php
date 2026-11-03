@@ -22,3 +22,8 @@ Schedule::command('stats:purger')
 Schedule::command('chat:purger')
     ->dailyAt('04:30')
     ->withoutOverlapping();
+
+// Enrichissement hebdomadaire des nouvelles fiches depuis leur site web (par lots).
+Schedule::command('entreprises:enrichir --limite=100')
+    ->weeklyOn(0, '05:00')
+    ->withoutOverlapping();

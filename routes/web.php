@@ -3,17 +3,17 @@
 use App\Http\Controllers\Admin\LiveController;
 use App\Http\Controllers\Admin\StatistiqueController;
 use App\Http\Controllers\Admin\UtilisateurController;
-use App\Http\Controllers\Chat\ChatVisiteurController;
-use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\LienMagiqueController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\VerificationEmailController;
+use App\Http\Controllers\Chat\ChatVisiteurController;
 use App\Http\Controllers\ClassementController;
 use App\Http\Controllers\Compte\SecuriteController;
 use App\Http\Controllers\ContributionController;
 use App\Http\Controllers\EntrepriseController;
 use App\Http\Controllers\ModerationController;
+use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\ReponseEntrepriseController;
 use App\Http\Controllers\Seo\SitemapController;
 use App\Http\Controllers\SignalementController;
@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Route;
 // --- Public : classement + fiches ---
 Route::get('/', [ClassementController::class, 'index'])->name('classement.index');
 Route::get('/entreprises/{entreprise}', [ClassementController::class, 'show'])->name('entreprises.show');
+Route::get('/secteur/{secteur}', [ClassementController::class, 'secteur'])->name('classement.secteur');
+Route::get('/commune/{commune}', [ClassementController::class, 'commune'])->name('classement.commune');
 
 // --- SEO ---
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');

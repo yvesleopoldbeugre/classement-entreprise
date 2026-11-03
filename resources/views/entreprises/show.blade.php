@@ -6,11 +6,15 @@
             .' d’après les avis d’anciens salariés en Côte d’Ivoire. Secteur : '.$entreprise->secteur_activite->libelle().'.'
         : 'Découvrez les avis sur '.$entreprise->nom.' ('.$entreprise->secteur_activite->libelle().') en Côte d’Ivoire et partagez votre propre expérience.';
 
+    // Fiche proposée mais pas encore vérifiée : consultable, mais hors index (comme le sitemap).
+    $estPublique = $entreprise->rang_a_eviter !== null || $entreprise->statut === \App\Enums\StatutEntreprise::Verifiee;
+
     // Données structurées : entreprise + note agrégée (extraits enrichis) + fil d'Ariane.
     $schemaOrg = array_filter([
         '@context' => 'https://schema.org',
         '@type' => $entreprise->commune ? 'LocalBusiness' : 'Organization',
         'name' => $entreprise->nom,
+        'description' => $entreprise->description,
         'url' => route('entreprises.show', $entreprise),
         'sameAs' => $entreprise->site_web ? [$entreprise->site_web] : null,
         'address' => $entreprise->commune ? [
@@ -32,11 +36,12 @@
         '@type' => 'BreadcrumbList',
         'itemListElement' => [
             ['@type' => 'ListItem', 'position' => 1, 'name' => 'Classement', 'item' => route('classement.index')],
-            ['@type' => 'ListItem', 'position' => 2, 'name' => $entreprise->nom, 'item' => route('entreprises.show', $entreprise)],
+            ['@type' => 'ListItem', 'position' => 2, 'name' => $entreprise->secteur_activite->libelle(), 'item' => route('classement.secteur', $entreprise->secteur_activite->slug())],
+            ['@type' => 'ListItem', 'position' => 3, 'name' => $entreprise->nom, 'item' => route('entreprises.show', $entreprise)],
         ],
     ];
 @endphp
-<x-layout :title="$entreprise->nom.' — avis & note des salariés · Côte d’Ivoire'" :description="$metaDescription" og-type="article" :open-modal="session('avis_en_attente') ? 'compte-avis' : old('_form')">
+<x-layout :title="$entreprise->nom.' — avis & note des salariés · Côte d’Ivoire'" :description="$metaDescription" og-type="article" :robots="$estPublique ? 'index, follow' : 'noindex, follow'" :open-modal="session('avis_en_attente') ? 'compte-avis' : old('_form')">
     <x-schema :data="$schemaOrg" />
     <x-schema :data="$schemaBreadcrumb" />
     @php
@@ -72,8 +77,8 @@
                         @endif
                     </div>
                     <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
-                        <span class="rounded-md bg-slate-100 px-2 py-0.5 font-medium text-slate-600">{{ $entreprise->secteur_activite->libelle() }}</span>
-                        @if ($entreprise->commune)<span>📍 {{ $entreprise->commune }}</span>@endif
+                        <a href="{{ route('classement.secteur', $entreprise->secteur_activite->slug()) }}" class="rounded-md bg-slate-100 px-2 py-0.5 font-medium text-slate-600 hover:bg-indigo-50 hover:text-indigo-700">{{ $entreprise->secteur_activite->libelle() }}</a>
+                        @if ($entreprise->commune)<a href="{{ route('classement.commune', \Illuminate\Support\Str::slug($entreprise->commune)) }}" class="hover:text-indigo-700">📍 {{ $entreprise->commune }}</a>@endif
                         @if ($entreprise->taille_estimee)<span>👥 {{ $entreprise->taille_estimee }}</span>@endif
                         @if ($entreprise->site_web)
                             <a href="{{ $entreprise->site_web }}" target="_blank" rel="noopener" class="text-indigo-600 hover:underline">Site web ↗</a>
@@ -95,6 +100,10 @@
                     @endif
                 </div>
             </div>
+
+            @if ($entreprise->description)
+                <p class="mt-4 whitespace-pre-line text-sm text-slate-600">{{ $entreprise->description }}</p>
+            @endif
 
             {{-- Partage : inviter des tiers à donner leur avis --}}
             <x-partage class="mt-5 border-t border-slate-100 pt-4"

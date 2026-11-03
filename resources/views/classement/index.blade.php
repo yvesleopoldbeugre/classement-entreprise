@@ -117,6 +117,8 @@
                 @include($partial)
             </div>
         </div>
+
+        @include('classement.partials.explorer')
     </div>
 
     @auth

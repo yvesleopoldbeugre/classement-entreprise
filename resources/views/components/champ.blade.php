@@ -1,16 +1,16 @@
 @props(['label' => '', 'name' => '', 'required' => false, 'hint' => null, 'aide' => null])
 <div data-champ>
-    <div class="mb-0.5 flex items-center gap-1.5">
-        <label for="{{ $name }}" class="block text-xs font-medium text-encre-doux">
-            {{ $label }}@if ($required)<span class="text-rose-500"> *</span>@endif
+    <div class="mb-1.5 flex items-center gap-1.5">
+        <label for="{{ $name }}" class="block text-[13px] font-semibold text-encre">
+            {{ $label }}@if ($required)<span class="text-rouge"> *</span>@endif
         </label>
         @if ($aide)
             <span class="relative inline-flex">
                 <button type="button" data-aide-toggle aria-label="Aide sur ce champ"
-                        class="grid h-4 w-4 place-items-center rounded-full bg-slate-200 text-[10px] font-bold leading-none text-encre-doux transition hover:bg-indigo-100 hover:text-indigo-600">?</button>
+                        class="grid h-4 w-4 place-items-center rounded-full bg-surface text-[10px] font-bold leading-none text-encre-doux ring-1 ring-ligne hover:text-encre">?</button>
                 {{-- Bulle d'info flottante (n'agrandit pas le formulaire) --}}
                 <span data-aide-contenu role="tooltip"
-                      class="absolute left-1/2 top-full z-30 mt-1.5 hidden w-56 max-w-[70vw] -translate-x-1/2 rounded-md bg-slate-800 px-2.5 py-1.5 text-xs leading-relaxed text-white shadow-lg">
+                      class="absolute left-1/2 top-full z-30 mt-1.5 hidden w-56 max-w-[70vw] -translate-x-1/2 rounded-xl bg-encre px-2.5 py-1.5 text-xs leading-relaxed text-white shadow-lg">
                     {{ $aide }}
                 </span>
             </span>
@@ -18,9 +18,9 @@
     </div>
     {{ $slot }}
     @if ($hint)
-        <p class="mt-0.5 text-xs text-slate-400">{{ $hint }}</p>
+        <p class="mt-1 text-xs text-encre-doux">{{ $hint }}</p>
     @endif
     @error($name)
-        <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>
+        <p class="mt-1 text-xs font-medium text-rouge">{{ $message }}</p>
     @enderror
 </div>

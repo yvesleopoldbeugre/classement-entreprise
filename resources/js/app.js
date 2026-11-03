@@ -42,8 +42,8 @@ document.addEventListener('submit', (e) => {
         showCancelButton: true,
         confirmButtonText: form.dataset.confirmButton || 'Confirmer',
         cancelButtonText: 'Annuler',
-        confirmButtonColor: '#4f46e5',
-        cancelButtonColor: '#64748b',
+        confirmButtonColor: '#13233a',
+        cancelButtonColor: '#55627a',
         reverseButtons: true,
         customClass: { popup: 'swal-compact' },
     }).then((resultat) => {
@@ -222,6 +222,19 @@ if (form && liste) {
 
     window.addEventListener('popstate', () => charger(window.location.href));
 }
+
+// =============================================================
+//  Onglets de la fiche (avis / entretiens / missions)
+// =============================================================
+document.querySelectorAll('[data-onglets]').forEach((bloc) => {
+    const onglets = bloc.querySelectorAll('[data-onglet]');
+    const afficher = (cle) => {
+        onglets.forEach((o) => o.setAttribute('aria-selected', o.dataset.onglet === cle ? 'true' : 'false'));
+        bloc.querySelectorAll('[data-panneau]').forEach((p) => p.classList.toggle('hidden', p.dataset.panneau !== cle));
+    };
+    onglets.forEach((o) => o.addEventListener('click', () => afficher(o.dataset.onglet)));
+    afficher(onglets[0]?.dataset.onglet);
+});
 
 // Loader sur les formulaires « classiques » (ni AJAX, ni confirmation SweetAlert).
 // Enregistré en dernier pour voir un éventuel preventDefault des handlers précédents.

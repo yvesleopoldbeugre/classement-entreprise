@@ -50,8 +50,8 @@ if (source && canvas) {
                 {
                     label: 'Visites',
                     data: data.visites,
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                    borderColor: '#13233a',
+                    backgroundColor: 'rgba(19, 35, 58, 0.08)',
                     fill: true,
                     tension: 0.35,
                     pointRadius: 0,
@@ -61,8 +61,8 @@ if (source && canvas) {
                 {
                     label: 'Actions',
                     data: data.actions,
-                    borderColor: '#059669',
-                    backgroundColor: 'rgba(5, 150, 105, 0.08)',
+                    borderColor: '#f26b1d',
+                    backgroundColor: 'rgba(242, 107, 29, 0.1)',
                     fill: true,
                     tension: 0.35,
                     pointRadius: 0,

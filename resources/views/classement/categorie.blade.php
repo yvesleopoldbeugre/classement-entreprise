@@ -12,18 +12,24 @@
         ],
     ]" />
 
-    <section class="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
-        <a href="{{ route('classement.index') }}" class="text-sm font-medium text-encre-doux underline underline-offset-4 hover:text-encre">Tout le classement</a>
-        <h1 class="mt-4 max-w-4xl text-4xl font-extrabold leading-[0.95] tracking-tight text-encre font-stretch-condensed sm:text-6xl">{{ $titre }}</h1>
-        <p class="mt-4 max-w-2xl text-lg text-encre-doux">
-            {{ $intro }}
-            {{ $entreprises->total() }} {{ $entreprises->total() > 1 ? 'entreprises suivies' : 'entreprise suivie' }}.
-        </p>
+    <section class="border-b border-ligne bg-white">
+        <div class="mx-auto max-w-6xl px-4 py-10 sm:py-14">
+            <a href="{{ route('classement.index') }}" class="text-sm font-semibold text-teal hover:underline">Tout le classement</a>
+            <h1 class="mt-3 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-encre sm:text-5xl">{{ $titre }}</h1>
+            <p class="mt-3 max-w-2xl text-base text-encre-doux sm:text-lg">
+                {{ $intro }}
+                {{ $entreprises->total() }} {{ $entreprises->total() > 1 ? 'entreprises suivies' : 'entreprise suivie' }}.
+            </p>
+        </div>
     </section>
 
-    <div class="mx-auto max-w-6xl px-4 py-8">
-        @include('classement.partials.liste', ['titre' => 'Classement · '.$ariane, 'intro' => 'Les entreprises notées d’abord ; les nouvelles attendent leurs premiers avis.'])
+    <div class="bg-surface">
+        <div class="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:py-12">
+            <section class="rounded-2xl border border-ligne bg-white p-5 sm:p-6">
+                @include('classement.partials.liste', ['titre' => 'Classement · '.$ariane, 'intro' => 'Les entreprises notées d’abord ; les nouvelles attendent leurs premiers avis.'])
+            </section>
 
-        @include('classement.partials.explorer')
+            @include('classement.partials.explorer')
+        </div>
     </div>
 </x-layout>

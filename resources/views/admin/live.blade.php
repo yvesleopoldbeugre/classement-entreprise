@@ -16,14 +16,14 @@
 
         <div class="grid gap-4 lg:grid-cols-[1fr_1.3fr]">
             {{-- Liste des visiteurs en ligne --}}
-            <div class="rounded-md border border-regle bg-white p-3">
+            <div class="rounded-xl border border-ligne bg-white p-3">
                 <ul data-live-liste class="space-y-1"></ul>
                 <p data-live-liste-vide class="py-10 text-center text-sm text-slate-400">Aucun visiteur en ligne pour le moment.</p>
             </div>
 
             {{-- Conversation --}}
-            <div class="flex h-[32rem] flex-col rounded-md border border-regle bg-white">
-                <div data-live-entete class="hidden border-b border-regle px-4 py-3">
+            <div class="flex h-[32rem] flex-col rounded-xl border border-ligne bg-white">
+                <div data-live-entete class="hidden border-b border-ligne px-4 py-3">
                     <p data-live-nom class="text-sm font-semibold text-encre"></p>
                     <p data-live-page class="truncate text-xs text-slate-400"></p>
                 </div>
@@ -31,10 +31,10 @@
                 <div data-live-vide class="flex flex-1 items-center justify-center p-6 text-center text-sm text-slate-400">
                     Sélectionnez un visiteur à gauche pour lui écrire.
                 </div>
-                <form data-live-form class="hidden items-center gap-2 border-t border-regle p-2">
+                <form data-live-form class="hidden items-center gap-2 border-t border-ligne p-2">
                     <input data-live-input type="text" required maxlength="2000" autocomplete="off" placeholder="Votre réponse…"
-                           class="min-w-0 flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
-                    <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Envoyer</button>
+                           class="min-w-0 flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-encre focus:ring-4 focus:ring-orange/20">
+                    <button type="submit" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Envoyer</button>
                 </form>
             </div>
         </div>

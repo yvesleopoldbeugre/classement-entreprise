@@ -5,7 +5,7 @@
         foreach (\App\Enums\TypeEvenement::cases() as $t) {
             $cartes[] = ['libelle' => $t->libelle(), 'valeur' => $totaux[$t->value] ?? 0, 'accent' => false];
         }
-        $lienPeriode = 'rounded-md px-3 py-1.5 text-sm font-medium';
+        $lienPeriode = 'rounded-xl px-3 py-1.5 text-sm font-medium';
     @endphp
 
     <div class="mx-auto max-w-6xl px-4 py-8">
@@ -15,7 +15,7 @@
                 <h1 class="text-2xl font-bold text-encre">Statistiques d’utilisation</h1>
                 <p class="mt-1 text-sm text-encre-doux">Visites et actions sur les {{ $jours }} derniers jours.</p>
             </div>
-            <div class="inline-flex gap-1 rounded-md border border-regle bg-white p-1">
+            <div class="inline-flex gap-1 rounded-xl border border-ligne bg-white p-1">
                 @foreach ($periodes as $p)
                     <a href="{{ route('admin.stats.index', ['jours' => $p]) }}"
                        class="{{ $lienPeriode }} {{ $jours === $p ? 'bg-indigo-600 text-white' : 'text-encre-doux hover:bg-slate-100' }}">
@@ -26,7 +26,7 @@
         </div>
 
         {{-- Visiteurs en cours de visite (temps réel) --}}
-        <div class="mb-3 flex items-center gap-3 rounded-md border border-emerald-200 bg-emerald-50 p-4"
+        <div class="mb-3 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4"
              data-en-ligne-url="{{ route('admin.stats.en-ligne') }}">
             <span class="relative flex h-3 w-3">
                 <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
@@ -42,7 +42,7 @@
         {{-- Cartes KPI --}}
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             @foreach ($cartes as $carte)
-                <div class="rounded-md border border-regle bg-white p-4 {{ $carte['accent'] ? 'ring-1 ring-indigo-100' : '' }}">
+                <div class="rounded-xl border border-ligne bg-white p-4 {{ $carte['accent'] ? 'ring-1 ring-indigo-100' : '' }}">
                     <div class="text-2xl font-bold {{ $carte['accent'] ? 'text-indigo-600' : 'text-encre' }}">
                         {{ number_format($carte['valeur'], 0, ',', ' ') }}
                     </div>
@@ -52,7 +52,7 @@
         </div>
 
         {{-- Graphique d'évolution --}}
-        <div class="mt-6 rounded-md border border-regle bg-white p-6">
+        <div class="mt-6 rounded-xl border border-ligne bg-white p-6">
             <h2 class="text-sm font-semibold text-encre">Évolution de l’utilisation</h2>
             <p class="mb-4 text-xs text-slate-400">Visites de pages et actions des utilisateurs, par jour.</p>
             <div class="relative h-72 w-full">

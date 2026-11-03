@@ -5,11 +5,14 @@
     'ogType' => 'website',   // « article » pour une fiche entreprise, par ex.
     'robots' => 'index, follow', // « noindex, nofollow » sur les pages privées / sans intérêt SEO
     'openModal' => null,
+    'sombre' => false,       // en-tête sur fond encre (pages ouvertes par un bandeau sombre)
 ])
 @php
     // Image de partage : celle passée par la page, sinon la carte de marque par défaut (1200×630).
     $shareImage = $ogImage ?: asset('og-image.png');
     $canonical = url()->current();
+    // Espace admin : barre latérale commune au lieu de l'en-tête public.
+    $espaceAdmin = request()->routeIs('admin.*', 'moderation.*');
 @endphp
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
@@ -50,34 +53,41 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-papier text-encre antialiased" @if ($openModal) data-open-modal="{{ $openModal }}" @endif>
-    <header class="sticky top-0 z-20 border-b border-regle bg-papier/90 backdrop-blur">
-        <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-            <a href="{{ route('classement.index') }}" class="text-xl font-extrabold tracking-tight text-encre font-stretch-condensed">
-                Note ta boîte
+<body class="min-h-screen bg-white text-encre antialiased" @if ($openModal) data-open-modal="{{ $openModal }}" @endif>
+    @if ($espaceAdmin)
+        <div class="lg:flex">
+        @include('partials.admin-nav')
+        <div class="min-w-0 flex-1 bg-surface lg:min-h-screen">
+    @else
+    <header class="sticky top-0 z-20 {{ $sombre ? 'bg-encre' : 'border-b border-ligne bg-white/95 backdrop-blur' }}">
+        <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5">
+            <a href="{{ route('classement.index') }}" class="flex items-center gap-2.5">
+                <x-logo />
+                <span class="text-lg font-extrabold tracking-tight {{ $sombre ? 'text-white' : 'text-encre' }}">Note ta boîte</span>
             </a>
 
             {{-- Navigation bureau --}}
-            <nav class="hidden items-center gap-1 text-sm md:flex">
-                @include('partials.nav-links')
+            <nav class="hidden items-center gap-1 text-[15px] md:flex">
+                @include('partials.nav-links', ['sombre' => $sombre])
             </nav>
 
             {{-- Bouton menu mobile --}}
             <button type="button" data-menu-toggle aria-label="Ouvrir le menu" aria-expanded="false"
-                    class="rounded-md p-2 text-encre hover:bg-indigo-50 md:hidden">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                    class="rounded-xl p-2 md:hidden {{ $sombre ? 'text-white hover:bg-white/10' : 'text-encre hover:bg-surface' }}">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16"/>
                 </svg>
             </button>
         </div>
 
         {{-- Menu mobile déroulant --}}
-        <nav id="menu-mobile" class="hidden border-t border-regle bg-papier md:hidden">
+        <nav id="menu-mobile" class="hidden border-t border-ligne bg-white md:hidden">
             <div class="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3 text-sm">
-                @include('partials.nav-links')
+                @include('partials.nav-links', ['sombre' => false])
             </div>
         </nav>
     </header>
+    @endif
 
     {{-- Bannières compte : définir un mot de passe (comptes lien magique/SSO)
          OU vérifier son email (comptes mot de passe non vérifiés → poids des avis ↑). --}}
@@ -90,7 +100,7 @@
                     </p>
                     <div class="flex items-center gap-2">
                         <a href="{{ route('compte.securite') }}"
-                           class="rounded-md bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700">Définir maintenant</a>
+                           class="rounded-xl bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700">Définir maintenant</a>
                         <button type="button" data-banniere-fermer aria-label="Masquer"
                                 class="px-1 text-amber-500 hover:text-amber-700">✕</button>
                     </div>
@@ -106,7 +116,7 @@
                         <form method="POST" action="{{ route('verification.send') }}">
                             @csrf
                             <button type="submit"
-                                    class="rounded-md bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700">Renvoyer le lien</button>
+                                    class="rounded-xl bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700">Renvoyer le lien</button>
                         </form>
                         <button type="button" data-banniere-fermer aria-label="Masquer"
                                 class="px-1 text-amber-500 hover:text-amber-700">✕</button>
@@ -121,7 +131,7 @@
                     </p>
                     <div class="flex items-center gap-2">
                         <a href="{{ route('compte.securite') }}"
-                           class="rounded-md bg-indigo-600 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-700">Connecter mes comptes</a>
+                           class="rounded-xl bg-indigo-600 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-700">Connecter mes comptes</a>
                         <button type="button" data-banniere-fermer aria-label="Masquer"
                                 class="px-1 text-indigo-400 hover:text-indigo-700">✕</button>
                     </div>
@@ -139,16 +149,21 @@
     <main>
         {{ $slot }}
     </main>
+    @if ($espaceAdmin)
+        </div>
+        </div>
+    @endif
 
-    <footer class="mt-20 border-t border-regle">
-        <div class="mx-auto grid max-w-6xl gap-2 px-4 py-10 text-sm text-encre-doux sm:grid-cols-[1fr_auto]">
-            <p class="max-w-xl">
-                <span class="font-bold text-encre">Note ta boîte</span> classe les entreprises de Côte d’Ivoire
-                d’après les avis de celles et ceux qui y ont travaillé. Chaque avis est relu avant publication.
+    @unless ($espaceAdmin)
+    <footer class="bg-encre">
+        <div class="mx-auto grid max-w-6xl gap-3 px-4 py-9 text-sm sm:grid-cols-[1fr_auto]">
+            <p class="max-w-xl text-white/80">
+                <span class="font-bold text-white">Note ta boîte</span> : les entreprises de Côte d’Ivoire notées par celles et ceux qui y ont travaillé.
             </p>
-            <p class="max-w-xs text-xs sm:text-right">La moyenne tient compte du nombre d’avis : une entreprise ne monte pas sur un seul avis élogieux.</p>
+            <p class="max-w-sm text-xs text-white/60 sm:text-right">Avis relus avant publication. Moyenne pondérée par le nombre d’avis.</p>
         </div>
     </footer>
+    @endunless
 
     {{-- Modal d'incitation à l'inscription (invités, hors pages d'authentification) --}}
     @guest

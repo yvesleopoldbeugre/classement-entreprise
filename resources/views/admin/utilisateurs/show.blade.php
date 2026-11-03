@@ -4,7 +4,7 @@
         foreach (\App\Enums\TypeEvenement::cases() as $t) {
             $cartes[] = ['libelle' => $t->libelle(), 'valeur' => $totaux[$t->value] ?? 0];
         }
-        $lienPeriode = 'rounded-md px-3 py-1.5 text-sm font-medium';
+        $lienPeriode = 'rounded-xl px-3 py-1.5 text-sm font-medium';
     @endphp
 
     <div class="mx-auto max-w-5xl px-4 py-8">
@@ -13,7 +13,7 @@
         </a>
 
         {{-- En-tête --}}
-        <div class="mb-6 flex flex-col gap-4 rounded-md border border-regle bg-white p-6 sm:flex-row sm:items-start sm:justify-between">
+        <div class="mb-6 flex flex-col gap-4 rounded-xl border border-ligne bg-white p-6 sm:flex-row sm:items-start sm:justify-between">
             <div>
                 <div class="flex flex-wrap items-center gap-2">
                     <h1 class="text-2xl font-bold text-encre">{{ $utilisateur->pseudo_public ?? $utilisateur->name }}</h1>
@@ -24,7 +24,7 @@
                 <div class="mt-1 text-sm text-encre-doux">{{ $utilisateur->email }}</div>
                 <div class="mt-1 text-xs text-slate-400">Inscrit le {{ $utilisateur->created_at->translatedFormat('d F Y') }}</div>
             </div>
-            <div class="inline-flex gap-1 rounded-md border border-regle bg-white p-1">
+            <div class="inline-flex gap-1 rounded-xl border border-ligne bg-white p-1">
                 @foreach ($periodes as $p)
                     <a href="{{ route('admin.users.show', ['user' => $utilisateur, 'jours' => $p]) }}"
                        class="{{ $lienPeriode }} {{ $jours === $p ? 'bg-indigo-600 text-white' : 'text-encre-doux hover:bg-slate-100' }}">
@@ -37,7 +37,7 @@
         {{-- KPI par type (tous temps) --}}
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             @foreach ($cartes as $carte)
-                <div class="rounded-md border border-regle bg-white p-4">
+                <div class="rounded-xl border border-ligne bg-white p-4">
                     <div class="text-2xl font-bold text-encre">{{ number_format($carte['valeur'], 0, ',', ' ') }}</div>
                     <div class="mt-1 text-xs font-medium text-encre-doux">{{ $carte['libelle'] }}</div>
                 </div>
@@ -45,7 +45,7 @@
         </div>
 
         {{-- Graphique d'évolution --}}
-        <div class="mt-6 rounded-md border border-regle bg-white p-6">
+        <div class="mt-6 rounded-xl border border-ligne bg-white p-6">
             <h2 class="text-sm font-semibold text-encre">Activité sur {{ $jours }} jours</h2>
             <p class="mb-4 text-xs text-slate-400">Visites et actions de cet utilisateur, par jour.</p>
             <div class="relative h-64 w-full">
@@ -54,7 +54,7 @@
         </div>
 
         {{-- Journal d'activité (actions + visites) --}}
-        <div class="mt-6 rounded-md border border-regle bg-white p-6">
+        <div class="mt-6 rounded-xl border border-ligne bg-white p-6">
             <h2 class="mb-4 text-sm font-semibold text-encre">Activité récente</h2>
             <ul class="divide-y divide-slate-100">
                 @forelse ($recentes as $action)

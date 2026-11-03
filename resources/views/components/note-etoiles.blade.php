@@ -6,7 +6,7 @@
 <span {{ $attributes->merge(['class' => 'inline-flex items-center gap-1.5']) }}
       title="{{ number_format($valeur, 1) }} / {{ $max }}">
     <span class="relative inline-block whitespace-nowrap tracking-[0.15em] leading-none">
-        <span class="text-regle">★★★★★</span>
+        <span class="text-ligne">★★★★★</span>
         <span class="absolute inset-0 overflow-hidden text-encre" style="width: {{ $pct }}%">★★★★★</span>
     </span>
 </span>

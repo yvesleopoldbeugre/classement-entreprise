@@ -21,7 +21,7 @@
             <h2 class="mb-3 text-lg font-semibold text-encre">Entreprises à vérifier <span class="text-sm font-normal text-slate-400">({{ $entreprises->count() }})</span></h2>
             <div class="space-y-3">
                 @forelse ($entreprises as $entreprise)
-                    <article class="rounded-md border border-regle bg-white p-4">
+                    <article class="rounded-xl border border-ligne bg-white p-4">
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <div class="text-sm">
                                 <a href="{{ route('entreprises.show', $entreprise) }}" class="font-semibold text-encre hover:text-indigo-600">{{ $entreprise->nom }}</a>
@@ -36,19 +36,19 @@
                             <form method="POST" action="{{ route('moderation.entreprise.verifier', $entreprise) }}">
                                 @csrf
                                 @method('PUT')
-                                <button type="submit" class="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700">Vérifier</button>
+                                <button type="submit" class="rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700">Vérifier</button>
                             </form>
                             <form method="POST" action="{{ route('moderation.entreprise.supprimer', $entreprise) }}"
                                   data-confirm="Supprimer définitivement « {{ $entreprise->nom }} » et tous ses avis ?"
                                   data-confirm-title="Supprimer ?" data-confirm-button="Supprimer" data-confirm-icon="warning">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="rounded-md bg-slate-200 px-3 py-1.5 text-xs font-semibold text-encre hover:bg-slate-300">Supprimer</button>
+                                <button type="submit" class="rounded-xl bg-slate-200 px-3 py-1.5 text-xs font-semibold text-encre hover:bg-slate-300">Supprimer</button>
                             </form>
                         </div>
                     </article>
                 @empty
-                    <p class="rounded-md border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-encre-doux">Aucune entreprise à vérifier.</p>
+                    <p class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-encre-doux">Aucune entreprise à vérifier.</p>
                 @endforelse
             </div>
         </section>
@@ -58,7 +58,7 @@
             <h2 class="mb-3 text-lg font-semibold text-encre">Avis <span class="text-sm font-normal text-slate-400">({{ $avis->count() }})</span></h2>
             <div class="space-y-3">
                 @forelse ($avis as $item)
-                    <article class="rounded-md border border-regle bg-white p-4">
+                    <article class="rounded-xl border border-ligne bg-white p-4">
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <div class="text-sm">
                                 <a href="{{ route('entreprises.show', $item->entreprise) }}" class="font-semibold text-encre hover:text-indigo-600">{{ $item->entreprise->nom }}</a>
@@ -86,7 +86,7 @@
                         {!! $actions('avis', $item->id) !!}
                     </article>
                 @empty
-                    <p class="rounded-md border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-encre-doux">Aucun avis à modérer.</p>
+                    <p class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-encre-doux">Aucun avis à modérer.</p>
                 @endforelse
             </div>
         </section>
@@ -96,7 +96,7 @@
             <h2 class="mb-3 text-lg font-semibold text-encre">Retours d’entretien <span class="text-sm font-normal text-slate-400">({{ $entretiens->count() }})</span></h2>
             <div class="space-y-3">
                 @forelse ($entretiens as $item)
-                    <article class="rounded-md border border-regle bg-white p-4">
+                    <article class="rounded-xl border border-ligne bg-white p-4">
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <div class="text-sm">
                                 <a href="{{ route('entreprises.show', $item->entreprise) }}" class="font-semibold text-encre hover:text-indigo-600">{{ $item->entreprise->nom }}</a>
@@ -121,7 +121,7 @@
                         {!! $actions('entretien', $item->id) !!}
                     </article>
                 @empty
-                    <p class="rounded-md border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-encre-doux">Aucun retour d’entretien à modérer.</p>
+                    <p class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-encre-doux">Aucun retour d’entretien à modérer.</p>
                 @endforelse
             </div>
         </section>
@@ -131,7 +131,7 @@
             <h2 class="mb-3 text-lg font-semibold text-encre">Missions <span class="text-sm font-normal text-slate-400">({{ $missions->count() }})</span></h2>
             <div class="space-y-3">
                 @forelse ($missions as $item)
-                    <article class="rounded-md border border-regle bg-white p-4">
+                    <article class="rounded-xl border border-ligne bg-white p-4">
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <div class="text-sm">
                                 <a href="{{ route('entreprises.show', $item->entreprise) }}" class="font-semibold text-encre hover:text-indigo-600">{{ $item->entreprise->nom }}</a>
@@ -156,7 +156,7 @@
                         {!! $actions('mission', $item->id) !!}
                     </article>
                 @empty
-                    <p class="rounded-md border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-encre-doux">Aucune mission à modérer.</p>
+                    <p class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-encre-doux">Aucune mission à modérer.</p>
                 @endforelse
             </div>
         </section>

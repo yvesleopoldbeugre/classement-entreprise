@@ -1,4 +1,4 @@
-@props(['url', 'texte' => ''])
+@props(['url', 'texte' => '', 'sombre' => false])
 @php
     $u = urlencode($url);
     $t = urlencode($texte);
@@ -24,19 +24,19 @@
     ];
 @endphp
 <div {{ $attributes->merge(['class' => 'flex flex-wrap items-center gap-2']) }}>
-    <span class="text-sm font-medium text-encre-doux">Inviter d’anciens collègues :</span>
+    <span class="w-full text-sm font-medium {{ $sombre ? 'text-white/70' : 'text-encre-doux' }}">Inviter d’anciens collègues :</span>
 
     @foreach ($reseaux as $nom => $r)
         <a href="{{ $r['href'] }}" target="_blank" rel="noopener"
            aria-label="Partager sur {{ $nom }}" title="Partager sur {{ $nom }}"
-           class="grid h-9 w-9 place-items-center rounded-full border border-regle text-encre hover:border-encre hover:bg-white">
+           class="grid h-9 w-9 place-items-center rounded-full border {{ $sombre ? 'border-white/20 text-white hover:bg-white/10' : 'border-ligne text-encre hover:border-encre hover:bg-white' }}">
             <svg viewBox="0 0 24 24" class="h-4 w-4">{!! $r['icone'] !!}</svg>
         </a>
     @endforeach
 
     <button type="button" data-copier="{{ $url }}"
             aria-label="Copier le lien" title="Copier le lien"
-            class="grid h-9 w-9 place-items-center rounded-full border border-regle text-encre hover:border-encre hover:bg-white">
+            class="grid h-9 w-9 place-items-center rounded-full border {{ $sombre ? 'border-white/20 text-white hover:bg-white/10' : 'border-ligne text-encre hover:border-encre hover:bg-white' }}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H15a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3v-1.5M9 18H7.5A3 3 0 0 1 4.5 15V6a3 3 0 0 1 3-3H12a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H9Z"/>
         </svg>

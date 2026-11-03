@@ -43,7 +43,7 @@ class ClassementController extends Controller
                 $titre = 'Nouvelles entreprises';
                 $intro = 'Proposées et vérifiées récemment — en attente de premiers avis.';
             } else {
-                $titre = 'Classement communautaire';
+                $titre = 'Les mieux notées';
                 $intro = 'Entreprises vérifiées, classées par les avis. Les nouvelles apparaissent en bas.';
             }
 
@@ -75,6 +75,12 @@ class ClassementController extends Controller
             'secteurActif' => $secteur,
             'communes' => self::communes(),
             'recherche' => (string) $terme,
+            // Colonne latérale de l'accueil (vue classement) : aperçu des deux autres listes.
+            'apercuAEviter' => $vue === 'classement' ? Entreprise::aEviter()->limit(3)->get() : collect(),
+            'apercuNouvelles' => $vue === 'classement'
+                ? Entreprise::where('statut', StatutEntreprise::Verifiee)->whereNull('rang_a_eviter')
+                    ->where('nb_avis_total', 0)->latest()->limit(3)->get()
+                : collect(),
             'nbSuivies' => Entreprise::count(),
             'nbAvis' => AvisEntreprise::publie()->count(),
         ]));
@@ -110,6 +116,7 @@ class ClassementController extends Controller
             'entreprise' => $entreprise,
             'rang' => $rang,
             'similaires' => $similaires,
+            'totalClassees' => Entreprise::classable()->count(),
         ]);
     }
 

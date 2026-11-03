@@ -1,5 +1,5 @@
 <x-layout robots="noindex, nofollow" title="Utilisateurs · Note ta boîte">
-    @php $lienPeriode = 'rounded-md px-3 py-1.5 text-sm font-medium'; @endphp
+    @php $lienPeriode = 'rounded-xl px-3 py-1.5 text-sm font-medium'; @endphp
 
     <div class="mx-auto max-w-6xl px-4 py-8">
         {{-- En-tête + période (pour le comparatif) --}}
@@ -8,7 +8,7 @@
                 <h1 class="text-2xl font-bold text-encre">Utilisateurs</h1>
                 <p class="mt-1 text-sm text-encre-doux">{{ $users->total() }} compte(s) — classés par engagement.</p>
             </div>
-            <div class="inline-flex gap-1 rounded-md border border-regle bg-white p-1">
+            <div class="inline-flex gap-1 rounded-xl border border-ligne bg-white p-1">
                 @foreach ($periodes as $p)
                     <a href="{{ route('admin.users.index', ['jours' => $p]) }}"
                        class="{{ $lienPeriode }} {{ $jours === $p ? 'bg-indigo-600 text-white' : 'text-encre-doux hover:bg-slate-100' }}">
@@ -19,7 +19,7 @@
         </div>
 
         {{-- Comparatif d'utilisation --}}
-        <div class="mb-6 rounded-md border border-regle bg-white p-6">
+        <div class="mb-6 rounded-xl border border-ligne bg-white p-6">
             <h2 class="text-sm font-semibold text-encre">Utilisation comparée (actions sur {{ $jours }} jours)</h2>
             <p class="mb-4 text-xs text-slate-400">Top 12 des utilisateurs les plus actifs sur la période.</p>
             @if ($comparatif['labels']->isEmpty())
@@ -32,7 +32,7 @@
         </div>
 
         {{-- Table des utilisateurs --}}
-        <div class="overflow-x-auto rounded-md border border-regle bg-white">
+        <div class="overflow-x-auto rounded-xl border border-ligne bg-white">
             <table class="min-w-full divide-y divide-slate-200 text-sm">
                 <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-encre-doux">
                     <tr>

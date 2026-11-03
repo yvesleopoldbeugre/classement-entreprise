@@ -7,51 +7,55 @@
 @import '@fontsource-variable/archivo/wdth.css';
 
 /*
- * Direction « bulletin de notes » : papier froid, encre bleu Bic, stylo vert / rouge
- * pour les notes (jamais en décoration), orange réservé à l'action « Donner mon avis ».
+ * Direction « Bouche-à-oreille » (maquette Figma « Refonte moderne ») : fond blanc et
+ * surfaces gris-vert, encre bleu nuit, orange CI réservé aux actions, vert / ambre /
+ * rouge pour les notes uniquement, bleu-vert (teal) pour la vérification.
  */
 @theme {
     --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
-    --color-papier: #f6f7f4;
-    --color-encre: #16204a;
-    --color-encre-doux: #4a5378;
-    --color-regle: #d9ddd3;
-    --color-stylo-vert: #1e7b4f;
-    --color-stylo-rouge: #c8102e;
-    --color-orange-ci: #e8730c;
+    --color-surface: #f3f5f2;
+    --color-ligne: #e2e6e1;
+    --color-encre: #13233a;
+    --color-encre-doux: #55627a;
+    --color-orange: #f26b1d;
+    --color-orange-doux: #fdebdf;
+    --color-vert: #0f8a5f;
+    --color-vert-doux: #e3f3ec;
+    --color-ambre: #b7791f;
+    --color-ambre-doux: #fbf1de;
+    --color-rouge: #d2344b;
+    --color-rouge-doux: #fbe6e9;
+    --color-teal: #0e7c86;
+    --color-teal-doux: #e1f1f2;
 
-    /* L'indigo d'origine devient l'encre : tout l'existant (formulaires, admin) suit. */
-    --color-indigo-50: #eef0f7;
-    --color-indigo-100: #dde1ee;
-    --color-indigo-200: #bcc3dd;
-    --color-indigo-300: #8d98c2;
-    --color-indigo-400: #5e6ba3;
-    --color-indigo-500: #3b4886;
-    --color-indigo-600: #1f2b63;
-    --color-indigo-700: #16204a;
-    --color-indigo-800: #101839;
-    --color-indigo-900: #0b112a;
+    /* L'indigo d'origine devient l'encre : formulaires et admin suivent sans réécriture. */
+    --color-indigo-50: #eef1f6;
+    --color-indigo-100: #dde3ec;
+    --color-indigo-200: #bcc6d6;
+    --color-indigo-300: #8d9bb4;
+    --color-indigo-400: #5d6d8c;
+    --color-indigo-500: #3a4b6a;
+    --color-indigo-600: #1f3150;
+    --color-indigo-700: #13233a;
+    --color-indigo-800: #0d192b;
+    --color-indigo-900: #08101d;
 
-    --color-slate-50: #f6f7f4;
+    --color-slate-50: #f3f5f2;
 }
 
-/* Trait de stylo autour d'une moyenne : tracé une fois au chargement (fiche). */
-.trait-stylo path {
-    stroke-dasharray: 340;
-    stroke-dashoffset: 0;
+/* Anneau de score : remplissage tracé une fois à l'affichage de la fiche. */
+.anneau[data-tracer] .anneau-valeur {
+    animation: remplir 0.8s 0.2s ease-out both;
 }
-.trait-stylo[data-tracer] path {
-    animation: tracer 0.7s 0.25s ease-out both;
-}
-@keyframes tracer {
+@keyframes remplir {
     from {
-        stroke-dashoffset: 340;
+        stroke-dasharray: 0 100;
     }
 }
 @media (prefers-reduced-motion: reduce) {
-    .trait-stylo[data-tracer] path {
+    .anneau[data-tracer] .anneau-valeur {
         animation: none;
     }
 }

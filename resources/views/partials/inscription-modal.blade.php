@@ -23,11 +23,11 @@
             @csrf
             <input type="hidden" name="_source" value="modal">
             <input name="email" type="email" required autocomplete="email" placeholder="Votre email"
-                   class="w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
+                   class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-encre focus:ring-4 focus:ring-orange/20">
             <x-password-input name="password" :required="true" autocomplete="new-password" placeholder="Choisissez un mot de passe" />
             <p data-erreur class="hidden text-sm text-rose-600"></p>
             <button type="submit"
-                    class="w-full rounded-md bg-slate-900 px-4 py-2.5 font-semibold text-white hover:bg-slate-800">
+                    class="w-full rounded-xl bg-slate-900 px-4 py-2.5 font-semibold text-white hover:bg-slate-800">
                 Créer mon compte
             </button>
         </form>

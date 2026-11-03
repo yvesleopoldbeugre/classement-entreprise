@@ -1,11 +1,11 @@
-@php $input = 'w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'; @endphp
+@php $input = 'w-full rounded-xl border-[1.5px] border-ligne bg-white px-3.5 py-2.5 text-[15px] outline-none focus:border-encre focus:ring-4 focus:ring-orange/20'; @endphp
 <form method="POST" action="{{ route('contrib.entretien.store', $entreprise) }}" class="space-y-3">
     @csrf
     <input type="hidden" name="entreprise_id" value="{{ $entreprise->id }}">
     <input type="hidden" name="_form" value="entretien">
 
     @error('entreprise_id')
-        <div class="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ $message }}</div>
+        <div class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ $message }}</div>
     @enderror
 
     <div class="grid gap-3 sm:grid-cols-2">
@@ -49,7 +49,7 @@
         <textarea id="ressenti_general" name="ressenti_general" rows="2" class="{{ $input }}">{{ old('ressenti_general') }}</textarea>
     </x-champ>
 
-    <button type="submit" class="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+    <button type="submit" class="w-full rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
         Publier mon retour
     </button>
 </form>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Concerns\PublieAvisEnAttente;
 use App\Http\Controllers\Controller;
 use App\Models\CompteLie;
 use App\Models\User;
@@ -13,6 +14,8 @@ use Laravel\Socialite\Facades\Socialite;
 
 class SocialiteController extends Controller
 {
+    use PublieAvisEnAttente;
+
     /** Slug d'URL => driver Socialite. */
     private const DRIVERS = [
         'google' => 'google',
@@ -77,6 +80,12 @@ class SocialiteController extends Controller
 
         $user = $this->trouverOuCreer($provider, $oauthUser);
         Auth::login($user, remember: true);
+
+        // Flux « avis d'abord » : l'avis rédigé avant la connexion n'est pas perdu.
+        if ($entreprise = $this->publierAvisEnAttente($user)) {
+            return redirect()->route('entreprises.show', $entreprise)
+                ->with('success', 'Connecté via '.ucfirst($provider).'. Avis envoyé ! Il sera publié après modération.');
+        }
 
         return redirect()->route('classement.index')->with('success', 'Connecté via '.ucfirst($provider).'.');
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Enums\TypeEvenement;
+use App\Http\Controllers\Concerns\PublieAvisEnAttente;
 use App\Http\Controllers\Controller;
 use App\Mail\LienConnexion;
 use App\Models\Evenement;
@@ -18,6 +19,8 @@ use Illuminate\Support\Str;
 
 class LienMagiqueController extends Controller
 {
+    use PublieAvisEnAttente;
+
     private const PREFIXE = 'magic-login:';
 
     private const DUREE_MINUTES = 30;
@@ -79,6 +82,12 @@ class LienMagiqueController extends Controller
         Auth::login($user, remember: true);
         $request->session()->regenerate();
         Evenement::log(TypeEvenement::Connexion, null, ['user_id' => $user->id]);
+
+        // Flux « avis d'abord » : l'avis rédigé avant la connexion n'est pas perdu.
+        if ($entreprise = $this->publierAvisEnAttente($user)) {
+            return redirect()->route('entreprises.show', $entreprise)
+                ->with('success', 'Vous êtes connecté. Avis envoyé ! Il sera publié après modération.');
+        }
 
         return redirect()->intended(route('classement.index'))
             ->with('success', 'Vous êtes connecté 🎉');

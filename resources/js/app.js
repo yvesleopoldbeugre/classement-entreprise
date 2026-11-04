@@ -165,6 +165,9 @@ const loader = document.getElementById('liste-loader');
 
 if (form && liste) {
     let requeteEnCours = null;
+    // Chemin + paramètres de la liste affichée : un simple changement d'ancre (#secteurs) ne recharge rien.
+    const cleListe = (url) => { const u = new URL(url, window.location.href); return u.pathname + u.search; };
+    let listeAffichee = cleListe(window.location.href);
 
     const afficherLoader = (visible) => {
         loader?.classList.toggle('hidden', !visible);
@@ -185,7 +188,8 @@ if (form && liste) {
                 signal: controleur.signal,
             });
             liste.innerHTML = await reponse.text();
-            window.history.pushState({}, '', url);
+            listeAffichee = cleListe(url);
+            if (cleListe(window.location.href) !== listeAffichee) window.history.pushState({}, '', url);
         } catch (erreur) {
             if (erreur.name !== 'AbortError') {
                 liste.innerHTML =
@@ -227,7 +231,9 @@ if (form && liste) {
         }
     });
 
-    window.addEventListener('popstate', () => charger(window.location.href));
+    window.addEventListener('popstate', () => {
+        if (cleListe(window.location.href) !== listeAffichee) charger(window.location.href);
+    });
 }
 
 // =============================================================

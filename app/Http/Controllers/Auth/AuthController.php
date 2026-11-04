@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enums\StatutModeration;
 use App\Enums\TypeEvenement;
+use App\Http\Controllers\Concerns\PublieAvisEnAttente;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Models\AvisEntreprise;
-use App\Models\Entreprise;
 use App\Models\Evenement;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -20,6 +18,8 @@ use Illuminate\View\View;
 
 class AuthController extends Controller
 {
+    use PublieAvisEnAttente;
+
     public function showRegister(): View
     {
         return view('auth.register');
@@ -86,35 +86,6 @@ class AuthController extends Controller
 
         return redirect()->intended(route('classement.index'))
             ->with('success', 'Content de vous revoir !');
-    }
-
-    /**
-     * Publie l'avis mémorisé en session (flux « avis d'abord ») pour l'utilisateur
-     * qui vient de se connecter/s'inscrire. Retourne l'entreprise concernée, ou null.
-     */
-    protected function publierAvisEnAttente(User $user): ?Entreprise
-    {
-        $data = session()->pull('avis_en_attente');
-        $entrepriseId = session()->pull('avis_en_attente_entreprise');
-
-        if (empty($data) || empty($entrepriseId) || ! ($entreprise = Entreprise::find($entrepriseId))) {
-            return null;
-        }
-
-        // Ne pas dupliquer si ce compte a déjà un avis sur cette entreprise.
-        $dejaAvis = AvisEntreprise::where('entreprise_id', $entreprise->id)
-            ->where('user_id', $user->id)
-            ->exists();
-
-        if (! $dejaAvis) {
-            AvisEntreprise::create([
-                ...$data,
-                'user_id' => $user->id,
-                'statut_moderation' => StatutModeration::parDefaut(),
-            ]);
-        }
-
-        return $entreprise;
     }
 
     public function logout(Request $request): RedirectResponse

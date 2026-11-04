@@ -67,25 +67,23 @@
             </a>
 
             {{-- Navigation bureau --}}
-            <nav class="hidden items-center gap-1 text-[15px] md:flex">
+            <nav class="hidden items-center gap-1 text-[15px] lg:flex">
                 @include('partials.nav-links', ['sombre' => $sombre])
             </nav>
 
-            {{-- Bouton menu mobile --}}
-            <button type="button" data-menu-toggle aria-label="Ouvrir le menu" aria-expanded="false"
-                    class="rounded-xl p-2 md:hidden {{ $sombre ? 'text-white hover:bg-white/10' : 'text-encre hover:bg-surface' }}">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+            {{-- Bouton menu (mobile et tablette) : hamburger ↔ croix --}}
+            <button type="button" data-menu-toggle aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu-mobile"
+                    class="group grid h-10 w-10 place-items-center rounded-xl lg:hidden {{ $sombre ? 'text-white hover:bg-white/10' : 'text-encre hover:bg-surface' }}">
+                <svg class="h-6 w-6 group-aria-expanded:hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16"/>
+                </svg>
+                <svg class="hidden h-6 w-6 group-aria-expanded:block" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6 6 18"/>
                 </svg>
             </button>
         </div>
 
-        {{-- Menu mobile déroulant --}}
-        <nav id="menu-mobile" class="hidden border-t border-ligne bg-white md:hidden">
-            <div class="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3 text-sm">
-                @include('partials.nav-links', ['sombre' => false])
-            </div>
-        </nav>
+        @include('partials.nav-mobile')
     </header>
     @endif
 

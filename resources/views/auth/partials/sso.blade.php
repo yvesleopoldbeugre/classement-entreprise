@@ -1,8 +1,9 @@
 @php
-    $btn = 'flex items-center justify-center gap-2 rounded-xl border-[1.5px] border-ligne bg-white px-4 py-3 text-[15px] font-semibold text-encre hover:border-encre';
+    $btn = 'flex min-w-0 items-center justify-center gap-2 rounded-xl border-[1.5px] border-ligne bg-white px-3 py-2.5 text-sm font-semibold text-encre hover:border-encre last:odd:col-span-2';
     $providers = $providers ?? ['google', 'github', 'facebook', 'linkedin'];
 @endphp
-<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+<p class="mb-2.5 text-[13px] font-semibold text-encre-doux">Continuer avec</p>
+<div class="grid grid-cols-2 gap-2">
     {{-- Google --}}
     @if (in_array('google', $providers))
     <a href="{{ route('social.redirect', 'google') }}" class="{{ $btn }}">

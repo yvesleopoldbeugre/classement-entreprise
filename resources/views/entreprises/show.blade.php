@@ -100,7 +100,7 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-5 rounded-2xl border border-ligne bg-white p-4 pr-7">
+                <div class="flex items-center gap-5 rounded-2xl border border-ligne bg-white p-4 pr-7 sm:self-start lg:self-auto">
                     <x-anneau :note="$scoreAffiche" :taille="88" tracer />
                     <div>
                         @if ($scoreAffiche !== null)

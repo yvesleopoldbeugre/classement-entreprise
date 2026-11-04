@@ -90,10 +90,17 @@ const marquerEnvoi = (form) => {
 // =============================================================
 const menuToggle = document.querySelector('[data-menu-toggle]');
 const menuMobile = document.getElementById('menu-mobile');
-menuToggle?.addEventListener('click', () => {
-    const ouvert = menuMobile?.classList.toggle('hidden') === false;
-    menuToggle.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
-});
+const basculerMenu = (ouvrir) => {
+    menuMobile?.classList.toggle('hidden', !ouvrir);
+    menuToggle?.setAttribute('aria-expanded', ouvrir ? 'true' : 'false');
+    menuToggle?.setAttribute('aria-label', ouvrir ? 'Fermer le menu' : 'Ouvrir le menu');
+    document.body.classList.toggle('overflow-hidden', ouvrir);
+};
+menuToggle?.addEventListener('click', () => basculerMenu(menuMobile?.classList.contains('hidden')));
+// Fermeture : touche Échap, clic sur un lien du menu (ancres comprises), passage en grand écran.
+document.addEventListener('keydown', (e) => e.key === 'Escape' && menuToggle?.getAttribute('aria-expanded') === 'true' && basculerMenu(false));
+menuMobile?.addEventListener('click', (e) => e.target.closest('a') && basculerMenu(false));
+window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => e.matches && basculerMenu(false));
 
 // =============================================================
 //  Modals (formulaires de contribution)

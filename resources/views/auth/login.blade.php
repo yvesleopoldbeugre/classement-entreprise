@@ -33,8 +33,11 @@
         </form>
 
         {{-- Repli : compte sans mot de passe (créé par lien magique) --}}
-        <details class="mt-4 rounded-xl border border-ligne px-4 py-3">
-            <summary class="cursor-pointer text-center text-sm font-semibold text-encre">Recevoir un lien de connexion par email</summary>
+        <details class="group mt-4 rounded-xl border border-ligne px-4 py-3">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-encre [&::-webkit-details-marker]:hidden">
+                Recevoir un lien de connexion par email
+                <svg class="h-4 w-4 shrink-0 text-encre-doux transition group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+            </summary>
             <div class="mt-3">
                 @include('partials.lien-magique')
             </div>

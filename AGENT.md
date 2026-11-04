@@ -36,6 +36,10 @@ Trois types de contributions alimentent une entreprise :
 4. **Migrer** si nouvelle migration : `docker compose exec app php artisan migrate --force`.
 5. **Tester** (⚠️ les `-e` sont **obligatoires**, voir piège Docker) :
    `docker compose exec -e APP_ENV=testing -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: -e DB_HOST=127.0.0.1 app php artisan test`
+   Trois suites (`phpunit.xml`), ajouter `--testsuite=Unit` (ou `Integration`, `Feature`) pour n'en lancer qu'une :
+   - **Unit** (`tests/Unit`) : logique pure sans base (enums, appréciation, rang, ChatBot, rendu des composants `<x-anneau>` / `<x-monogramme>`).
+   - **Integration** (`tests/Integration`) : services + base réelle (calcul bayésien chiffré à la main, pondérations, `SiteWebInspecteur` avec `Http::fake`, scopes, observateurs).
+   - **Feature** (`tests/Feature`) : parcours HTTP de bout en bout (avis → modération → classement, interface, navigation, admin…).
 6. **Vérifier en réel** via `curl` sur http://localhost:8088 (admin de dev : `test@example.com` / `password`). Pour les parcours authentifiés : récupérer le `_token` CSRF d'une page, poser un cookie jar, POST `/connexion`, puis appeler la route. ⚠️ éviter `curl -L -X POST` (curl refait un POST sur la redirection → 405 sur une route GET).
 7. **Committer** : `git add -A` → **vérifier que `.env` n'est pas stagé** → message clair terminé par `Co-Authored-By: Claude…` → `git push origin main`. Les fichiers partagés (routes, `app.js`, la fiche, `ClassementService`…) étant très entrelacés, un **commit consolidé par lot** est acceptable plutôt que des commits qui ne compilent pas.
 
